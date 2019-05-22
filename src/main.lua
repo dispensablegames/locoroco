@@ -60,13 +60,19 @@ function love.load()
 	maxAngle = 0.3
 	cameraX = 0
 	cameraY = 0
+	holdTime = 0
+	maxHoldTime = 3.5
 
-	-- init the floor
-	hardbodies.floor = {}
-	hardbodies.floor.body = love.physics.newBody(world, love.graphics.getWidth() / 2, love.graphics.getHeight(), "static")
-	hardbodies.floor.shape = love.physics.newRectangleShape(3000, 300)
-	hardbodies.floor.fixture = love.physics.newFixture(hardbodies.floor.body, hardbodies.floor.shape)
-	hardbodies.floor.fixture:setUserData(nil)
+	polygons = import()
+
+	for i,polygon in ipairs(polygons) do 
+		local polygonTable = {}
+		polygonTable.body = love.physics.newBody(world, 0, 0, "static")
+		polygonTable.shape = love.physics.newPolygonShape(polygon)
+		polygonTable.fixture = love.physics.newFixture(polygonTable.body, polygonTable.shape)
+		polygonTable.fixture:setUserData(nil)
+		table.insert(hardbodies,polygonTable)
+	end
 
 	-- init the loco
 	table.insert(softbodies, softloco(200,100,100,13))
@@ -77,20 +83,20 @@ end
 function beginContact(a, b, coll)
 	if a:getUserData() and not b:getUserData() then
 	   a:getUserData().cols = a:getUserData().cols + 1
-	   print(a:getUserData().cols)
+	   --print(a:getUserData().cols)
 	elseif b:getUserData() and not a:getUserData() then
 	   b:getUserData().cols = b:getUserData().cols + 1
-	   print(b:getUserData().cols)
+	   --print(b:getUserData().cols)
 	end
 end
  
 function endContact(a, b, coll)
 	if a:getUserData() and not b:getUserData() then
 	   a:getUserData().cols = a:getUserData().cols - 1
-	   print(a:getUserData().cols)
+	   --print(a:getUserData().cols)
 	elseif b:getUserData() and not a:getUserData() then
 	   b:getUserData().cols = b:getUserData().cols - 1
-	   print(b:getUserData().cols)
+	   --print(b:getUserData().cols)
 	end
 end
 
@@ -101,10 +107,8 @@ function love.update(dt)
   end
   
  	if love.keyboard.isDown("right") and love.keyboard.isDown("left")  then
-		if softbodies[1].cols > 0 then
-			for i,v in ipairs(softbodies) do
-				v:impulse(0,-9.81)
-			end
+		if holdTime < maxHoldTime then
+			holdTime = holdTime + 40 * dt
 		end
 	elseif love.keyboard.isDown("left") then
 		if gravAngle > - maxAngle then
@@ -118,6 +122,45 @@ function love.update(dt)
 		end
 	end
 end
+
+function love.keyreleased(key)
+	if key == "right" or key == "left" then
+		if softbodies[1].cols > 0 then
+			print(holdTime)
+			for i,v in ipairs(softbodies) do
+				v:impulse(0,-9.81 * holdTime)
+			end
+			holdTime = 0
+		end
+	end
+end
+
+function import()
+	local file = io.open("src/level.loco", "r")
+	io.input(file)
+	if not file then
+		print("there isnt a file")
+	end
+	local str = io.read("*all")
+	local polygons = {}
+	for polygon in string.gmatch(str, "[^\n]+\n") do
+		print("polygon:")
+		print(polygon)
+		local polygonTable = {}
+		for point in string.gmatch(polygon, "[^ \n]+") do
+			print("point:")
+			print(point)
+			table.insert(polygonTable, point)
+		end
+		table.insert(polygons, polygonTable)
+	end
+
+	file:close()
+
+	return polygons
+
+end
+		
 
 function love.draw()
 	
@@ -142,7 +185,9 @@ function love.draw()
 	love.graphics.translate(cameraX + width/2, cameraY + height/2)
 
   love.graphics.setColor(0,0,0)
-  love.graphics.polygon("fill", hardbodies.floor.body:getWorldPoints(hardbodies.floor.shape:getPoints()))
+  for i,polygon in ipairs(polygons) do
+  	love.graphics.polygon("fill", polygon)
+	end
   for i,v in ipairs(softbodies) do
     if love.getVersion == 0 then
       love.graphics.setColor(50*i, 100, 200*i)
@@ -152,7 +197,9 @@ function love.draw()
      v:draw(false)
   end
 
-
+	love.graphics.setColor(255,0,255)
+	local curve = love.math.newBezierCurve(12.492589,166.83974,  40.00977,-54.87048, 92.032091,-65.69506, 145.887211,3.20723)
+	love.graphics.polygon("fill",curve:render())
 
 
 
