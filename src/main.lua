@@ -57,10 +57,6 @@ function love.update(dt)
 	for i=1, 3 do
 		world:update(dt)
 	end
-	if #locos > 0 then 	
-		local locoX, locoY = locos[1]:getPosition()
-		Camera:setPosition(locoX, locoY)
-	end
 	if love.keyboard.isDown("c") then	
 		secondsPassed = secondsPassed + 1 * dt
 		if secondsPassed > 0.5 then
@@ -89,13 +85,13 @@ function love.update(dt)
  	if love.keyboard.isDown("right") then
  	 	if gravAngle < maxAngle then
 			gravAngle = gravAngle + 0.01
-			Camera:rotate(-0.01)
+			Camera:setRotation(gravAngle)
 			world:setGravity(math.sin(gravAngle)*9.81*16, math.cos(gravAngle)*9.81*16)
 		end
 	elseif love.keyboard.isDown("left") then
 		if gravAngle > - maxAngle then
 			gravAngle = gravAngle - 0.01
-			Camera:rotate(0.01)
+			Camera:setRotation(gravAngle)
 			world:setGravity(math.sin(gravAngle)*9.81*16, math.cos(gravAngle)*9.81*16)
 		end
 	end
@@ -107,7 +103,15 @@ end
 function love.draw()
 	love.graphics.print(jumpStr, 100, 100)
 	love.graphics.print(gravAngle, 100, 110)
-	Camera:set()
+	if #locos > 0 then 	
+		for i,loco in pairs(locos) do
+			local locoX, locoY = loco:getPosition()
+			Camera:set(locoX, locoY)
+			break
+		end
+	else
+		Camera:set(0, 0)
+	end
 	for i, loco in pairs(locos) do
 		love.graphics.setColor(0, 255, 255)
 		loco:draw(false)
