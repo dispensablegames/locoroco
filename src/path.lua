@@ -51,14 +51,14 @@ function Path:clarify()
 	for i,command in ipairs(commands) do
 		local newCommand = {}
 		if command[1] == "M"  and #command > 3 then
-			table.insert(newPath, { "M", command[2], command[3] })
+			table.insert(newCommands, { "M", command[2], command[3] })
 			newCommand = { "L" }
 			for k=4,#command do
 				table.insert(newCommand, command[k])
 			end
-			table.insert(newPath, newCommand)
+			table.insert(newCommands, newCommand)
 		elseif command[1] == "m"  and #command > 3 then
-			table.insert(newPath, { "m", command[2], command[3] })
+			table.insert(newCommands, { "m", command[2], command[3] })
 			newCommand = { "l" }
 			for k=4,#command do
 				table.insert(newCommand, command[k])
@@ -168,7 +168,7 @@ function Path:pointify()
 		elseif command[1] == "C" then
 			table.remove(points, #points)
 			table.remove(points, #points)
-			for k,point in ipairs(bezierCurveRemoveEndpoints(love.math.newBezierCurve(lastX, lastY, unpack(command, 2)):render(3))) do
+			for k,point in ipairs(bezierCurveRemoveEndpoints(love.math.newBezierCurve(lastX, lastY, unpack(command, 2)):render(2))) do
 				table.insert(points, point)
 			end
 			lastX = command[#command - 1]
