@@ -9,8 +9,16 @@ function Level:init(filename)
 	level.hardbodies = {}
 
 	for i,path in ipairs(level.drawing:getPaths()) do
-		local body = love.physics.newBody(world, 0, 0, "static")
-		local shape = love.physics.newChainShape(true, unpack(path:getPoints()))
+		
+		local points = path:getPoints()
+		local avgX, avgY = averagePoints(points)
+		shiftPoints(points, avgX, avgY)
+		
+		local body = love.physics.newBody(world, avgX, avgY, "kinematic")
+		if path.rotate then
+			body:setAngularVelocity(1)
+		end
+		local shape = love.physics.newChainShape(true, unpack(points))
 		local fixture = love.physics.newFixture(body, shape)
 		fixture:setFriction(3) 
 		local color = parseColor(path.style.fill)
@@ -47,5 +55,24 @@ function Level:draw()
 		end
 	end
 end
+
+function averagePoints(points)
+	local xSum = 0
+	local ySum = 0
+
+	for i=1, #points, 2 do
+		xSum = xSum + points[i]
+		ySum = ySum + points[i + 1]
+	end
+	return xSum / (#points / 2), ySum / (#points / 2)
+end
+
+function shiftPoints(points, x, y)
+	for i=1, #points, 2 do
+		points[i] = points[i] - x
+		points[i + 1] = points[i + 1] - y
+	end
+end
+		
 
 return Level

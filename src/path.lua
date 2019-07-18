@@ -1,8 +1,9 @@
 Path = {}
 
-function Path:init(pathDef, style, fill)
+function Path:init(pathDef, style, fill, rotate)
 	local path = {}
 	path.commands = pathDef
+	path.rotate = rotate
 	path.style = style
 	path.fill = fill
 	path.points = nil

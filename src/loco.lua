@@ -13,7 +13,6 @@ function Loco:init(world, x, y, size, popDist)
 	local friction = 0.05
 	local finishedLoco = {}
 	
-	
 	finishedLoco.numRects_ = scaledSize
 	finishedLoco.size_ = size
 	
@@ -203,7 +202,6 @@ function Loco:breakApart()
 	self:delete()
 	return newLocos
 end
-		
 
 --helpers
 
