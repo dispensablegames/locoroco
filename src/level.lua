@@ -12,6 +12,7 @@ function Level:init(filename)
 		local body = love.physics.newBody(world, 0, 0, "static")
 		local shape = love.physics.newChainShape(true, unpack(path:getPoints()))
 		local fixture = love.physics.newFixture(body, shape)
+		fixture:setFriction(3) 
 		local color = parseColor(path.style.fill)
 		local hardbody = { color = color, body = body, shape = shape }
 		table.insert(level.hardbodies, hardbody)
