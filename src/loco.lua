@@ -120,7 +120,7 @@ end
 
 function Loco:getJumpability()
 	for i, rect in ipairs(self.smallRects_) do
-		for i, contact in ipairs(rect.body:getContactList()) do
+		for i, contact in ipairs(rect.body:getContacts()) do
 			x, y = contact:getNormal()
 			if y < -0.2 then
 				return true
