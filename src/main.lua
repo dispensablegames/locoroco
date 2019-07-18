@@ -2,38 +2,6 @@ local Level = require("level")
 local Loco = require("loco")
 local Camera = require("camera")
 
---for testing purposes; remove and put into main file later 
-
-function beginContact(a, b, coll)
-	local a = a:getUserData()
-	local b = b:getUserData()
-	if type(a) == "table" and a.name == "rect" then
-		a.parent.collision_[a.index] = coll
-	end
-	if type(b) == "table" and b.name == "rect" then
-		b.parent.collision_[b.index] = coll
-	end
-	if type(a) == "table" and a.name == "circle" and type(b) == "table" and b.name == "circle" then
-		a.parent.circleCollision_ = b.parent
-		b.parent.circleCollision_ = a.parent
-	end
-end
-
-function endContact(a, b)
-	local a = a:getUserData()
-	local b = b:getUserData()
-	if type(a) == "table" and a.name == "rect" then
-		a.parent.collision_[a.index] = nil
-	end
-	if type(b) == "table" and b.name == "rect" then
-		b.parent.collision_[b.index] = nil
-	end
-	if type(a) == "table" and a.name == "circle" and type(b) == "table" and b.name == "circle" then
-		a.parent.circleCollision_ = nil
-		b.parent.circleCollision_ = nil
-	end
-end
-
 function love.load()
 	love.physics.setMeter(16)
 	
@@ -43,7 +11,6 @@ function love.load()
 	jumpStr = 0
 
 	world = love.physics.newWorld(0, 9.81*16, true)
-	world:setCallbacks(beginContact, endContact, preSolve, postSolve)
 
 	level = Level:init("levels/level1.svg")
 	

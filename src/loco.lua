@@ -15,10 +15,7 @@ function Loco:init(world, x, y, size, popDist)
 	
 	
 	finishedLoco.numRects_ = scaledSize
-	finishedLoco.collision_ = {}
-	finishedLoco.circleCollision_ = nil
 	finishedLoco.size_ = size
-
 	
 	finishedLoco.bigCircle_ = {}
 	finishedLoco.bigCircle_.body = love.physics.newBody(world, x, y, "dynamic")
@@ -40,7 +37,7 @@ function Loco:init(world, x, y, size, popDist)
 		smallRect.shape = love.physics.newRectangleShape(0, 0, rectWidth, sideLength - sideLengthShortening, math.pi/2 - angle)
 		smallRect.fixture = love.physics.newFixture(smallRect.body, smallRect.shape)
 		smallRect.fixture:setFriction(friction)
-		smallRect.fixture:setUserData({name="rect", index=i, parent=finishedLoco})
+		smallRect.fixture:setUserData({name="smallRect"})
 				
 		smallRect.leftPoint = {}
 		smallRect.rightPoint = {}
@@ -123,9 +120,9 @@ function Loco:impulse(x, y)
 end
 
 function Loco:getJumpability()
-	for i=1, self:getNumRects() do
-		if self.collision_[i] then
-			x, y = self.collision_[i]:getNormal()
+	for i, rect in ipairs(self.smallRects_) do
+		for i, contact in ipairs(rect.body:getContactList()) do
+			x, y = contact:getNormal()
 			if y < -0.2 then
 				return true
 			end
@@ -159,7 +156,19 @@ function Loco:draw(debugState)
 end
 
 function Loco:getLocoCollision()
-	return self.circleCollision_
+	for i, contact in ipairs(self.bigCircle_.body:getContactList()) do
+		local fixture1, fixture2 = contact:getFixtures()
+		local userData1 = fixture1:getUserData()
+		local userData2 = fixture2:getUserData()
+		if type(userData1) == "table" and type(userData2) == "table" and userData1.name == "circle" and userData2.name == "circle" then
+			if userData1.parent:getId() == self:getId() then
+				return userData2.parent
+			else
+				return userData1.parent
+			end
+		end
+	end
+	return nil
 end
 
 function Loco:delete() -- INCOMPLETE
