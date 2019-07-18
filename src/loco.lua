@@ -8,8 +8,8 @@ function Loco:init(world, x, y, size, popDist)
 	local sideLengthShortening = 5 + size / 3
 	local radius = math.sqrt(size * baseUnit)
 	local ropeJointMaxLength = 4 + size / 3
-	local dampingRatio = 1.5 --2.4
-	local frequency = 1.5 --1.5 --1.8
+	local dampingRatio = 1.5
+	local frequency = 1.5
 	local friction = 0.05
 	local finishedLoco = {}
 	
@@ -170,8 +170,8 @@ function Loco:getLocoCollision()
 	end
 	return nil
 end
-
-function Loco:delete() -- INCOMPLETE
+ 
+function Loco:delete()
 	for i, rect in ipairs(self.smallRects_) do
 		rect.body:destroy()
 	end
