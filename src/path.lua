@@ -1,26 +1,37 @@
 Path = {}
 
-function Path:init(pathDef, style, fill, rotate)
+function Path:init(attributes)
 	local path = {}
-	path.commands = pathDef
-	path.rotate = rotate
-	path.style = style
-	path.fill = fill
-	path.points = nil
+	path.commands = attributes.d
+	path.style = attributes.style
 
 	self.__index = self
 	setmetatable(path, self)
 
+	path:parseStyles()
+
+	for key,val in pairs(attributes) do
+		if key ~= "style" and key ~= "d" then
+			path.style[key] = val
+		end
+	end
+
+	path.points = nil
+
+
 	path:makeTable()
 	path:clarify()
 
-	path:parseStyles()
 
 	return path
 end
 
 function Path:getPoints() 
 	return self.points
+end
+
+function Path:getStyle(key)
+	return self.style[key]
 end
 
 function Path:parseStyles()

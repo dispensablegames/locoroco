@@ -13,6 +13,7 @@ function Drawing:init(filename)
 	setmetatable(drawing, self)
 
 	drawing:importSvg(filename)
+
 	drawing:convertPaths()
 
 	return drawing
@@ -27,11 +28,11 @@ function Drawing:extractPaths(node)
 	for key,val in pairs(node) do 
 		if key == "path" then
 			if val._attr then 
-				local path = Path:init(val._attr.d, val._attr.style, val._attr.fill, val._attr.rotate)
+				local path = Path:init(val._attr)
 				table.insert(self.paths, path)
 			else
 				for i,p in ipairs(val) do
-					local path = Path:init(p._attr.d, p._attr.style, p._attr.fill, p._attr.rotate)
+					local path = Path:init(p._attr)
 					table.insert(self.paths, path)
 					end
 			end
