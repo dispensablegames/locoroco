@@ -79,6 +79,7 @@ function love.draw()
 	else
 		Camera:set(0, 0)
 	end
+	level:draw()
 	for i, loco in pairs(locos) do
 		love.graphics.setColor(0, 255, 255)
 		loco:draw(false)
@@ -87,13 +88,14 @@ function love.draw()
 			loco:draw(true)
 		end
 	end
-	level:draw()
 	Camera:unset()
 end
 
 function love.keyreleased(key)
 	if key == "1" then
-		local loco = Loco:init(world, 100, -500, 1, 0)
+		print(level.spawnX)
+		print(level.spawnY)
+		local loco = Loco:init(world, level.spawnX, level.spawnY, 1, 0)
 		locos[loco:getId()] = loco
 	elseif key == "2" then
 		local loco = Loco:init(world, 100, -500, 2, 0)
