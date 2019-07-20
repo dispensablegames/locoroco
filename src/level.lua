@@ -54,7 +54,6 @@ end
 function Level:draw()
 	local pictures = self.pictures
 	for i,picture in ipairs(pictures) do
-		print("picture")
 		love.graphics.setColor(picture.color)
 		for j,triangle in ipairs(love.math.triangulate(picture.points)) do
 			love.graphics.polygon("fill", triangle)
