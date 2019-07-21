@@ -1,9 +1,15 @@
 Path = {}
 
-function Path:init(attributes)
+function Path:init(attributes, tags)
 	local path = {}
 	path.commands = attributes.d
-	path.style = attributes.style
+	if attributes.style then
+		path.style = attributes.style
+	else
+		path.style = {}
+	end
+
+	path.tags = tags
 
 	self.__index = self
 	setmetatable(path, self)
@@ -32,6 +38,15 @@ end
 
 function Path:getStyle(key)
 	return self.style[key]
+end
+
+function Path:tagged(tag)
+	for i,val in ipairs(self.tags) do
+		if val == tag then
+			return true
+		end
+	end
+	return false
 end
 
 function Path:parseStyles()

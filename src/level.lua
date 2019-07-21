@@ -14,7 +14,7 @@ function Level:init(filename)
 			local spawnX, spawnY = averagePoints(path:getPoints())
 			level.spawnX = spawnX
 			level.spawnY = spawnY
-		elseif path:getStyle("notphysical") then
+		elseif path:tagged("background") then
 			local color = parseColor(path:getStyle("fill"))
 			local points = path:getPoints()
 			local picture = { color = color, points = points }

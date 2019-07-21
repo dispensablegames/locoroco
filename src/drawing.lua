@@ -24,29 +24,46 @@ function Drawing:getPaths()
 end
 
 -- takes out all paths from svg node, deep search
-function Drawing:extractPaths(node)
+function Drawing:extractPaths(node, tags)
 	for key,val in pairs(node) do 
 		if key == "path" then
 			if val._attr then 
-				local path = Path:init(val._attr)
+				local path = Path:init(val._attr, tags)
 				table.insert(self.paths, path)
 			else
 				for i,p in ipairs(val) do
-					local path = Path:init(p._attr)
+					local path = Path:init(p._attr, tags)
 					table.insert(self.paths, path)
 					end
 			end
 		elseif key == "g" then
 			if val._attr then
-				self:extractPaths(val)
+				local newTags = tableCopy(tags)
+				if val._attr.id then
+					table.insert(newTags, val._attr.id)
+				end
+				self:extractPaths(val, newTags)
 			else 
 				for i,g in ipairs(val) do
-					self:extractPaths(g)
+					local newTags = tableCopy(tags)
+					if g._attr.id then
+						table.insert(newTags, g._attr.id)
+					end
+					self:extractPaths(g, newTags)
 				end
 			end
 		end
 	end
 end
+
+function tableCopy(t1)
+	local t2 = {}
+	for i,val in ipairs(t1) do
+		table.insert(t2, val)
+	end
+	return t2
+end
+		
 	
 function Drawing:convertPaths()
 	local lastX = 0
@@ -68,8 +85,7 @@ function Drawing:importSvg(filename)
 
 	local root = handler.root.svg
 
-
-	self:extractPaths(root)
+	self:extractPaths(root, {})
 end
 
 return Drawing
