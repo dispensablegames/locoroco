@@ -280,6 +280,7 @@ function tessellate(vertices, new_vertices)
 end
 
 function Loco:normalDraw()
+	love.graphics.setColor(237 / 255, 181 / 255, 40 / 255)
     local t = {{}, {}}
     for i,v in ipairs(self.smallRects_) do
 		local x, y = v.body:getWorldPoints(v.shape:getPoints())
