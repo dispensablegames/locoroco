@@ -37,7 +37,13 @@ function Drawing:extractPaths(node)
 					end
 			end
 		elseif key == "g" then
-			self:extractPaths(val)
+			if val._attr then
+				self:extractPaths(val)
+			else 
+				for i,g in ipairs(val) do
+					self:extractPaths(g)
+				end
+			end
 		end
 	end
 end
@@ -61,6 +67,7 @@ function Drawing:importSvg(filename)
 	parser:parse(svgContents)
 
 	local root = handler.root.svg
+
 
 	self:extractPaths(root)
 end
