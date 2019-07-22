@@ -1,4 +1,5 @@
 local Level = require("level")
+local Floaters = require("floaters")
 local Loco = require("loco")
 local Camera = require("camera")
 
@@ -13,17 +14,30 @@ function love.load()
 	world = love.physics.newWorld(0, 9.81*16, true)
 
 	level = Level:init("levels/level1.svg")
+	floaters = Floaters:init("levels/assets.svg")
 	
 	locos = {}
 	love.graphics.setBackgroundColor(255, 255, 255)
 
 	secondsPassed = 0
+	floaterTimer = 0
 end
 
 function love.update(dt)
 	for i=1, 3 do
 		world:update(dt)
 	end
+
+
+	if floaterTimer > 2 then
+		floaters:createFloater(Camera)
+		floaterTimer = 0
+	else
+		floaterTimer = floaterTimer + 1 * dt
+	end
+
+	floaters:update(Camera)
+
 	if love.keyboard.isDown("c") then	
 		secondsPassed = secondsPassed + 1 * dt
 		if secondsPassed > 0.5 then
@@ -77,9 +91,10 @@ function love.draw()
 			break
 		end
 	else
-		Camera:set(0, 0)
+		Camera:set(level.spawnX, level.spawnY)
 	end
 	level:draw()
+	floaters:draw()
 	for i, loco in pairs(locos) do
 		love.graphics.setColor(0, 255, 255)
 		loco:draw(false)
