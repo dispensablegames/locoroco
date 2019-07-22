@@ -1,5 +1,4 @@
 local Level = require("level")
-local Floaters = require("floaters")
 local Loco = require("loco")
 local Camera = require("camera")
 
@@ -20,7 +19,6 @@ function love.load()
 	love.graphics.setBackgroundColor(255, 255, 255)
 
 	secondsPassed = 0
-	floaterTimer = 0
 end
 
 function love.update(dt)
@@ -28,15 +26,7 @@ function love.update(dt)
 		world:update(dt)
 	end
 
-
-	if floaterTimer > 2 then
-		floaters:createFloater(Camera)
-		floaterTimer = 0
-	else
-		floaterTimer = floaterTimer + 1 * dt
-	end
-
-	floaters:update(Camera)
+	level:update(dt, Camera)
 
 	if love.keyboard.isDown("c") then	
 		secondsPassed = secondsPassed + 1 * dt
@@ -94,7 +84,6 @@ function love.draw()
 		Camera:set(level.spawnX, level.spawnY)
 	end
 	level:draw()
-	floaters:draw()
 	for i, loco in pairs(locos) do
 		love.graphics.setColor(0, 255, 255)
 		loco:draw(false)
