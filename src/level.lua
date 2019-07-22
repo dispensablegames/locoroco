@@ -26,7 +26,7 @@ function Level:init(filename)
 		else
 			local points = path:getPoints()
 			local avgX, avgY = utils.averagePoints(points)
-			shiftPoints(points, avgX, avgY)
+			utils.shiftPoints(points, avgX, avgY)
 			
 			local body = love.physics.newBody(world, avgX, avgY, "kinematic")
 			if path:getStyle("rotate") then
