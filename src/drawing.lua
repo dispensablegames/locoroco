@@ -1,6 +1,6 @@
 local xml2lua = require("xml2lua")
 --Uses a handler that converts the XML to a Lua table
-local handler = require("xmlhandler.tree")
+local tree = require("xmlhandler.tree")
 local Path = require("path")
 
 Drawing = {}
@@ -77,6 +77,7 @@ function Drawing:convertPaths()
 end
 
 function Drawing:importSvg(filename)
+	local handler = tree:new()
 	local parser = xml2lua.parser(handler)
 
 	local svg = io.open(filename, "r")
@@ -86,6 +87,8 @@ function Drawing:importSvg(filename)
 	local root = handler.root.svg
 
 	self:extractPaths(root, {})
+
+	svg:close()
 end
 
 return Drawing
