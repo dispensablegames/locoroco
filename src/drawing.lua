@@ -73,6 +73,7 @@ function Drawing:convertPaths()
 	end
 	for i,path in ipairs(self.paths) do 
 		path:pointify()
+		path:metadataSet()
 	end
 end
 

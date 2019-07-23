@@ -9,7 +9,7 @@ function Foreground:init(paths)
 
 	for i,path in ipairs(foreground.paths) do 
 		local points = path:getPoints()
-		local avgX, avgY = utils.averagePoints(points)
+		local avgX, avgY = path:getCenter()
 		utils.shiftPoints(points, avgX, avgY)
 
 		local body = love.physics.newBody(world, avgX, avgY, "kinematic")
@@ -39,6 +39,13 @@ function Foreground:draw()
 		for j,triangle in ipairs(love.math.triangulate(hbody.body:getWorldPoints(hbody.shape:getPoints()))) do
 			love.graphics.polygon("fill", triangle)
 		end
+	end
+	for i,path in ipairs(self.paths) do
+		love.graphics.setColor(1,0,0)
+		local x, y = path:getCenter()
+		love.graphics.circle("fill", x, y, 10)
+		local boxpoints = { path:getBoundingBox() }
+		love.graphics.polygon("line", boxpoints)
 	end
 end
 
