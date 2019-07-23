@@ -58,9 +58,6 @@ function Level:update(dt, Camera)
 	end
 
 	self.floaters:update(Camera)
-
-	self.floaters:update(Camera)
-
 end
 
 return Level

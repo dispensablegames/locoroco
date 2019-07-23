@@ -12,19 +12,33 @@ function Floaters:init(filename)
 	local drawing = Drawing:init(filename)
 	
 	floaters.paths = {}
-	floaters.active = {}
 
 	for i,path in ipairs(drawing:getPaths()) do
-		utils.shiftPoints(path:getPoints(), path:getPoints()[1], path:getPoints()[2])
+		local x,y = path:getTopLeftCorner()
+		utils.shiftPoints(path:getPoints(), x, y)
 		table.insert(floaters.paths, path)
 	end
 
+	floaters.sprites = {}
+
 	for i,path in ipairs(floaters.paths) do
-		for i,point in ipairs(path:getPoints()) do
-			print(point)
+		local canvas = love.graphics.newCanvas(path:getWidth(), path:getHeight())
+		love.graphics.setCanvas(canvas)
+		love.graphics.setColor(utils.parseColor(path:getStyle("fill")))
+		for i,triangle in ipairs(love.math.triangulate(path:getPoints())) do
+			love.graphics.polygon("fill", triangle)
 		end
-		print()
+		floaters.testcanvas = canvas
+		love.graphics.setCanvas()
+		local imageData = canvas:newImageData()
+		local image = love.graphics.newImage(imageData)
+		local sprite = love.graphics.newSpriteBatch(image)
+		local center = { path:getCenter() }
+		local s = { sprite = sprite, center = center }
+		table.insert(floaters.sprites, s)
 	end
+
+	floaters.active = {}
 
 	self.__index = self
 	setmetatable(floaters, self)
@@ -34,11 +48,10 @@ end
 
 function Floaters:update(Camera)
 	for i,f in ipairs(self.active) do 
-		local cameraX, cameraY = Camera:getTopLeftCorner()
-		local x, y = f.body:getPosition()
-		if (x > cameraX + love.graphics.getWidth()) then
-			f.body:setPosition(cameraX - 100, y)
-		end
+		local x,y = f.body:getPosition()
+		local centerX = f.s.center[1]
+		local centerY = f.s.center[2]
+		f.s.sprite:set(f.id, x - centerX, y - centerY, f.body:getAngle())
 	end
 end
 		
@@ -47,42 +60,33 @@ function Floaters:createFloater(Camera)
 	if #self.active > 6 then
 		return
 	end
-	local randomNum = math.random(#self.paths)	
+
+	local randomNum = math.random(#self.sprites)	
+	local s = self.sprites[randomNum]
+
 	local x, y = Camera:getTopLeftCorner()
 	x = x - 100
 	y = y + math.random(love.graphics.getHeight())
 	local vx = math.random(40, 90)
 	local vy = math.random(-10, 10)
 
-	local path = self.paths[randomNum]
-	local points = path:getPoints()
-	local averageX, averageY = utils.averagePoints(points)
-	x = x + averageX 
-	y = y + averageY
-	utils.shiftPoints(points, averageX, averageY)
+	local centerX = s.center[1]
+	local centerY = s.center[2]
+	local id = s.sprite:add(x - centerX, y - centerY)
 
 	local body = love.physics.newBody(world, x, y, "kinematic")
 	body:setLinearVelocity(vx, vy)
 	body:setAngularVelocity(1)
 
-	local shape = love.physics.newChainShape(true, unpack(points))
-
-	local fixture = love.physics.newFixture(body, shape)
-	fixture:setSensor(true)
-
-	local color = utils.parseColor(path.style.fill)
-
-	local f = { color = color, body = body, shape = shape }
+	local f = { s = s, body = body, id = id }
 	table.insert(self.active, f)
 end
 
 function Floaters:draw()
-	for i,f in ipairs(self.active) do
-		love.graphics.setColor(f.color)
-		for j,triangle in ipairs(love.math.triangulate(f.body:getWorldPoints(f.shape:getPoints()))) do
-			love.graphics.polygon("fill", triangle)
-		end
+	for i,s in ipairs(self.sprites) do
+		love.graphics.draw(s.sprite)
 	end
+	love.graphics.draw(self.testcanvas, 0, 0)
 end
 	
 return Floaters
