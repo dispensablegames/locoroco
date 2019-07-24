@@ -25,5 +25,16 @@ function utils.parseColor(color)
 	end
 	return newColor	
 end
+
+function utils.parseStyles(styles)
+	if type(styles) == "table" then
+		return styles
+	end
+	local newStyles = {}
+	for key,val in string.gmatch(styles, "([^:]+):([^;]+);?") do
+		newStyles[key] = val
+	end
+	return newStyles
+end
 		
 return utils

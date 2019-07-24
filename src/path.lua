@@ -1,8 +1,12 @@
+local utils = require("utils")
 Path = {}
 
 function Path:init(attributes, tags)
 	local path = {}
 	path.commands = attributes.d
+	if attributes.id then
+		path.id = attributes.id
+	end
 	if attributes.style then
 		path.style = attributes.style
 	else
@@ -17,7 +21,7 @@ function Path:init(attributes, tags)
 	path:parseStyles()
 
 	for key,val in pairs(attributes) do
-		if key ~= "style" and key ~= "d" then
+		if key ~= "style" and key ~= "d" and key ~= "id" then
 			path.style[key] = val
 		end
 	end
@@ -75,11 +79,7 @@ function Path:tagged(tag)
 end
 
 function Path:parseStyles()
-	local newStyles = {}
-	for key,val in string.gmatch(self.style, "([^:]+):([^;]+);?") do
-		newStyles[key] = val
-	end
-	self.style = newStyles
+	self.style = utils.parseStyles(self.style)
 end
 
 -- converts path definition into nice table of commands
