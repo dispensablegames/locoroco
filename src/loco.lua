@@ -110,6 +110,17 @@ function Loco:getId()
 	return self.id
 end
 
+function Loco:drawFace()
+	local centerX, centerY = self:getPosition()
+	local edgeX, edgeY = self.distanceJoints_[1]:getAnchors()
+
+	
+
+	love.graphics.setColor(0.5, 0.5, 0.5)
+	love.graphics.circle("fill", centerX, centerY, 5)
+	love.graphics.circle("fill", edgeX, edgeY, 5)
+end
+
 function Loco:impulse(x, y)
 	local powerRatio = self:getMass() / self:getNumRects()
 	for i, rect in ipairs(self.smallRects_) do
@@ -149,8 +160,10 @@ function Loco:draw(debugState)
 		for i, joint in ipairs(self.distanceJoints_) do
 			love.graphics.line(joint:getAnchors())
 		end
+
 	else
 		self:normalDraw()
+		self:drawFace()
 	end
 end
 
