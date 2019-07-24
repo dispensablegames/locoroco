@@ -1,20 +1,42 @@
+local utils = require("utils")
 Path = {}
 
-function Path:init(pathDef, style, fill, rotate)
+function Path:init(attributes, tags)
 	local path = {}
-	path.commands = pathDef
-	path.rotate = rotate
-	path.style = style
-	path.fill = fill
-	path.points = nil
+	path.commands = attributes.d
+	if attributes.id then
+		path.id = attributes.id
+	end
+	if attributes.style then
+		path.style = attributes.style
+	else
+		path.style = {}
+	end
+
+	path.tags = tags
 
 	self.__index = self
 	setmetatable(path, self)
 
+	path:parseStyles()
+
+	for key,val in pairs(attributes) do
+		if key ~= "style" and key ~= "d" and key ~= "id" then
+			path.style[key] = val
+		end
+	end
+
+	path.points = nil
+
+	path.boundingBox = nil
+	path.center = nil
+	path.width = nil
+	path.height = nil
+
+
 	path:makeTable()
 	path:clarify()
 
-	path:parseStyles()
 
 	return path
 end
@@ -23,12 +45,41 @@ function Path:getPoints()
 	return self.points
 end
 
-function Path:parseStyles()
-	local newStyles = {}
-	for key,val in string.gmatch(self.style, "([^:]+):([^;]+);?") do
-		newStyles[key] = val
+function Path:getStyle(key)
+	return self.style[key]
+end
+
+function Path:getBoundingBox()
+	return unpack(self.boundingBox)
+end
+
+function Path:getTopLeftCorner()
+	return self.boundingBox[1], self.boundingBox[2]
+end
+
+function Path:getCenter()
+	return unpack(self.center)
+end
+
+function Path:getWidth()
+	return self.width
+end
+
+function Path:getHeight()
+	return self.height
+end
+
+function Path:tagged(tag)
+	for i,val in ipairs(self.tags) do
+		if val == tag then
+			return true
+		end
 	end
-	self.style = newStyles
+	return false
+end
+
+function Path:parseStyles()
+	self.style = utils.parseStyles(self.style)
 end
 
 -- converts path definition into nice table of commands
@@ -39,7 +90,7 @@ function Path:makeTable()
 			local command = { str }
 			table.insert(newCommands, command)
 		else
-			table.insert(newCommands[#newCommands], str)
+			table.insert(newCommands[#newCommands], tonumber(str))
 		end
 	end
 	self.commands = newCommands
@@ -181,6 +232,32 @@ function Path:pointify()
 		table.remove(points, #points)
 	end
 	self.points = points
+end
+
+function Path:metadataSet()
+	local points = self.points
+	local minX = points[1]
+	local minY = points[2]
+	local maxX = points[1]
+	local maxY = points[2]
+	for i=1,#points-1,2 do
+		if points[i] > maxX then
+			maxX = points[i]
+		end
+		if points[i] < minX then
+			minX = points[i]
+		end
+		if points[i + 1] > maxY then
+			maxY = points[i + 1]
+		end
+		if points[i + 1] < minY then
+			minY = points[i + 1]
+		end
+	end
+	self.boundingBox = { minX, minY, maxX, minY, maxX, maxY, minX, maxY }
+	self.center = { (minX + maxX) / 2, (minY + maxY) / 2 }
+	self.width = maxX - minX
+	self.height = maxY - minY
 end
 
 return Path

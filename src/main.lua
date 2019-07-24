@@ -24,6 +24,9 @@ function love.update(dt)
 	for i=1, 3 do
 		world:update(dt)
 	end
+
+	level:update(dt, Camera)
+
 	if love.keyboard.isDown("c") then	
 		secondsPassed = secondsPassed + 1 * dt
 		if secondsPassed > 0.5 then
@@ -77,8 +80,9 @@ function love.draw()
 			break
 		end
 	else
-		Camera:set(0, 0)
+		Camera:set(level.spawnX, level.spawnY)
 	end
+	level:draw()
 	for i, loco in pairs(locos) do
 		love.graphics.setColor(0, 255, 255)
 		loco:draw(false)
@@ -87,40 +91,41 @@ function love.draw()
 			loco:draw(true)
 		end
 	end
-	level:draw()
 	Camera:unset()
 end
 
 function love.keyreleased(key)
 	if key == "1" then
-		local loco = Loco:init(world, 100, -500, 1, 0)
+		print(level.spawnX)
+		print(level.spawnY)
+		local loco = Loco:init(world, level.spawnX, level.spawnY, 1, 0)
 		locos[loco:getId()] = loco
 	elseif key == "2" then
-		local loco = Loco:init(world, 100, -500, 2, 0)
+		local loco = Loco:init(world, level.spawnX, level.spawnY, 2, 0)
 		locos[loco:getId()] = loco
 	elseif key == "3" then
-		local loco = Loco:init(world, 100, -500, 3, 0)
+		local loco = Loco:init(world, level.spawnX, level.spawnY, 3, 0)
 		locos[loco:getId()] = loco
 	elseif key == "4" then
-		local loco = Loco:init(world, 100, -500, 4, 0)
+		local loco = Loco:init(world, level.spawnX, level.spawnY, 4, 0)
 		locos[loco:getId()] = loco
 	elseif key == "5" then
-		local loco = Loco:init(world, 200, -400, 5, 0)
+		local loco = Loco:init(world, level.spawnX, level.spawnY, 5, 0)
 		locos[loco:getId()] = loco
 	elseif key == "6" then
-		local loco = Loco:init(world, 100, -500, 6, 0)
+		local loco = Loco:init(world, level.spawnX, level.spawnY, 6, 0)
 		locos[loco:getId()] = loco
 	elseif key == "7" then
-		local loco = Loco:init(world, 100, -500, 7, 0)
+		local loco = Loco:init(world, level.spawnX, level.spawnY, 7, 0)
 		locos[loco:getId()] = loco
 	elseif key == "8" then
-		local loco = Loco:init(world, 100, -500, 8, 0)
+		local loco = Loco:init(world, level.spawnX, level.spawnY, 8, 0)
 		locos[loco:getId()] = loco
 	elseif key == "9" then
-		local loco = Loco:init(world, 100, -500, 9, 0)
+		local loco = Loco:init(world, level.spawnX, level.spawnY, 9, 0)
 		locos[loco:getId()] = loco
 	elseif key == "0" then
-		local loco = Loco:init(world, 200, -400, 20, 0)
+		local loco = Loco:init(world, level.spawnX, level.spawnY, 20, 0)
 		locos[loco:getId()] = loco
 	elseif key == "d" then
 		for i, loco in pairs(locos) do

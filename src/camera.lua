@@ -23,6 +23,12 @@ function Camera:unset()
   love.graphics.pop()
 end
 
+function Camera:getTopLeftCorner()
+	local width = love.graphics.getWidth()
+	local height = love.graphics.getHeight()
+	return self.x - width / 2, self.y - height / 2
+end
+
 function Camera:move(dx, dy)
   self.x = self.x + (dx or 0)
   self.y = self.y + (dy or 0)
