@@ -84,6 +84,7 @@ end
 
 function Floaters:draw()
 	for i,s in ipairs(self.sprites) do
+		love.graphics.setColor(1,1,1)
 		love.graphics.draw(s.sprite)
 	end
 	love.graphics.draw(self.testcanvas, 0, 0)
