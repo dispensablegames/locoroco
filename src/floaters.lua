@@ -57,9 +57,6 @@ end
 		
 
 function Floaters:createFloater(Camera)
-	if #self.active > 6 then
-		return
-	end
 
 	local randomNum = math.random(#self.sprites)	
 	local s = self.sprites[randomNum]
