@@ -73,6 +73,7 @@ end
 function love.draw()
 	love.graphics.print(jumpStr, 100, 100)
 	love.graphics.print(gravAngle, 100, 110)
+
 	if #locos > 0 then 	
 		for i,loco in pairs(locos) do
 			local locoX, locoY = loco:getPosition()
@@ -91,6 +92,7 @@ function love.draw()
 			loco:draw(true)
 		end
 	end
+
 	Camera:unset()
 end
 

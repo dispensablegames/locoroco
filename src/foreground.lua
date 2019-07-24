@@ -20,7 +20,7 @@ function Foreground:init(paths)
 		local fixture = love.physics.newFixture(body, shape)
 		fixture:setFriction(3) 
 		local color = utils.parseColor(path.style.fill)
-		local hbody = { color = color, body = body, shape = shape }
+		local hbody = { color = color, body = body, shape = shape, fixture = fixture }
 		table.insert(foreground.hardbodies, hbody)
 	end
 
@@ -47,6 +47,15 @@ function Foreground:draw()
 		local boxpoints = { path:getBoundingBox() }
 		love.graphics.polygon("line", boxpoints)
 	end
+end
+
+function Foreground:isInHardbody(x, y)
+	for i, hardbody in ipairs(self.hardbodies) do	
+		if hardbody.fixture:testPoint(x, y) then
+			return true
+		end
+	end
+	return false
 end
 
 return Foreground

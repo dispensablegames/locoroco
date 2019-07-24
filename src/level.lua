@@ -60,4 +60,8 @@ function Level:update(dt, Camera)
 	self.floaters:update(Camera)
 end
 
+function Level:getForeground()
+	return self.foreground
+end
+
 return Level
