@@ -207,13 +207,48 @@ function Loco:breakApart()
 	local newLocos = {}
 	local x, y = self:getPosition()
 	for i=1, self:getSize() do
-		local newX = love.math.random(x - self:getRadius(), x + self:getRadius())
-		local newY = love.math.random(y - self:getRadius(), y + self:getRadius())
+		local newX, newY = self:getSuitablePoint()
+
 		local newLoco = Loco:init(world, newX, newY, 1, -20)
 		newLocos[newLoco:getId()] = newLoco
 	end
 	self:delete()
 	return newLocos
+end
+
+function Loco:getSuitablePoint()
+	local x, y = self:getPosition()
+	local newX, newY = nil
+	local r = self:getRadius()
+	local contacts = self.bigCircle_.body:getContacts()
+
+	while true do
+		local collision = false
+		newX = love.math.random(x - r, x+ r)
+		newY = love.math.random(y - r, y + r)
+		for i, contact in ipairs(contacts) do
+			local fixture = self:getOtherContactFixture(contact)
+			if fixture then
+				collision = checkCollision(fixture, newX, newY) or collision
+			end
+		end				
+		if not collision then
+			return newX, newY
+		end
+	end
+end
+
+--doesn't really make sense right now
+
+function Loco:getOtherContactFixture(contact)
+	local fixture1, fixture2 = contact:getFixtures()
+	if fixture1:getUserData().name == "foreground object" then
+		return fixture1
+	elseif fixture2:getUserData().name == "foreground object" then
+		return fixture2
+	else
+		return nil
+	end
 end
 
 --helpers
