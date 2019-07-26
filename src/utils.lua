@@ -36,5 +36,31 @@ function utils.parseStyles(styles)
 	end
 	return newStyles
 end
+
+function utils.getWorldPoints(body, shape)
+	local shapePoints = {}
+
+	local i = 1
+	while true do
+		if pcall(function() shape:getPoint(i) end) then
+			local x, y = shape:getPoint(i)
+			table.insert(shapePoints, x)
+			table.insert(shapePoints, y)
+		i = i + 1
+		else
+			break
+		end
+	end
+
+	local points = {}
+	for i = 1, #shapePoints, 2 do 
+		local x, y = body:getWorldPoint(shapePoints[i], shapePoints[i + 1])
+		table.insert(points, x)
+		table.insert(points, y)
+	end
+	table.remove(points, #points)
+	table.remove(points, #points)
+	return points
+end
 		
 return utils
