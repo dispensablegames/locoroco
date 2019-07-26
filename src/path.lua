@@ -1,7 +1,7 @@
 local utils = require("utils")
 Path = {}
 
-function Path:init(attributes, tags)
+function Path:init(attributes, tags, adjust)
 	local path = {}
 	path.commands = attributes.d
 	if attributes.id then
@@ -34,11 +34,15 @@ function Path:init(attributes, tags)
 	path.height = nil
 
 
-	path:makeTable()
+	path:makeTable(adjust)
 	path:clarify()
 
 
 	return path
+end
+
+function Path:getId()
+	return self.id
 end
 
 function Path:getPoints() 
@@ -83,14 +87,14 @@ function Path:parseStyles()
 end
 
 -- converts path definition into nice table of commands
-function Path:makeTable()
+function Path:makeTable(adjust)
 	local newCommands = {}
 	for str in string.gmatch(self.commands, "[^%s,]+") do
 		if string.find(str, "%a") == 1 then
 			local command = { str }
 			table.insert(newCommands, command)
 		else
-			table.insert(newCommands[#newCommands], tonumber(str))
+			table.insert(newCommands[#newCommands], tonumber(str) * adjust)
 		end
 	end
 	self.commands = newCommands

@@ -6,10 +6,11 @@ local Use = require("use")
 
 Drawing = {}
 
-function Drawing:init(filename)
+function Drawing:init(filename, adjust)
 	local drawing = {}
 	drawing.paths = {}
 	drawing.uses = {}
+	drawing.adjust = adjust or 1
 
 	self.__index = self
 	setmetatable(drawing, self)
@@ -29,26 +30,39 @@ function Drawing:getPaths()
 	return self.paths
 end
 
+function Drawing:getUses()
+	return self.uses
+end
+
+function Drawing:getPath(id)
+	for i,path in ipairs(self.paths) do
+		if path:getId() == id then
+			return path
+		end
+	end
+	return nil
+end
+
 -- takes out all paths from svg node, deep search
 function Drawing:extractNodes(node, tags)
 	for key,val in pairs(node) do 
 		if key == "path" then
 			if val._attr then 
-				local path = Path:init(val._attr, tags)
+				local path = Path:init(val._attr, tags, self.adjust)
 				table.insert(self.paths, path)
 			else
 				for i,p in ipairs(val) do
-					local path = Path:init(p._attr, tags)
+					local path = Path:init(p._attr, tags, self.adjust)
 					table.insert(self.paths, path)
 					end
 			end
 		elseif key == "use" then
 			if val._attr then
-				local use = Use:init(val._attr, tags)
+				local use = Use:init(val._attr, tags, self.adjust)
 				table.insert(self.uses, use)
 			else 
 				for i,u in ipairs(val) do
-					local use = Path:init(u._attr, tags)
+					local use = Use:init(u._attr, tags, self.adjust)
 					table.insert(self.uses, use)
 					end
 				end

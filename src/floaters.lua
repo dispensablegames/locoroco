@@ -6,7 +6,6 @@ local utils = require("utils")
 Floaters = {}
 
 function Floaters:init(filename)
-	print(filename)
 	local floaters = {}
 
 	local drawing = Drawing:init(filename)

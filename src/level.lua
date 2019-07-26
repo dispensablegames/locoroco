@@ -10,19 +10,20 @@ local utils = require("utils")
 
 function Level:init(filename)
 	local level = {}
-	level.drawing = Drawing:init(filename)
+	level.drawing = Drawing:init(filename, 96 / 25.4)
 
 	level.foreground = nil
 	level.background = nil
 
 	local foregroundPaths = {}
 	local backgroundPaths = {}
-
 	for i,path in ipairs(level.drawing:getPaths()) do
 		if path:getStyle("spawn") then
 			local spawnX, spawnY = utils.averagePoints(path:getPoints())
 			level.spawnX = spawnX
 			level.spawnY = spawnY
+		elseif path:tagged("objects") then
+
 		elseif path:tagged("background") then
 			table.insert(backgroundPaths, path)
 		else
@@ -30,8 +31,17 @@ function Level:init(filename)
 		end
 	end
 
+	local backgroundUses = {}
+	local backgroundUsePaths = {}
+	for i,use in ipairs(level.drawing:getUses()) do
+		if use:tagged("background") then
+			table.insert(backgroundUses, use)
+			backgroundUsePaths[use:getHref()] = level.drawing:getPath(use:getHref())
+		end
+	end
+
 	level.foreground = Foreground:init(foregroundPaths)
-	level.background = Background:init(backgroundPaths)
+	level.background = Background:init(backgroundPaths, backgroundUses, backgroundUsePaths)
 
 	level.floaters = Floaters:init("levels/assets.svg")
 
