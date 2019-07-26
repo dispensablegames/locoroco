@@ -16,8 +16,9 @@ function Foreground:init(paths)
 		local shape = love.physics.newChainShape(true, points)
 		local fixture = love.physics.newFixture(body, shape)
 		fixture:setFriction(3) 
+		fixture:setUserData({name = "foreground object"})
 		local color = utils.parseColor(path.style.fill)
-		local hbody = { color = color, body = body, shape = shape }
+		local hbody = { color = color, body = body, shape = shape, fixture = fixture }
 		if path:getStyle("rotate") then
 			body:setAngularVelocity(tonumber(path:getStyle("rotate")))
 		else 
