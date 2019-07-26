@@ -140,7 +140,6 @@ function love.keyreleased(key)
 	elseif key == "c" then
 		secondsPassed = 0
 
-
 	elseif key == "p" then
 		local newTable = {}
 		for i, loco in pairs(locos) do
@@ -148,7 +147,6 @@ function love.keyreleased(key)
 			locos[loco:getId()] = nil
 		end
 		locos = newTable
-
 
 	elseif key == "space" then
 		for i, loco in pairs(locos) do
@@ -175,57 +173,3 @@ function averagePoint(x1, x2, y1, y2)
 	return (x1 + x2) / 2, (y1 + y2) /2
 end
 
-function checkCollision(fixture, x, y)
-	local shape = fixture:getShape()
-	local body = fixture:getBody()
-	local collisions = 0
-	for i=1, shape:getChildCount() do
-		local edge = shape:getChildEdge(i)
-		local x1, y1, x2, y2 = body:getWorldPoints(edge:getPoints())
-		if checkLineCollision(x1, y1, x2, y2, -1000, -1000, x, y) then
-			collisions = collisions + 1
-		end
-	end
-	print(collisions)
-	if collisions % 2 == 0 then
-		return false
-	else
-		return true
-	end
-end
-
-function orientation(ax, ay, bx, by, cx, cy)
-	local val = (by - ay) * (cx - bx) - (bx - ax) * (cy - by)
-	if val == 0 then
-		return "colinear"
-	elseif val > 0 then
-		return "clockwise"
-	else
-		return "counterclockwise"
-	end
-end
-
-function onLine(ax, ay, bx, by, cx, cy)
-	return (bx <= math.max(ax, cx) and bx >= math.min(ax, cx) and by <= math.max(ay, cy) and bx >= math.min(ay, cy))
-end
-
-function checkLineCollision(p1x, p1y, q1x, q1y, p2x, p2y, q2x, q2y)
-	local orient1 = orientation(p1x, p1y, q1x, q1y, p2x, p2y)
-	local orient2 = orientation(p1x, p1y, q1x, q1y, q2x, q2y)
-	local orient3 = orientation(p2x, p2y, q2x, q2y, p1x, p1y)
-	local orient4 = orientation(p2x, p2y, q2x, q2y, q1x, q1y)
-
-	if (orient1 ~= orient2) and (orient3 ~= orient4) then
-		return true
-	elseif (orient1 == "colinear") and onLine(p1x, p1y, p2x, p2y, q1x, q1y) then
-		return true
-	elseif (orient2 == "colinear") and onLine(p1x, p1y, q2x, q2y, q1x, q1y) then
-		return true
-	elseif (orient3 == "colinear") and onLine(p2x, p2y, p1x, p1y, q2x, q2y) then
-		return true
-	elseif (orient4 == "colinear") and onLine(p2x, p2y, q1x, q1y, q2x, q2y) then
-		return true
-	else
-		return false
-	end
-end
