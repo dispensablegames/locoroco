@@ -224,7 +224,7 @@ function Path:pointify()
 		elseif command[1] == "C" then
 			table.remove(points, #points)
 			table.remove(points, #points)
-			for k,point in ipairs(bezierCurveRemoveEndpoints(love.math.newBezierCurve(lastX, lastY, unpack(command, 2)):render(4))) do
+			for k,point in ipairs(bezierCurveRemoveEndpoints(love.math.newBezierCurve(lastX, lastY, unpack(command, 2)):render(3))) do
 				table.insert(points, point)
 			end
 			lastX = command[#command - 1]
