@@ -12,7 +12,7 @@ function love.load()
 
 	world = love.physics.newWorld(0, 9.81*16, true)
 
-	level = Level:init("levels/level1.svg")
+	level = Level:init("levels/world1level1.svg")
 	
 	locos = {}
 	love.graphics.setBackgroundColor(255, 255, 255)
