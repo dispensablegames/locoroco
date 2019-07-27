@@ -9,7 +9,6 @@ local Background = {}
 function Background:init(paths, uses, usepaths)
 	local background = {}
 	background.paths = paths
-	background.usebatches = {}
 	background.pictures = {}
 
 	for i,path in ipairs(paths) do
@@ -20,11 +19,18 @@ function Background:init(paths, uses, usepaths)
 		picture.triangles = triangles
 		table.insert(background.pictures, picture)
 	end
+	
+	
+	background.usebatches = {}
+	background.usebatchesSorted = {}
 
+	local index = 1
 	for i,use in ipairs(uses) do
 		local href = use:getHref()
 		if not background.usebatches[href] then
-			background.usebatches[href] = UseBatch:init(usepaths[href])
+			local usebatch = UseBatch:init(usepaths[href])
+			background.usebatches[href] = usebatch
+			table.insert(background.usebatchesSorted, usebatch)
 		end
 		background.usebatches[href]:addUse(use)
 	end
@@ -42,7 +48,7 @@ function Background:draw()
 			love.graphics.polygon("fill", triangle)
 		end
 	end
-	for id,usebatch in pairs(self.usebatches) do
+	for i,usebatch in ipairs(self.usebatchesSorted) do
 		usebatch:draw()
 	end
 end

@@ -60,7 +60,7 @@ end
 
 function Level:update(dt, Camera)
 
-	if self.floaterTimer > 0.1 then
+	if self.floaterTimer > 1 then
 		self.floaters:createFloater(Camera)
 		self.floaterTimer = 0
 	else
