@@ -57,8 +57,29 @@ function parseTransform(transform, adjust)
 	local keyword = string.match(transform, "([^%)]+)%(")
 	table.insert(newTransform, keyword)
 	for num in string.gmatch(transform, "(-?[%d.]+),?%)?") do
-		table.insert(newTransform, tonumber(num) * adjust)
+		table.insert(newTransform, tonumber(num))
 	end
+
+	if keyword == "rotate" then
+		if newTransform[3] then
+			newTransform[3] = newTransform[3] * adjust
+		else
+			newTransform[3] = 0
+		end
+		if newTransform[4] then
+			newTransform[4] = newTransform[4] * adjust
+		else
+			newTransform[4] = 0
+		end
+	elseif keyword == "translate" then
+		newTransform[2] = newTransform[2] * adjust
+		if newTransform[3] then
+			newTransform[3] = newTransform[3] * adjust
+		else
+			newTransform[3] = 0
+		end
+	end
+
 	return newTransform
 end
 
