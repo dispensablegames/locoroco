@@ -168,7 +168,7 @@ function Loco:draw(debugState)
 end
 
 function Loco:getLocoCollision()
-	for i, contact in ipairs(self.bigCircle_.body:getContactList()) do
+	for i, contact in ipairs(self.bigCircle_.body:getContacts()) do
 		local fixture1, fixture2 = contact:getFixtures()
 		local userData1 = fixture1:getUserData()
 		local userData2 = fixture2:getUserData()
@@ -206,48 +206,59 @@ function Loco:breakApart()
 	end
 	local newLocos = {}
 	local x, y = self:getPosition()
+	local donePoints = {}	
 	for i=1, self:getSize() do
-		local newX, newY = self:getSuitablePoint()
+		local newX, newY = self:getSuitablePoint(donePoints, 40, 30)
 
 		local newLoco = Loco:init(world, newX, newY, 1, -20)
+		table.insert(donePoints, {x=newX, y=newY})
 		newLocos[newLoco:getId()] = newLoco
 	end
 	self:delete()
 	return newLocos
 end
 
-function Loco:getSuitablePoint()
+function Loco:getSuitablePoint(prevPoints, minDist, rad)
 	local x, y = self:getPosition()
 	local newX, newY = nil
-	local r = self:getRadius()
-	local contacts = self.bigCircle_.body:getContacts()
+	local r = self:getRadius() 
 
 	while true do
-		local collision = false
 		newX = love.math.random(x - r, x+ r)
 		newY = love.math.random(y - r, y + r)
-		for i, contact in ipairs(contacts) do
-			local fixture = self:getOtherContactFixture(contact)
-			if fixture then
-				collision = checkChainShapeCollision(fixture, newX, newY) or collision
-			end
-		end				
-		if not collision then
+		if not self:checkPoint(newX, newY, minDist, rad, prevPoints) then
 			return newX, newY
 		end
 	end
 end
 
---doesn't really make sense right now
+function Loco:checkPoint(x, y, minDist, rad, prevPoints)
+	local collision = false
+	local contacts = self.bigCircle_.body:getContacts()
+
+	for i, contact in ipairs(contacts) do
+		local fixture = self:getOtherContactFixture(contact)
+		if fixture:getUserData().name == "foreground object" then
+			if checkChainShapeCollision(fixture, x + rad, y) or checkChainShapeCollision(fixture, x - rad, y) or checkChainShapeCollision(fixture, x, y + rad) then
+				return true
+			end
+		end
+	end
+	for i, point in ipairs(prevPoints) do
+		if (math.sqrt((point.x - x) * (point.x - x) + (point.y - y) * (point.y - y)) < minDist) then
+			return true
+		end
+	end
+	return false
+end
 
 function Loco:getOtherContactFixture(contact)
 	local fixture1, fixture2 = contact:getFixtures()
-	if fixture1:getUserData().name == "foreground object" then
-		return fixture1
-	elseif fixture2:getUserData().name == "foreground object" then
+	local name1 = fixture1:getUserData().name
+	if name1 == "bigcircle" and fixture1:getUserData().parent:getId() == self:getId() then
 		return fixture2
 	else
-		return nil
+		return fixture1
 	end
 end
 
