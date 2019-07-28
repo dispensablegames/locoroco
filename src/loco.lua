@@ -2,6 +2,9 @@ Loco = {}
 freeId_ = 1
 		
 function Loco:init(world, x, y, size, popDist)
+	--REMOVE LATER
+	madeALoco = true
+	
 	local baseUnit = 1000
 	local scaledSize = math.floor(10 + (size / 3))
 	local rectWidth = 10
@@ -37,6 +40,7 @@ function Loco:init(world, x, y, size, popDist)
 		smallRect.fixture = love.physics.newFixture(smallRect.body, smallRect.shape)
 		smallRect.fixture:setFriction(friction)
 		smallRect.fixture:setUserData({name="smallRect"})
+
 				
 		smallRect.leftPoint = {}
 		smallRect.rightPoint = {}
@@ -208,9 +212,9 @@ function Loco:breakApart()
 	local x, y = self:getPosition()
 	local donePoints = {}	
 	for i=1, self:getSize() do
-		local newX, newY = self:getSuitablePoint(donePoints, 40, 30)
+		local newX, newY = self:getSuitablePoint(donePoints, 60, 40)
 
-		local newLoco = Loco:init(world, newX, newY, 1, -20)
+		local newLoco = Loco:init(world, newX, newY, 1, -30)
 		table.insert(donePoints, {x=newX, y=newY})
 		newLocos[newLoco:getId()] = newLoco
 	end
@@ -221,7 +225,7 @@ end
 function Loco:getSuitablePoint(prevPoints, minDist, rad)
 	local x, y = self:getPosition()
 	local newX, newY = nil
-	local r = self:getRadius() 
+	local r = self:getRadius() *1.5
 
 	while true do
 		newX = love.math.random(x - r, x+ r)
@@ -239,7 +243,8 @@ function Loco:checkPoint(x, y, minDist, rad, prevPoints)
 	for i, contact in ipairs(contacts) do
 		local fixture = self:getOtherContactFixture(contact)
 		if fixture:getUserData().name == "foreground object" then
-			if checkChainShapeCollision(fixture, x + rad, y) or checkChainShapeCollision(fixture, x - rad, y) or checkChainShapeCollision(fixture, x, y + rad) then
+			local originX, originY = self:getPosition()
+			if checkChainShapeCollision(fixture, x + rad, y, originX, originY) or checkChainShapeCollision(fixture, x - rad, y, originX, originY) or checkChainShapeCollision(fixture, x, y + rad, originX, originY) then
 				return true
 			end
 		end
@@ -283,14 +288,14 @@ function ngon(x, y, r, n)
 	return points, sidelength, angleList
 end
 
-function checkChainShapeCollision(fixture, x, y)
+function checkChainShapeCollision(fixture, x, y, originX, originY)
 	local shape = fixture:getShape()
 	local body = fixture:getBody()
 	local collisions = 0
 	for i=1, shape:getChildCount() do
 		local edge = shape:getChildEdge(i)
 		local x1, y1, x2, y2 = body:getWorldPoints(edge:getPoints())
-		if checkLineCollision(x1, y1, x2, y2, -1000, -1000, x, y) then
+		if checkLineCollision(x1, y1, x2, y2, originX, originY, x, y) then
 			collisions = collisions + 1
 		end
 	end

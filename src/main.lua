@@ -1,3 +1,4 @@
+
 local Level = require("level")
 local Loco = require("loco")
 local Camera = require("camera")
@@ -18,6 +19,7 @@ function love.load()
 	love.graphics.setBackgroundColor(255, 255, 255)
 
 	secondsPassed = 0
+	madeALoco = false
 end
 
 function love.update(dt)
@@ -37,14 +39,14 @@ function love.update(dt)
 				if loco2 then
 					local x1, y1 = loco1:getPosition()
 					local x2, y2 = loco2:getPosition()
-					local newX, newY = averagePoint(x1, x2, y1, y2)
-					newX = newX + 30
 					local newSize = loco1:getSize() + loco2:getSize()
+					local newX = math.random(math.min(x1, x2), math.max(x1, x2))
+					local newY = math.random(math.min(y1, y2), math.max(y1, y2))
 					locos[loco1:getId()] = nil
 					locos[loco2:getId()] = nil
 					loco1:delete()
 					loco2:delete()
-					local newLoco = Loco:init(world, newX, newY, newSize, newSize * -1)
+					local newLoco = Loco:init(world, newX, newY, newSize, newSize * -6)
 					newTable[newLoco:getId()] = newLoco
 				end
 			end
@@ -75,7 +77,7 @@ function love.draw()
 	love.graphics.print(level.spawnX, 100, 110)
 	love.graphics.print(level.spawnY, 100, 120)
 
-	if #locos > 0 then 	
+	if #locos > 0 then 
 		for i,loco in pairs(locos) do
 			local locoX, locoY = loco:getPosition()
 			Camera:set(locoX, locoY)
