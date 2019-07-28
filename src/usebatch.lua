@@ -12,7 +12,7 @@ function UseBatch:init(path)
 	love.graphics.setColor(utils.parseColor(path:getStyle("fill")))
 	local points = path:getPoints()
 	local x, y = path:getTopLeftCorner()
-	utils.shiftPoints(points, x, y)
+	points = utils.shiftPoints(points, x, y)
 	for i,triangle in ipairs(love.math.triangulate(points)) do
 		love.graphics.polygon("fill", triangle)
 	end

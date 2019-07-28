@@ -12,10 +12,12 @@ function utils.averagePoints(points)
 end
 
 function utils.shiftPoints(points, x, y)
+	local shiftedPoints = {}
 	for i=1, #points, 2 do
-		points[i] = points[i] - x
-		points[i + 1] = points[i + 1] - y
+		shiftedPoints[i] = points[i] - x
+		shiftedPoints[i + 1] = points[i + 1] - y
 	end
+	return shiftedPoints
 end
 
 function utils.parseColor(color)

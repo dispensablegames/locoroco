@@ -19,9 +19,28 @@ function Drawing:init(filename, adjust)
 
 	drawing:convertPaths()
 
-	for i,use in ipairs(drawing.uses) do
-		print(use.href)
+	local minX, minY = drawing.paths[1]:getTopLeftCorner()
+	local maxX, maxY = drawing.paths[1]:getBottomRightCorner()
+	for i,path in ipairs(drawing.paths) do
+		local x, y = path:getTopLeftCorner()
+		if x < minX then
+			minX = x
+		end
+		if y < minY then
+			minY = y
+		end
+		x, y = path:getBottomRightCorner()
+		if x > maxX then
+			maxX = x
+		end
+		if y > maxY then
+			maxY = y
+		end
 	end
+
+	drawing.boundingBox = { minX, minY, maxX, minY, maxX, maxY, minX, maxY }
+	drawing.width = maxX - minX
+	drawing.height = maxY - minY
 
 	return drawing
 end
@@ -32,6 +51,14 @@ end
 
 function Drawing:getUses()
 	return self.uses
+end
+
+function Drawing:getWidth()
+	return self.width
+end
+
+function Drawing:getHeight()
+	return self.height
 end
 
 function Drawing:getPath(id)

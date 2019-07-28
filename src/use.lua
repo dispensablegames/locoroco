@@ -53,7 +53,6 @@ end
 
 function parseTransform(transform, adjust)
 	local newTransform = {}
-	print(transform)
 	local keyword = string.match(transform, "([^%)]+)%(")
 	table.insert(newTransform, keyword)
 	for num in string.gmatch(transform, "(-?[%d.]+),?%)?") do

@@ -40,7 +40,7 @@ function Level:init(filename)
 		end
 	end
 
-	level.foreground = Foreground:init(foregroundPaths)
+	level.foreground = Foreground:init(foregroundPaths, level.drawing:getWidth(), level.drawing:getHeight())
 	level.background = Background:init(backgroundPaths, backgroundUses, backgroundUsePaths)
 
 	level.floaters = Floaters:init("levels/assets.svg")

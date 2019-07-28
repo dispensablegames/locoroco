@@ -49,6 +49,10 @@ function Path:getPoints()
 	return self.points
 end
 
+function Path:setPoints(points)
+	self.points = points
+end
+
 function Path:getStyle(key)
 	return self.style[key]
 end
@@ -59,6 +63,10 @@ end
 
 function Path:getTopLeftCorner()
 	return self.boundingBox[1], self.boundingBox[2]
+end
+
+function Path:getBottomRightCorner()
+	return self.boundingBox[5], self.boundingBox[6]
 end
 
 function Path:getCenter()

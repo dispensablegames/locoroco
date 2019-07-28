@@ -14,7 +14,7 @@ function Floaters:init(filename)
 
 	for i,path in ipairs(drawing:getPaths()) do
 		local x,y = path:getTopLeftCorner()
-		utils.shiftPoints(path:getPoints(), x, y)
+		path:setPoints(utils.shiftPoints(path:getPoints(), x, y))
 		table.insert(floaters.paths, path)
 	end
 
