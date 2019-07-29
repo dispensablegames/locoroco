@@ -60,7 +60,7 @@ function love.update(dt)
 					locos[loco2:getId()] = nil
 					loco1:delete()
 					loco2:delete()
-					local newLoco = Loco:init(world, newX, newY, newSize, -newSize * 10)
+					local newLoco = Loco:init(world, newX, newY, newSize, -newSize * 5 - 10)
 					newTable[newLoco:getId()] = newLoco
 				end
 			end
@@ -144,7 +144,7 @@ function love.keyreleased(key)
 		local loco = Loco:init(world, level.spawnX, level.spawnY, 9, 0)
 		locos[loco:getId()] = loco
 	elseif key == "0" then
-		local loco = Loco:init(world, level.spawnX, level.spawnY, 20, 0)
+		local loco = Loco:init(world, level.spawnX, level.spawnY, 10, 0)
 		locos[loco:getId()] = loco
 	elseif key == "d" then
 		for i, loco in pairs(locos) do

@@ -30,9 +30,7 @@ function Loco:init(world, x, y, size, popDist)
 	finishedLoco.bigCircle_.fixture = love.physics.newFixture(finishedLoco.bigCircle_.body, finishedLoco.bigCircle_.shape)
 	finishedLoco.bigCircle_.fixture:setUserData({name="circle", parent=finishedLoco})
 	finishedLoco.bigCircle_.fixture:setSensor(true)
-	
-	finishedLoco.bigCircle_.body:setMass(0)
-	
+
 	finishedLoco.smallRects_ = {}
 	
 	local rectCenters, sideLength, angleList = ngon(x, y, radius, scaledSize)
@@ -252,9 +250,9 @@ function Loco:breakApart()
 	local x, y = self:getPosition()
 	local donePoints = {}	
 	for i=1, self:getSize() do
-		local newX, newY = self:getSuitablePoint(donePoints, 50, 50)
+		local newX, newY = self:getSuitablePoint(donePoints, 60, 50)
 
-		local newLoco = Loco:init(world, newX, newY, 1, -30)
+		local newLoco = Loco:init(world, newX, newY, 1, -20)
 		table.insert(donePoints, {x=newX, y=newY})
 		newLocos[newLoco:getId()] = newLoco
 	end
@@ -265,7 +263,7 @@ end
 function Loco:getSuitablePoint(prevPoints, minDist, rad)
 	local x, y = self:getPosition()
 	local newX, newY = nil
-	local r = self:getRadius() *1.5
+	local r = self:getRadius() * 1.2
 
 	while true do
 		newX = love.math.random(x - r, x+ r)
@@ -273,6 +271,7 @@ function Loco:getSuitablePoint(prevPoints, minDist, rad)
 		if not self:checkPoint(newX, newY, minDist, rad, prevPoints) then
 			return newX, newY
 		end
+		r = r + 3
 	end
 end
 
@@ -284,7 +283,7 @@ function Loco:checkPoint(x, y, minDist, rad, prevPoints)
 		local fixture = self:getOtherContactFixture(contact)
 		if fixture:getUserData().name == "foreground object" then
 			local originX, originY = self:getPosition()
-			if checkChainShapeCollision(fixture, x + rad, y, originX, originY) or checkChainShapeCollision(fixture, x - rad, y, originX, originY) or checkChainShapeCollision(fixture, x, y + rad, originX, originY) then
+			if checkChainShapeCollision(fixture, x, y, originX, originY) or checkChainShapeCollision(fixture, x + rad, y, originX, originY) or checkChainShapeCollision(fixture, x - rad, y, originX, originY) or checkChainShapeCollision(fixture, x, y + rad, originX, originY) then
 				return true
 			end
 		end
