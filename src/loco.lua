@@ -2,9 +2,12 @@ Loco = {}
 freeId_ = 1
 		
 function Loco:init(world, x, y, size, popDist)
+
+
 	--REMOVE LATER
 	madeALoco = true
-	
+
+
 	local baseUnit = 1000
 	local scaledSize = math.floor(10 + (size / 3))
 	local rectWidth = 10
@@ -18,6 +21,8 @@ function Loco:init(world, x, y, size, popDist)
 	
 	finishedLoco.numRects_ = scaledSize
 	finishedLoco.size_ = size
+
+	finishedLoco.creationTime_ = love.timer.getTime()
 	
 	finishedLoco.bigCircle_ = {}
 	finishedLoco.bigCircle_.body = love.physics.newBody(world, x, y, "dynamic")
@@ -53,19 +58,37 @@ function Loco:init(world, x, y, size, popDist)
 	end
 	
 	finishedLoco.ropeJoints_ = {}
+	finishedLoco.ropeJointsB_ = {}
+
+	for j=1, math.floor(scaledSize / 2) do
 	
-	for i=1, scaledSize - 1, 1 do
-		local thisRect = finishedLoco.smallRects_[i]
-		local nextRect = finishedLoco.smallRects_[i + 1]
-		local ropeJoint = love.physics.newRopeJoint(thisRect.body, nextRect.body, thisRect.rightPoint.x, thisRect.rightPoint.y, nextRect.leftPoint.x, nextRect.leftPoint.y, ropeJointMaxLength, false)
-		table.insert(finishedLoco.ropeJoints_, ropeJoint)
+		for i=1, scaledSize - j do
+			local thisRect = finishedLoco.smallRects_[i]
+			local nextRect = finishedLoco.smallRects_[i + j]
+			if j > 1 then
+					local ropeJoint = love.physics.newRopeJoint(thisRect.body, nextRect.body, thisRect.rightPoint.x, thisRect.rightPoint.y, nextRect.leftPoint.x, nextRect.leftPoint.y, 1000, false)
+			table.insert(finishedLoco.ropeJointsB_, ropeJoint)
+			else
+				local ropeJoint = love.physics.newRopeJoint(thisRect.body, nextRect.body, thisRect.rightPoint.x, thisRect.rightPoint.y, nextRect.leftPoint.x, nextRect.leftPoint.y, ropeJointMaxLength, false)
+			table.insert(finishedLoco.ropeJoints_, ropeJoint)
+			end
+
+		end
+	
+		local firstRect = finishedLoco.smallRects_[j]
+		local lastRect = finishedLoco.smallRects_[scaledSize]
+		if j > 1 then
+			local finalRopeJoint = love.physics.newRopeJoint(lastRect.body, firstRect.body, lastRect.rightPoint.x, lastRect.rightPoint.y, firstRect.leftPoint.x, firstRect.leftPoint.y, 1000, false)
+		table.insert(finishedLoco.ropeJointsB_, finalRopeJoint)
+		else
+			local finalRopeJoint = love.physics.newRopeJoint(lastRect.body, firstRect.body, lastRect.rightPoint.x, lastRect.rightPoint.y, firstRect.leftPoint.x, firstRect.leftPoint.y, ropeJointMaxLength, false)
+		table.insert(finishedLoco.ropeJoints_, finalRopeJoint)
+
+		end
+
+	
 	end
-	
-	local firstRect = finishedLoco.smallRects_[1]
-	local lastRect = finishedLoco.smallRects_[scaledSize]
-	local finalRopeJoint = love.physics.newRopeJoint(lastRect.body, firstRect.body, lastRect.rightPoint.x, lastRect.rightPoint.y, firstRect.leftPoint.x, firstRect.leftPoint.y, ropeJointMaxLength, false)
-	table.insert(finishedLoco.ropeJoints_, finalRopeJoint)
-	
+
 	finishedLoco.distanceJoints_ = {}
 	
 	for i, rect in ipairs(finishedLoco.smallRects_) do
@@ -83,6 +106,10 @@ function Loco:init(world, x, y, size, popDist)
 	finishedLoco:setId()
 
 	return finishedLoco
+end
+
+function Loco:getCreationTime()	
+	return self.creationTime_
 end
 
 function Loco:getPosition()
@@ -196,12 +223,25 @@ function Loco:delete()
 			joint:destroy()
 		end
 	end
+	for i, joint in ipairs(self.ropeJointsB_) do
+		if not joint:isDestroyed() then
+			joint:destroy()
+		end
+	end
 	for i, joint in ipairs(self.distanceJoints_) do
 		if not joint:isDestroyed() then
 			joint:destroy()
 		end
 	end
 	self.bigCircle_.body:destroy()
+end
+
+function Loco:deleteBJoints() 
+	for i, joint in ipairs(self.ropeJointsB_) do
+		if not joint:isDestroyed() then
+			joint:destroy()
+		end
+	end
 end
 
 function Loco:breakApart()
@@ -212,7 +252,7 @@ function Loco:breakApart()
 	local x, y = self:getPosition()
 	local donePoints = {}	
 	for i=1, self:getSize() do
-		local newX, newY = self:getSuitablePoint(donePoints, 60, 40)
+		local newX, newY = self:getSuitablePoint(donePoints, 50, 50)
 
 		local newLoco = Loco:init(world, newX, newY, 1, -30)
 		table.insert(donePoints, {x=newX, y=newY})

@@ -28,6 +28,13 @@ function love.update(dt)
 	end
 
 	level:update(dt, Camera)
+	
+	local currentTime = love.timer.getTime()
+	for i, loco in pairs(locos) do
+		if currentTime - loco:getCreationTime() > 2 then
+			loco:deleteBJoints()
+		end
+	end 
 
 	if love.keyboard.isDown("c") then	
 		secondsPassed = secondsPassed + 1 * dt
@@ -40,13 +47,20 @@ function love.update(dt)
 					local x1, y1 = loco1:getPosition()
 					local x2, y2 = loco2:getPosition()
 					local newSize = loco1:getSize() + loco2:getSize()
-					local newX = math.random(math.min(x1, x2), math.max(x1, x2))
-					local newY = math.random(math.min(y1, y2), math.max(y1, y2))
+					local newX, newY = nil
+
+					if loco1:getSize() > loco2:getSize() then
+						newX = x1
+						newY = y1
+					else
+						newX = x2
+						newY = y2
+					end
 					locos[loco1:getId()] = nil
 					locos[loco2:getId()] = nil
 					loco1:delete()
 					loco2:delete()
-					local newLoco = Loco:init(world, newX, newY, newSize, newSize * -6)
+					local newLoco = Loco:init(world, newX, newY, newSize, -newSize * 10)
 					newTable[newLoco:getId()] = newLoco
 				end
 			end
@@ -77,7 +91,7 @@ function love.draw()
 	love.graphics.print(level.spawnX, 100, 110)
 	love.graphics.print(level.spawnY, 100, 120)
 
-	if #locos > 0 then 
+	if madeALoco then 
 		for i,loco in pairs(locos) do
 			local locoX, locoY = loco:getPosition()
 			Camera:set(locoX, locoY)
