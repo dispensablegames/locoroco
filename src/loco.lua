@@ -1,6 +1,9 @@
 Loco = {}
 freeId_ = 1
 		
+
+--TODO: TRY FULLY POPPING + REPLACING W/ANIMATION FOR FIRST FEW FRAMES
+
 function Loco:init(world, x, y, size, popDist)
 
 
@@ -23,13 +26,15 @@ function Loco:init(world, x, y, size, popDist)
 	finishedLoco.size_ = size
 
 	finishedLoco.creationTime_ = love.timer.getTime()
-	
 	finishedLoco.bigCircle_ = {}
 	finishedLoco.bigCircle_.body = love.physics.newBody(world, x, y, "dynamic")
 	finishedLoco.bigCircle_.shape = love.physics.newCircleShape(radius)
 	finishedLoco.bigCircle_.fixture = love.physics.newFixture(finishedLoco.bigCircle_.body, finishedLoco.bigCircle_.shape)
 	finishedLoco.bigCircle_.fixture:setUserData({name="circle", parent=finishedLoco})
 	finishedLoco.bigCircle_.fixture:setSensor(true)
+
+
+	finishedLoco.bigCircle_.body:setMass(0)
 
 	finishedLoco.smallRects_ = {}
 	
