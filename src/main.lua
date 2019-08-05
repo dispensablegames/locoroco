@@ -4,7 +4,7 @@ local Game = require("game")
 function love.load()
 	menu = Menu:init()
 	
-	state = Game:init("world1level1.svg")
+	state = Game:init("test.svg")
 end
 
 function love.update(dt)
