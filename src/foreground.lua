@@ -19,8 +19,8 @@ function Foreground:init(world, paths, width, height)
 	setmetatable(foreground, self)
 
 
-	local maxI = math.floor(width / foreground.gridCellSize) + 1
-	local maxJ = math.floor(height / foreground.gridCellSize) + 1
+	local maxI = math.floor(width / foreground.gridCellSize)
+	local maxJ = math.floor(height / foreground.gridCellSize)
 
 
 	for i=0,maxI do
@@ -46,6 +46,7 @@ function Foreground:init(world, paths, width, height)
 			local canvas = love.graphics.newCanvas(foreground.gridCellSize, foreground.gridCellSize)
 			love.graphics.setCanvas(canvas)
 			local triangles = foreground.triangleGrid[i][j]
+			print("adding triangles to canvas")
 			for k,t in ipairs(triangles) do
 				love.graphics.setColor(t.color)
 				local triangle = t.triangle
@@ -53,6 +54,7 @@ function Foreground:init(world, paths, width, height)
 				love.graphics.polygon("fill", newTriangle)
 			end
 			love.graphics.setCanvas()
+			print("creating image from canvas")
 			local imageData = canvas:newImageData()
 			local image = love.graphics.newImage(imageData)
 			table.insert(foreground.images, { x = i * foreground.gridCellSize, y = j * foreground.gridCellSize, image = image })
