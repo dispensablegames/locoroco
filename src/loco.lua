@@ -27,7 +27,7 @@ function Loco:init(world, x, y, size, popDist)
 
 	finishedLoco.creationTime_ = love.timer.getTime()
 	
-	finishedLoco.targetPoint = nil
+	finishedLoco.targetPoint_ = nil
 
 	finishedLoco.bigCircle_ = {}
 	finishedLoco.bigCircle_.body = love.physics.newBody(world, x, y, "dynamic")
@@ -222,10 +222,19 @@ function Loco:drawFace()
 
 	love.graphics.setColor(0, 0, 0)
 	
+	if self.targetPoint_ then
+		local targetX = self.targetPoint_.x
+		local targetY = self.targetPoint_.y
+		
+		for i, eye in ipairs({{x=eye1X, y=eye1Y}, {x=eye2X, y=eye2Y}}) do
 
-	
-	love.graphics.circle("fill", eye1X, eye1Y, 4)
-	love.graphics.circle("fill", eye2X, eye2Y, 4)	
+			angle = utils.quadAwareATan(targetY - eye.y, targetX - eye.x)
+			love.graphics.circle("fill", eye.x + math.cos(angle)*3, eye.y + math.sin(angle)*3, 4)
+		end			
+	else
+		love.graphics.circle("fill", eye1X, eye1Y, 4)
+		love.graphics.circle("fill", eye2X, eye2Y, 4)	
+	end
 end
 
 function Loco:getLocoCollision()

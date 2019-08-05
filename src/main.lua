@@ -118,6 +118,7 @@ function love.keyreleased(key)
 		print(level.spawnX)
 		print(level.spawnY)
 		local loco = Loco:init(world, level.spawnX, level.spawnY, 1, 0)
+		loco.targetPoint_ = {x=10000, y=100}
 		locos[loco:getId()] = loco
 	elseif key == "2" then
 		local loco = Loco:init(world, level.spawnX, level.spawnY, 2, 0)
