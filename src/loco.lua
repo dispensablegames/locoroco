@@ -26,6 +26,9 @@ function Loco:init(world, x, y, size, popDist)
 	finishedLoco.size_ = size
 
 	finishedLoco.creationTime_ = love.timer.getTime()
+	
+	finishedLoco.targetPoint = nil
+
 	finishedLoco.bigCircle_ = {}
 	finishedLoco.bigCircle_.body = love.physics.newBody(world, x, y, "dynamic")
 	finishedLoco.bigCircle_.shape = love.physics.newCircleShape(radius)
@@ -144,17 +147,6 @@ function Loco:getId()
 	return self.id
 end
 
-function Loco:drawFace()
-	local centerX, centerY = self:getPosition()
-	local edgeX, edgeY = self.distanceJoints_[1]:getAnchors()
-
-	
-
-	love.graphics.setColor(0.5, 0.5, 0.5)
-	love.graphics.circle("fill", centerX, centerY, 5)
-	love.graphics.circle("fill", edgeX, edgeY, 5)
-end
-
 function Loco:impulse(x, y)
 	local powerRatio = self:getMass() / self:getNumRects()
 	for i, rect in ipairs(self.smallRects_) do
@@ -199,6 +191,41 @@ function Loco:draw(debugState)
 		self:normalDraw()
 		self:drawFace()
 	end
+end
+
+function Loco:drawFace()
+	local eyeSeparation = 13
+	local eyeRetraction = 16
+
+	local centerX, centerY = self:getPosition()
+	local edgeX, edgeY = self.distanceJoints_[1]:getAnchors()
+
+	local angle = utils.quadAwareATan((edgeY - centerY), (edgeX - centerX))
+
+	local eyeCenterX = edgeX - math.cos(angle)*eyeRetraction
+	local eyeCenterY = edgeY - math.sin(angle)*eyeRetraction
+
+
+	local angle2 = math.pi - angle
+	local eye1X, eye1Y, eye2X, eye2Y = nil
+
+	eye1X = eyeCenterX - math.sin(angle2)*eyeSeparation
+	eye1Y = eyeCenterY - math.cos(angle2)*eyeSeparation
+	eye2X = eyeCenterX + math.sin(angle2)*eyeSeparation
+	eye2Y = eyeCenterY + math.cos(angle2)*eyeSeparation
+
+	love.graphics.setColor(1, 1, 1)
+
+	love.graphics.circle("fill", eye1X, eye1Y, 7)
+	love.graphics.circle("fill", eye2X, eye2Y, 7)
+
+
+	love.graphics.setColor(0, 0, 0)
+	
+
+	
+	love.graphics.circle("fill", eye1X, eye1Y, 4)
+	love.graphics.circle("fill", eye2X, eye2Y, 4)	
 end
 
 function Loco:getLocoCollision()
