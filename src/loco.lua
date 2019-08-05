@@ -1,8 +1,6 @@
 Loco = {}
 freeId_ = 1
-		
 
---TODO: TRY FULLY POPPING + REPLACING W/ANIMATION FOR FIRST FEW FRAMES
 
 function Loco:init(world, x, y, size, popDist)
 

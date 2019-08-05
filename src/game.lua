@@ -1,6 +1,7 @@
 local Camera = require("camera")
 local Level = require("level")
 local Loco = require("loco")
+local FlyController = require("flycontroller")
 local Game = {}
 
 function Game:init(filename)
@@ -12,12 +13,16 @@ function Game:init(filename)
 	game.maxAngle = 0.3
 	game.jumpStr = 0
 	game.locos = {}
+	game.flyController = FlyController:init(world)
 	love.graphics.setBackgroundColor(255, 255, 255)
 	game.secondsPassed = 0
 	game.madeALoco = false
 
+	game.flyController:addFlies({game.level.spawnX, game.level.spawnY, game.level.spawnX, game.level.spawnY + 100, game.level.spawnX, game.level.spawnY + 200, game.level.spawnX, game.level.spawnY + 300})
+
 	self.__index = self
 	setmetatable(game, self)
+
 
 	return game
 end
@@ -29,6 +34,8 @@ function Game:update(dt)
 
 
 	self.level:update(dt, Camera)
+
+	self.flyController:update()
 
 	local currentTime = love.timer.getTime()
 	for i, loco in pairs(self.locos) do
@@ -86,6 +93,7 @@ function Game:draw()
 	love.graphics.print(self.level.spawnX, 100, 110)
 	love.graphics.print(self.level.spawnY, 100, 120)
 
+	
 	if madeALoco then 
 		for i,loco in pairs(self.locos) do
 			local locoX, locoY = loco:getPosition()
@@ -105,6 +113,9 @@ function Game:draw()
 			loco:draw(true)
 		end
 	end
+
+	self.flyController:draw()
+	
 
 	Camera:unset()
 end
