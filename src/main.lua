@@ -4,7 +4,7 @@ local Game = require("game")
 function love.load()
 	menu = Menu:init()
 	
-	state = Game:init("world1level1.svg")
+	state = menu
 end
 
 function love.update(dt)
@@ -22,3 +22,10 @@ function love.keyreleased(key)
 	state:keyreleased(key)
 end
 
+function love.mousepressed(x, y, button)
+	state:mousepressed(x, y, button)
+end
+
+function love.mousereleased(x, y, button)
+	state:mousereleased(x, y, button)
+end

@@ -172,6 +172,12 @@ function Game:keyreleased(key)
 	end
 end
 
+function Game:mousereleased()
+end
+
+function Game:mousepressed()
+end
+
 function tableAppendFunky(table1, table2)
 	if table1 == nil then
 		return table1
