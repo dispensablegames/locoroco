@@ -2,6 +2,7 @@ local Menu = require("menu")
 local Game = require("game")
 
 function love.load()
+	love.window.setMode(1000, 1000, {vsync=true})
 	menu = Menu:init()
 	
 	state = menu
