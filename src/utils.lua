@@ -1,5 +1,26 @@
 utils = {}
 
+--[[
+         |
+         | -y
+-x ------------- +x 
+         | +y
+         |
+]]--
+
+function utils.quadAwareATan(dy, dx)
+	local angle = math.atan(math.abs(dy) / math.abs(dx))
+	if dx >= 0 and dy >= 0 then
+		return angle
+	elseif dx <= 0 and dy >= 0 then
+		return math.pi - angle
+	elseif dx <=0 and dy <= 0 then
+		return math.pi + angle
+	elseif dx >= 0 and dy <= 0 then
+		return 2 * math.pi - angle
+	end
+end
+
 function utils.averagePoints(points)
 	local xSum = 0
 	local ySum = 0

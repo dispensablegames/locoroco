@@ -47,7 +47,7 @@ function UseBatch:addUse(use)
 			local oy = use.transform[4]
 			local dx = x - ox
 			local dy = y - oy
-			rotateInitial = quadAwareATan(dy, dx)
+			rotateInitial = utils.quadAwareATan(dy, dx)
 			rotateFinal = rotateInitial + rotate
 			local hypotenuse = math.sqrt(dx * dx + dy * dy)
 			x = ox + hypotenuse * math.cos(rotateFinal)
@@ -57,26 +57,6 @@ function UseBatch:addUse(use)
 	self.sprite:add(x, y, rotate)
 end
 
---[[
-         |
-         | -y
--x ------------- +x 
-         | +y
-         |
-]]--
-
-function quadAwareATan(dy, dx)
-	local angle = math.atan(math.abs(dy) / math.abs(dx))
-	if dx >= 0 and dy >= 0 then
-		return angle
-	elseif dx <= 0 and dy >= 0 then
-		return math.pi - angle
-	elseif dx <=0 and dy <= 0 then
-		return math.pi + angle
-	elseif dx >= 0 and dy <= 0 then
-		return 2 * math.pi - angle
-	end
-end
 
 function UseBatch:draw()
 	love.graphics.setColor(1,1,1)

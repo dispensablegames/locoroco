@@ -14,6 +14,7 @@ function Game:init(filename)
 	game.locos = {}
 	love.graphics.setBackgroundColor(255, 255, 255)
 	game.secondsPassed = 0
+	game.madeALoco = false
 
 	self.__index = self
 	setmetatable(game, self)
@@ -29,6 +30,13 @@ function Game:update(dt)
 	print(self.world:getBodyCount())
 
 	self.level:update(dt, Camera)
+
+	local currentTime = love.timer.getTime()
+	for i, loco in pairs(self.locos) do
+		if currentTime - loco:getCreationTime() > 2 then
+			loco:deleteBJoints()
+		end
+	end 
 
 	if love.keyboard.isDown("c") then	
 		self.secondsPassed = self.secondsPassed + 1 * dt
@@ -79,7 +87,7 @@ function Game:draw()
 	love.graphics.print(self.level.spawnX, 100, 110)
 	love.graphics.print(self.level.spawnY, 100, 120)
 
-	if #self.locos > 0 then 	
+	if madeALoco then 
 		for i,loco in pairs(self.locos) do
 			local locoX, locoY = loco:getPosition()
 			Camera:set(locoX, locoY)
@@ -88,6 +96,7 @@ function Game:draw()
 	else
 		Camera:set(self.level.spawnX, self.level.spawnY)
 	end
+
 	self.level:draw()
 	for i, loco in pairs(self.locos) do
 		love.graphics.setColor(0, 255, 255)
@@ -108,6 +117,7 @@ function Game:keyreleased(key)
 	if key == "1" then
 		local loco = Loco:init(world, level.spawnX, level.spawnY, 1, 0)
 		locos[loco:getId()] = loco
+		loco.targetPoint_ = {x=10000, y=100}
 	elseif key == "2" then
 		local loco = Loco:init(world, level.spawnX, level.spawnY, 2, 0)
 		locos[loco:getId()] = loco

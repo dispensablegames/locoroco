@@ -1,7 +1,16 @@
 Loco = {}
 freeId_ = 1
 		
+
+--TODO: TRY FULLY POPPING + REPLACING W/ANIMATION FOR FIRST FEW FRAMES
+
 function Loco:init(world, x, y, size, popDist)
+
+
+	--REMOVE LATER
+	madeALoco = true
+
+
 	local baseUnit = 1000
 	local scaledSize = math.floor(10 + (size / 3))
 	local rectWidth = 10
@@ -15,16 +24,21 @@ function Loco:init(world, x, y, size, popDist)
 	
 	finishedLoco.numRects_ = scaledSize
 	finishedLoco.size_ = size
+
+	finishedLoco.creationTime_ = love.timer.getTime()
 	
+	finishedLoco.targetPoint_ = nil
+
 	finishedLoco.bigCircle_ = {}
 	finishedLoco.bigCircle_.body = love.physics.newBody(world, x, y, "dynamic")
 	finishedLoco.bigCircle_.shape = love.physics.newCircleShape(radius)
 	finishedLoco.bigCircle_.fixture = love.physics.newFixture(finishedLoco.bigCircle_.body, finishedLoco.bigCircle_.shape)
 	finishedLoco.bigCircle_.fixture:setUserData({name="circle", parent=finishedLoco})
 	finishedLoco.bigCircle_.fixture:setSensor(true)
-	
+
+
 	finishedLoco.bigCircle_.body:setMass(0)
-	
+
 	finishedLoco.smallRects_ = {}
 	
 	local rectCenters, sideLength, angleList = ngon(x, y, radius, scaledSize)
@@ -37,6 +51,7 @@ function Loco:init(world, x, y, size, popDist)
 		smallRect.fixture = love.physics.newFixture(smallRect.body, smallRect.shape)
 		smallRect.fixture:setFriction(friction)
 		smallRect.fixture:setUserData({name="smallRect"})
+
 				
 		smallRect.leftPoint = {}
 		smallRect.rightPoint = {}
@@ -49,19 +64,37 @@ function Loco:init(world, x, y, size, popDist)
 	end
 	
 	finishedLoco.ropeJoints_ = {}
+	finishedLoco.ropeJointsB_ = {}
+
+	for j=1, math.floor(scaledSize / 2) do
 	
-	for i=1, scaledSize - 1, 1 do
-		local thisRect = finishedLoco.smallRects_[i]
-		local nextRect = finishedLoco.smallRects_[i + 1]
-		local ropeJoint = love.physics.newRopeJoint(thisRect.body, nextRect.body, thisRect.rightPoint.x, thisRect.rightPoint.y, nextRect.leftPoint.x, nextRect.leftPoint.y, ropeJointMaxLength, false)
-		table.insert(finishedLoco.ropeJoints_, ropeJoint)
+		for i=1, scaledSize - j do
+			local thisRect = finishedLoco.smallRects_[i]
+			local nextRect = finishedLoco.smallRects_[i + j]
+			if j > 1 then
+					local ropeJoint = love.physics.newRopeJoint(thisRect.body, nextRect.body, thisRect.rightPoint.x, thisRect.rightPoint.y, nextRect.leftPoint.x, nextRect.leftPoint.y, 1000, false)
+			table.insert(finishedLoco.ropeJointsB_, ropeJoint)
+			else
+				local ropeJoint = love.physics.newRopeJoint(thisRect.body, nextRect.body, thisRect.rightPoint.x, thisRect.rightPoint.y, nextRect.leftPoint.x, nextRect.leftPoint.y, ropeJointMaxLength, false)
+			table.insert(finishedLoco.ropeJoints_, ropeJoint)
+			end
+
+		end
+	
+		local firstRect = finishedLoco.smallRects_[j]
+		local lastRect = finishedLoco.smallRects_[scaledSize]
+		if j > 1 then
+			local finalRopeJoint = love.physics.newRopeJoint(lastRect.body, firstRect.body, lastRect.rightPoint.x, lastRect.rightPoint.y, firstRect.leftPoint.x, firstRect.leftPoint.y, 1000, false)
+		table.insert(finishedLoco.ropeJointsB_, finalRopeJoint)
+		else
+			local finalRopeJoint = love.physics.newRopeJoint(lastRect.body, firstRect.body, lastRect.rightPoint.x, lastRect.rightPoint.y, firstRect.leftPoint.x, firstRect.leftPoint.y, ropeJointMaxLength, false)
+		table.insert(finishedLoco.ropeJoints_, finalRopeJoint)
+
+		end
+
+	
 	end
-	
-	local firstRect = finishedLoco.smallRects_[1]
-	local lastRect = finishedLoco.smallRects_[scaledSize]
-	local finalRopeJoint = love.physics.newRopeJoint(lastRect.body, firstRect.body, lastRect.rightPoint.x, lastRect.rightPoint.y, firstRect.leftPoint.x, firstRect.leftPoint.y, ropeJointMaxLength, false)
-	table.insert(finishedLoco.ropeJoints_, finalRopeJoint)
-	
+
 	finishedLoco.distanceJoints_ = {}
 	
 	for i, rect in ipairs(finishedLoco.smallRects_) do
@@ -79,6 +112,10 @@ function Loco:init(world, x, y, size, popDist)
 	finishedLoco:setId()
 
 	return finishedLoco
+end
+
+function Loco:getCreationTime()	
+	return self.creationTime_
 end
 
 function Loco:getPosition()
@@ -108,17 +145,6 @@ end
 
 function Loco:getId()
 	return self.id
-end
-
-function Loco:drawFace()
-	local centerX, centerY = self:getPosition()
-	local edgeX, edgeY = self.distanceJoints_[1]:getAnchors()
-
-	
-
-	love.graphics.setColor(0.5, 0.5, 0.5)
-	love.graphics.circle("fill", centerX, centerY, 5)
-	love.graphics.circle("fill", edgeX, edgeY, 5)
 end
 
 function Loco:impulse(x, y)
@@ -167,6 +193,50 @@ function Loco:draw(debugState)
 	end
 end
 
+function Loco:drawFace()
+	local eyeSeparation = 13
+	local eyeRetraction = 16
+
+	local centerX, centerY = self:getPosition()
+	local edgeX, edgeY = self.distanceJoints_[1]:getAnchors()
+
+	local angle = utils.quadAwareATan((edgeY - centerY), (edgeX - centerX))
+
+	local eyeCenterX = edgeX - math.cos(angle)*eyeRetraction
+	local eyeCenterY = edgeY - math.sin(angle)*eyeRetraction
+
+
+	local angle2 = math.pi - angle
+	local eye1X, eye1Y, eye2X, eye2Y = nil
+
+	eye1X = eyeCenterX - math.sin(angle2)*eyeSeparation
+	eye1Y = eyeCenterY - math.cos(angle2)*eyeSeparation
+	eye2X = eyeCenterX + math.sin(angle2)*eyeSeparation
+	eye2Y = eyeCenterY + math.cos(angle2)*eyeSeparation
+
+	love.graphics.setColor(1, 1, 1)
+
+	love.graphics.circle("fill", eye1X, eye1Y, 7)
+	love.graphics.circle("fill", eye2X, eye2Y, 7)
+
+
+	love.graphics.setColor(0, 0, 0)
+	
+	if self.targetPoint_ then
+		local targetX = self.targetPoint_.x
+		local targetY = self.targetPoint_.y
+		
+		for i, eye in ipairs({{x=eye1X, y=eye1Y}, {x=eye2X, y=eye2Y}}) do
+
+			angle = utils.quadAwareATan(targetY - eye.y, targetX - eye.x)
+			love.graphics.circle("fill", eye.x + math.cos(angle)*3, eye.y + math.sin(angle)*3, 4)
+		end			
+	else
+		love.graphics.circle("fill", eye1X, eye1Y, 4)
+		love.graphics.circle("fill", eye2X, eye2Y, 4)	
+	end
+end
+
 function Loco:getLocoCollision()
 	for i, contact in ipairs(self.bigCircle_.body:getContacts()) do
 		local fixture1, fixture2 = contact:getFixtures()
@@ -192,12 +262,25 @@ function Loco:delete()
 			joint:destroy()
 		end
 	end
+	for i, joint in ipairs(self.ropeJointsB_) do
+		if not joint:isDestroyed() then
+			joint:destroy()
+		end
+	end
 	for i, joint in ipairs(self.distanceJoints_) do
 		if not joint:isDestroyed() then
 			joint:destroy()
 		end
 	end
 	self.bigCircle_.body:destroy()
+end
+
+function Loco:deleteBJoints() 
+	for i, joint in ipairs(self.ropeJointsB_) do
+		if not joint:isDestroyed() then
+			joint:destroy()
+		end
+	end
 end
 
 function Loco:breakApart()
@@ -208,7 +291,7 @@ function Loco:breakApart()
 	local x, y = self:getPosition()
 	local donePoints = {}	
 	for i=1, self:getSize() do
-		local newX, newY = self:getSuitablePoint(donePoints, 40, 30)
+		local newX, newY = self:getSuitablePoint(donePoints, 60, 50)
 
 		local newLoco = Loco:init(world, newX, newY, 1, -20)
 		table.insert(donePoints, {x=newX, y=newY})
@@ -221,7 +304,7 @@ end
 function Loco:getSuitablePoint(prevPoints, minDist, rad)
 	local x, y = self:getPosition()
 	local newX, newY = nil
-	local r = self:getRadius() 
+	local r = self:getRadius() * 1.2
 
 	while true do
 		newX = love.math.random(x - r, x+ r)
@@ -229,6 +312,7 @@ function Loco:getSuitablePoint(prevPoints, minDist, rad)
 		if not self:checkPoint(newX, newY, minDist, rad, prevPoints) then
 			return newX, newY
 		end
+		r = r + 3
 	end
 end
 
@@ -239,7 +323,8 @@ function Loco:checkPoint(x, y, minDist, rad, prevPoints)
 	for i, contact in ipairs(contacts) do
 		local fixture = self:getOtherContactFixture(contact)
 		if fixture:getUserData().name == "foreground object" then
-			if checkChainShapeCollision(fixture, x + rad, y) or checkChainShapeCollision(fixture, x - rad, y) or checkChainShapeCollision(fixture, x, y + rad) then
+			local originX, originY = self:getPosition()
+			if checkChainShapeCollision(fixture, x, y, originX, originY) or checkChainShapeCollision(fixture, x + rad, y, originX, originY) or checkChainShapeCollision(fixture, x - rad, y, originX, originY) or checkChainShapeCollision(fixture, x, y + rad, originX, originY) then
 				return true
 			end
 		end
@@ -283,14 +368,14 @@ function ngon(x, y, r, n)
 	return points, sidelength, angleList
 end
 
-function checkChainShapeCollision(fixture, x, y)
+function checkChainShapeCollision(fixture, x, y, originX, originY)
 	local shape = fixture:getShape()
 	local body = fixture:getBody()
 	local collisions = 0
 	for i=1, shape:getChildCount() do
 		local edge = shape:getChildEdge(i)
 		local x1, y1, x2, y2 = body:getWorldPoints(edge:getPoints())
-		if checkLineCollision(x1, y1, x2, y2, -1000, -1000, x, y) then
+		if checkLineCollision(x1, y1, x2, y2, originX, originY, x, y) then
 			collisions = collisions + 1
 		end
 	end
