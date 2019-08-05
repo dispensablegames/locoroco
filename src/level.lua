@@ -10,7 +10,9 @@ local utils = require("utils")
 
 function Level:init(world, filename)
 	local level = {}
+	print("initializing drawing...")
 	level.drawing = Drawing:init("src/levels/" .. filename, 96 / 25.4)
+	print("drawing initialized")
 
 	level.name = filename
 
@@ -42,11 +44,13 @@ function Level:init(world, filename)
 		end
 	end
 
+	print("initializing foreground...")
 	level.foreground = Foreground:init(world, foregroundPaths, level.drawing:getWidth(), level.drawing:getHeight())
+	print("initializing background...")
 	level.background = Background:init(backgroundPaths, backgroundUses, backgroundUsePaths)
-
+	print("initializing floaters...")
 	level.floaters = Floaters:init(world, "src/assets/" .. filename)
-
+	print("floaters initialized")
 	level.floaterTimer = 0
 
 	self.__index = self
