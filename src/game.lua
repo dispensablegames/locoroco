@@ -27,7 +27,6 @@ function Game:update(dt)
 		self.world:update(dt)
 	end
 
-	print(self.world:getBodyCount())
 
 	self.level:update(dt, Camera)
 
