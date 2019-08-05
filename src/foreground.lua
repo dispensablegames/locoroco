@@ -2,9 +2,10 @@ local utils = require("utils")
 
 local Foreground = {}
 
-function Foreground:init(paths, width, height)
+function Foreground:init(world, paths, width, height)
 	local foreground = {}
 
+	foreground.world = world
 
 	foreground.paths = paths
 	foreground.hardbodies = {}
@@ -17,8 +18,13 @@ function Foreground:init(paths, width, height)
 	self.__index = self
 	setmetatable(foreground, self)
 
-	local maxI = math.floor(width / foreground.gridCellSize)
-	local maxJ = math.floor(height / foreground.gridCellSize)
+	print(width)
+	print(height)
+	print(foreground.gridCellSize)
+	local maxI = math.floor(width / foreground.gridCellSize) + 1
+	local maxJ = math.floor(height / foreground.gridCellSize) + 1
+	print(maxI)
+	print(maxJ)
 
 	for i=0,maxI do
 		local row = {}
@@ -94,7 +100,7 @@ end
 function Foreground:addStaticBody(path)
 	local pathPoints = path:getPoints()
 
-	local body = love.physics.newBody(world, 0, 0, "static")
+	local body = love.physics.newBody(self.world, 0, 0, "static")
 	local tempShape = love.physics.newChainShape(true, pathPoints)
 	local shapePoints = utils.getWorldPoints(body, tempShape)
 	local triangles = love.math.triangulate(shapePoints)
@@ -125,13 +131,13 @@ function Foreground:addRotatingBody(path)
 	local pathPoints = path:getPoints()
 	local avgX, avgY = path:getCenter()
 	pathPoints = utils.shiftPoints(pathPoints, avgX, avgY)
-	local body = love.physics.newBody(world, avgX, avgY, "dynamic")
+	local body = love.physics.newBody(self.world, avgX, avgY, "dynamic")
 	body:setMass(1)
 	local shape = love.physics.newChainShape(true, pathPoints)	
 	local fixture = love.physics.newFixture(body, shape)
 	fixture:setFriction(3) 
 	fixture:setUserData({ name = "foreground object" })
-	local centerBody = love.physics.newBody(world, avgX, avgY, "kinematic")
+	local centerBody = love.physics.newBody(self.world, avgX, avgY, "kinematic")
 	centerBody:setMass(1)
 	local joint = love.physics.newRevoluteJoint(body, centerBody, avgX, avgY, avgX, avgY, false, math.pi / 2)
 	joint:setMotorEnabled(true)
@@ -150,7 +156,7 @@ function Foreground:addAutoRotatingBody(path, speed)
 	local pathPoints = path:getPoints()
 	local avgX, avgY = path:getCenter()
 	pathPoints = utils.shiftPoints(pathPoints, avgX, avgY)
-	local body = love.physics.newBody(world, avgX, avgY, "kinematic")
+	local body = love.physics.newBody(self.world, avgX, avgY, "kinematic")
 	local shape = love.physics.newChainShape(true, pathPoints)	
 	local fixture = love.physics.newFixture(body, shape)
 	body:setAngularVelocity(speed)

@@ -5,12 +5,13 @@ local utils = require("utils")
 
 Floaters = {}
 
-function Floaters:init(filename)
+function Floaters:init(world, filename)
 	local floaters = {}
 
 	local drawing = Drawing:init(filename)
 	
 	floaters.paths = {}
+	floaters.world = world
 
 	for i,path in ipairs(drawing:getPaths()) do
 		local x,y = path:getTopLeftCorner()
@@ -70,7 +71,7 @@ function Floaters:createFloater(Camera)
 	local centerY = s.center[2]
 	local id = s.sprite:add(x - centerX, y - centerY)
 
-	local body = love.physics.newBody(world, x, y, "kinematic")
+	local body = love.physics.newBody(self.world, x, y, "kinematic")
 	body:setLinearVelocity(vx, vy)
 	body:setAngularVelocity(1)
 

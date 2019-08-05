@@ -8,9 +8,11 @@ local Level = {}
 
 local utils = require("utils")
 
-function Level:init(filename)
+function Level:init(world, filename)
 	local level = {}
-	level.drawing = Drawing:init(filename, 96 / 25.4)
+	level.drawing = Drawing:init("src/levels/" .. filename, 96 / 25.4)
+
+	level.name = filename
 
 	level.foreground = nil
 	level.background = nil
@@ -40,16 +42,20 @@ function Level:init(filename)
 		end
 	end
 
-	level.foreground = Foreground:init(foregroundPaths, level.drawing:getWidth(), level.drawing:getHeight())
+	level.foreground = Foreground:init(world, foregroundPaths, level.drawing:getWidth(), level.drawing:getHeight())
 	level.background = Background:init(backgroundPaths, backgroundUses, backgroundUsePaths)
 
-	level.floaters = Floaters:init("levels/assets.svg")
+	level.floaters = Floaters:init(world, "src/assets/" .. filename)
 
 	level.floaterTimer = 0
 
 	self.__index = self
 	setmetatable(level, self)
 	return level
+end
+
+function Level:getName()
+	return self.name
 end
 
 function Level:draw()
