@@ -218,7 +218,7 @@ function Loco:drawFace()
 	love.graphics.circle("fill", eye2X, eye2Y, 7)
 
 
-	love.graphics.setColor(0, 0, 0)
+	love.graphics.setColor(84/255, 61/255, 19/255)
 	
 	if self.targetPoint_ then
 		local targetX = self.targetPoint_.x
