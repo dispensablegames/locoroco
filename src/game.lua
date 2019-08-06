@@ -176,6 +176,10 @@ function Game:keyreleased(key)
 			end
 		end
 		self.jumpStr = 0
+	elseif key == "up" then
+		Camera.scaleX = Camera.scaleX * 1.1
+	elseif key == "down" then
+		Camera.scaleX = Camera.scaleX * 0.9
 	end
 end
 
