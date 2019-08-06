@@ -10,7 +10,7 @@ function Game:init(filename)
 	game.world = world
 	game.level = Level:init(world, filename)
 	game.gravAngle = 0
-	game.maxAngle = 0.3
+	game.maxAngle = 0.4
 	game.jumpStr = 0
 	game.locos = {}
 	game.flyController = FlyController:init(world)
@@ -71,13 +71,13 @@ function Game:update(dt)
 	
  	if love.keyboard.isDown("right") then
  	 	if self.gravAngle < self.maxAngle then
-			self.gravAngle = self.gravAngle + 0.01
+			self.gravAngle = self.gravAngle + 0.015
 			Camera:setRotation(self.gravAngle)
 			self.world:setGravity(math.sin(self.gravAngle)*9.81*16, math.cos(self.gravAngle)*9.81*16)
 		end
 	elseif love.keyboard.isDown("left") then
 		if self.gravAngle > - self.maxAngle then
-			self.gravAngle = self.gravAngle - 0.01
+			self.gravAngle = self.gravAngle - 0.015
 			Camera:setRotation(self.gravAngle)
 			self.world:setGravity(math.sin(self.gravAngle)*9.81*16, math.cos(self.gravAngle)*9.81*16)
 		end
@@ -88,11 +88,6 @@ function Game:update(dt)
 end
 
 function Game:draw()
-	love.graphics.scale(0.75)
-	love.graphics.print(self.jumpStr, 100, 100)
-	love.graphics.print(self.level.spawnX, 100, 110)
-	love.graphics.print(self.level.spawnY, 100, 120)
-
 	
 	if madeALoco then 
 		for i,loco in pairs(self.locos) do

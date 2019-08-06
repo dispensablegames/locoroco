@@ -1,8 +1,8 @@
 Camera = {}
 Camera.x = 0
 Camera.y = 0
-Camera.scaleX = 1
-Camera.scaleY = 1
+Camera.scaleX = 0.75
+Camera.scaleY = 0.75
 Camera.rotation = 0
 
 function Camera:set(locoX, locoY)
@@ -11,12 +11,12 @@ function Camera:set(locoX, locoY)
 	love.graphics.push()
 	love.graphics.translate(width / 2, height / 2)
 	love.graphics.rotate(self.rotation)
+	love.graphics.scale(self.scaleX)
 	love.graphics.translate(-width / 2, -height / 2)
 	local distX = locoX - self.x
 	local distY = locoY - self.y
 	self:setPosition(self.x + distX / 15, self.y + distY / 15)
 	love.graphics.translate(width / 2 - self.x, height / 2 - self.y)
-	love.graphics.scale(1 / self.scaleX, 1 / self.scaleY)
 end
 
 function Camera:unset()

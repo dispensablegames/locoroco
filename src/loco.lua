@@ -15,8 +15,8 @@ function Loco:init(world, x, y, size, popDist)
 	local sideLengthShortening = 5 + size / 3
 	local radius = math.sqrt(size * baseUnit)
 	local ropeJointMaxLength = 4 + size / 3
-	local dampingRatio = 1.5
-	local frequency = 1.5
+	local dampingRatio = 1.4
+	local frequency = 1.4
 	local friction = 0.05
 	local finishedLoco = {}
 	
