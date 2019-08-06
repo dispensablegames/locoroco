@@ -65,7 +65,7 @@ end
 
 function Fly:draw()
 
-	love.graphics.setColor(255, 0, 0)
+	love.graphics.setColor(206/255, 32/255, 112/255)
 	local x, y = self.body_:getPosition()
 	local size = 15
 	if self.state_ == "collected" then
