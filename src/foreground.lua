@@ -96,9 +96,26 @@ function Foreground:addBody(path)
 		else
 			self:addAutoRotatingBody(path, path:getStyle("rotate"))
 		end
+	elseif path:getStyle("invisible") then
+		self:addInvisibleBody(path)
 	else
 		self:addStaticBody(path)
 	end
+end
+
+function Foreground:addInvisibleBody(path)
+	local pathPoints = path:getPoints()
+	local body = love.physics.newBody(self.world, 0, 0, "static")
+	local shape = love.physics.newChainShape(true, pathPoints)
+	local fixture = love.physics.newFixture(body, shape)
+	fixture:setFriction(3)
+	fixture:setUserData({ name = "foreground object" })
+	local hardbody = {}
+	hardbody.shape = shape
+	hardbody.body = body
+	hardbody.fixture = fixture
+
+	table.insert(self.hardbodies, hardbody)
 end
 
 function Foreground:addStaticBody(path)
