@@ -104,7 +104,8 @@ function Game:draw()
 		Camera:set(self.level.spawnX, self.level.spawnY)
 	end
 
-	self.level:draw()
+	self.level:draw()	
+	love.graphics.setBlendMode("alpha", "alphamultiply")
 	for i, loco in pairs(self.locos) do
 		love.graphics.setColor(0, 255, 255)
 		loco:draw(false)
