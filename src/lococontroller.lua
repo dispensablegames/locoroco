@@ -23,13 +23,30 @@ function LocoController:update()
 	end
 end
 
-function LocoController:createLoco(x, y, size, popDist, t)
+function LocoController:createLoco(x, y, size, popDist, t, vx, vy, w)
 	local tab = t or self.locos_
 	local loco = Loco:init(self.world_, x, y, size, popDist)
+	local linearX = vx or 0
+	local linearY = vy or 0
+	local angular = w or 0
+
 	loco:setId(self.freeId_)
 	table.insert(tab, self.freeId_, loco)
 	self.freeId_ = self.freeId_ + 1
 	self.locoCount_ = self.locoCount_ + 1
+	loco:setAngularVelocity(angular)
+	loco:setLinearVelocity(linearX, linearY)
+end
+
+function LocoController:incrementLocoSize(loco)
+	local size = loco:getSize()
+	local radius = loco:getRadius()
+	local x, y = loco:getPosition()
+	local vx, vy = loco:getLinearVelocity()
+	local w = loco:getAngularVelocity()
+	self:deleteLoco(loco)
+	self:createLoco(x, y, size + 1, -radius/2, self.locos_, vx, vy, w)
+	
 end
 
 function LocoController:deleteLoco(loco)
@@ -88,6 +105,13 @@ end
 function LocoController:deleteRandomLoco()
 	for i, loco in pairs(self.locos_) do
 		self:deleteLoco(loco)
+		return
+	end
+end
+
+function LocoController:incrementRandomLoco()
+	for i, loco in pairs(self.locos_) do
+		self:incrementLocoSize(loco)
 		return
 	end
 end

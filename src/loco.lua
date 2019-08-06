@@ -137,6 +137,25 @@ function Loco:getId()
 	return self.id
 end
 
+function Loco:getLinearVelocity()
+	return self.bigCircle_.body:getLinearVelocity()
+end
+
+function Loco:getAngularVelocity()
+	return self.bigCircle_.body:getAngularVelocity()
+end
+
+function Loco:setLinearVelocity(vx, vy)
+	self.bigCircle_.body:setLinearVelocity(vx, vy)
+	for i, rect in ipairs(self.smallRects_) do
+		rect.body:setLinearVelocity(vx, vy)
+	end
+end
+
+function Loco:setAngularVelocity(w)
+	self.bigCircle_.body:setAngularVelocity(w)
+end
+
 function Loco:impulse(x, y)
 	local powerRatio = self:getMass() / self:getNumRects()
 	for i, rect in ipairs(self.smallRects_) do

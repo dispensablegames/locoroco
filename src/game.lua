@@ -107,6 +107,8 @@ function Game:keyreleased(key)
 		Camera.scaleX = Camera.scaleX * 1.1
 	elseif key == "down" then
 		Camera.scaleX = Camera.scaleX * 0.9
+	elseif key == "u" then
+		self.locoController:incrementRandomLoco()
 	end
 end
 
