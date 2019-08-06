@@ -26,7 +26,7 @@ end
 function Camera:getTopLeftCorner()
 	local width = love.graphics.getWidth()
 	local height = love.graphics.getHeight()
-	return self.x - width / 2, self.y - height / 2
+	return self.x - (width / 2)/self.scaleX, self.y - (height / 2)/self.scaleX
 end
 
 function Camera:move(dx, dy)
