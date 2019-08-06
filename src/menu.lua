@@ -6,19 +6,20 @@ local Menu = {}
 
 function Menu:init()
 	local menu = {}
-	menu.buttons = {}
-	menu.buttonsDrawn = {}
-
-	local font = love.graphics.newFont()
-
-	for i,file in ipairs(love.filesystem.getDirectoryItems("levels")) do
-		table.insert(menu.buttons, newButton(file, 40, function() menu:startGame(file) end))
-	end
-
-	self.game = nil
+	menu.activeButtons = {}
 
 	self.__index = self
 	setmetatable(menu, self)
+
+	local lastY = 0
+	for i,file in ipairs(love.filesystem.getDirectoryItems("levels")) do
+		local button = newButton(file, 10, function() menu:startGame(file) end)
+		local rectangleRendered = menu:placeButton(button, 10, lastY + 10)
+		lastY = rectangleRendered[6]
+	end
+
+	menu.game = nil
+
 	return menu
 end
 
@@ -33,21 +34,25 @@ function newButton(text, padding, callback)
 	button.width = name:getWidth()
 	button.height = name:getHeight()
 	button.rectangle = { 0, 0, width + 2 * padding, 0, width + 2 * padding, height + 2 * padding, 0, height + 2 * padding }
-	button.textOffset = { width + 2 * padding / 2 - width / 2, height + 2 * padding / 2 - height / 2 }
+	button.textOffset = { padding, padding }
 	return button
 end
 
-function Menu:drawButton(button, offsetX, offsetY)
-	love.graphics.setColor(1, 0, 0)
-	local newRectangle = utils.shiftPoints(button.rectangle, -offsetX, -offsetY)
-	love.graphics.polygon("fill", newRectangle)
-	love.graphics.setColor(0, 0, 0)
-	love.graphics.draw(button.name, unpack(utils.shiftPoints(button.textOffset, -offsetX, -offsetY)))
+function Menu:placeButton(button, offsetX, offsetY)
 	local bMeta = {}
 	bMeta.button = button
-	bMeta.rectangleRendered = newRectangle
-	table.insert(self.buttonsDrawn, bMeta) 
-	return newRectangle
+	local rectangleRendered = utils.shiftPoints(button.rectangle, -offsetX, -offsetY)
+	bMeta.rectangleRendered = rectangleRendered
+	bMeta.textOffsetRendered = utils.shiftPoints(button.textOffset, -offsetX, -offsetY)
+	table.insert(self.activeButtons, bMeta)
+	return rectangleRendered
+end
+
+function drawButton(buttonInstance, buttonColor, textColor)
+	love.graphics.setColor(buttonColor)
+	love.graphics.polygon("fill", buttonInstance.rectangleRendered)
+	love.graphics.setColor(textColor)
+	love.graphics.draw(buttonInstance.button.name, unpack(buttonInstance.textOffsetRendered))
 end
 
 function Menu:startGame(filename)
@@ -64,16 +69,12 @@ end
 
 function Menu:draw()
 	love.graphics.setBackgroundColor(1, 1, 1)
-	local lastY = 0
-	local padding = 40
-	for i,button in ipairs(self.buttons) do
-		print(i)
-		local drawn = self:drawButton(button, 40, lastY + 40)
-		for i,point in ipairs(drawn) do
-			print(point)
+	for i,buttonInstance in ipairs(self.activeButtons) do
+		local background = {1, 0, 0}
+		if inRectangle(buttonInstance.rectangleRendered, love.mouse.getPosition()) then
+			background = {0, 1, 0}
 		end
-		lastY = drawn[6]
-		print()
+		drawButton(buttonInstance, background, {0, 0, 0})
 	end
 end
 
@@ -81,7 +82,7 @@ function Menu:keyreleased(key)
 end
 
 function Menu:mousereleased(x, y, mousebutton)
-	for i,button in ipairs(self.buttonsDrawn) do
+	for i,button in ipairs(self.activeButtons) do
 		if inRectangle(button.rectangleRendered, x, y) then
 			button.button.callback()
 			return
