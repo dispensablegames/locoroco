@@ -63,6 +63,7 @@ function Level:getName()
 end
 
 function Level:draw()
+	love.graphics.setBlendMode("alpha", "premultiplied")
 	self.background:draw()
 	self.floaters:draw()
 	self.foreground:draw()
