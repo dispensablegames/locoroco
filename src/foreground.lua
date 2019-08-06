@@ -14,6 +14,9 @@ function Foreground:init(world, paths, width, height)
 
 	foreground.triangleGrid = {}
 	foreground.gridCellSize = love.graphics.getSystemLimits().texturesize
+	if foreground.gridCellSize > 4096 then
+		foreground.gridCellSize = 4096
+	end
 
 	self.__index = self
 	setmetatable(foreground, self)
