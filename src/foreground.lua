@@ -21,7 +21,6 @@ function Foreground:init(world, paths, width, height)
 	self.__index = self
 	setmetatable(foreground, self)
 
-
 	local maxI = math.floor(width / foreground.gridCellSize)
 	local maxJ = math.floor(height / foreground.gridCellSize)
 	
@@ -158,12 +157,11 @@ function Foreground:addStaticBody(path)
 end
 
 function Foreground:addRotatingBody(path)
-	local pathPoints = path:getPoints()
 	local avgX, avgY = path:getCenter()
-	pathPoints = utils.shiftPoints(pathPoints, avgX, avgY)
+	local shapePoints = utils.shiftPoints(path:getPoints(), avgX, avgY)
 	local body = love.physics.newBody(self.world, avgX, avgY, "dynamic")
 	body:setMass(1)
-	local shape = love.physics.newChainShape(true, pathPoints)	
+	local shape = love.physics.newChainShape(true, shapePoints)	
 	local fixture = love.physics.newFixture(body, shape)
 	fixture:setFriction(3) 
 	fixture:setUserData({ name = "foreground object" })
@@ -173,31 +171,41 @@ function Foreground:addRotatingBody(path)
 	joint:setMotorEnabled(true)
 	joint:setMotorSpeed(math.pi)
 
+	local imageData = path:toImageData()
+	local image = love.graphics.newImage(imageData)
+	local x, y = path:getTopLeftCorner()
+	local offsetX = avgX - x
+	local offsetY = avgY - y
+
 	local hardbody = {}
-	hardbody.color = utils.parseColor(path:getStyle("fill"))
 	hardbody.body = body
-	hardbody.shape = shape
 	hardbody.fixture = fixture
+	hardbody.picture = { image = image, x = avgX, y = avgY, offsetX = offsetX, offsetY = offsetY }
 	table.insert(self.hardbodies, hardbody)
 	table.insert(self.hardbodiesMoving, hardbody)
 end
 
 function Foreground:addAutoRotatingBody(path, speed)
-	local pathPoints = path:getPoints()
 	local avgX, avgY = path:getCenter()
-	pathPoints = utils.shiftPoints(pathPoints, avgX, avgY)
+	local shapePoints = utils.shiftPoints(path:getPoints(), avgX, avgY)
 	local body = love.physics.newBody(self.world, avgX, avgY, "kinematic")
-	local shape = love.physics.newChainShape(true, pathPoints)	
+	local shape = love.physics.newChainShape(true, shapePoints)
 	local fixture = love.physics.newFixture(body, shape)
 	body:setAngularVelocity(speed)
 	fixture:setFriction(3) 
 	fixture:setUserData({ name = "foreground object" })
 
+	local imageData = path:toImageData()
+	local image = love.graphics.newImage(imageData)
+	local x, y = path:getTopLeftCorner()
+	local offsetX = avgX - x
+	local offsetY = avgY - y
+
 	local hardbody = {}
-	hardbody.color = utils.parseColor(path:getStyle("fill"))
 	hardbody.body = body
-	hardbody.shape = shape
 	hardbody.fixture = fixture
+	hardbody.picture = { image = image, x = avgX, y = avgY, offsetX = offsetX, offsetY = offsetY }
+	hardbody.shape = shape
 	table.insert(self.hardbodies, hardbody)
 	table.insert(self.hardbodiesMoving, hardbody)
 end
@@ -217,12 +225,10 @@ function Foreground:draw()
 	end
 ]]--
 	for i, hbody in ipairs(self.hardbodiesMoving) do
-		love.graphics.setColor(hbody.color)
-		local points = utils.getWorldPoints(hbody.body, hbody.shape)
-		for j,triangle in ipairs(love.math.triangulate(points)) do
-			love.graphics.polygon("fill", triangle)
-		end
+		local picture = hbody.picture
+		love.graphics.draw(picture.image, picture.x, picture.y, hbody.body:getAngle(), 1, 1, picture.offsetX, picture.offsetY)
 	end
+	love.graphics.setColor(1, 1, 0)
 	for i=0,self.triangleGridWidth do
 		for j=0,self.triangleGridHeight do
 				love.graphics.rectangle("line", i * self.gridCellSize, j * self.gridCellSize, self.gridCellSize, self.gridCellSize)
