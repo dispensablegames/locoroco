@@ -7,17 +7,7 @@ function UseBatch:init(path)
 	usebatch.path = path
 	usebatch.uses = {}
 
-	local canvas = love.graphics.newCanvas(path:getWidth(), path:getHeight())
-	love.graphics.setCanvas(canvas)
-	love.graphics.setColor(utils.parseColor(path:getStyle("fill")))
-	local points = path:getPoints()
-	local x, y = path:getTopLeftCorner()
-	points = utils.shiftPoints(points, x, y)
-	for i,triangle in ipairs(love.math.triangulate(points)) do
-		love.graphics.polygon("fill", triangle)
-	end
-	love.graphics.setCanvas()
-	local imageData = canvas:newImageData()
+	local imageData = path:toImageData()
 	local image = love.graphics.newImage(imageData)
 	
 	usebatch.sprite = love.graphics.newSpriteBatch(image)

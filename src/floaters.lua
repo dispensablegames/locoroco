@@ -22,15 +22,7 @@ function Floaters:init(world, filename)
 	floaters.sprites = {}
 
 	for i,path in ipairs(floaters.paths) do
-		local canvas = love.graphics.newCanvas(path:getWidth(), path:getHeight())
-		love.graphics.setCanvas(canvas)
-		love.graphics.setColor(utils.parseColor(path:getStyle("fill")))
-		for i,triangle in ipairs(love.math.triangulate(path:getPoints())) do
-			love.graphics.polygon("fill", triangle)
-		end
-		floaters.testcanvas = canvas
-		love.graphics.setCanvas()
-		local imageData = canvas:newImageData()
+		local imageData = path:toImageData()
 		local image = love.graphics.newImage(imageData)
 		local sprite = love.graphics.newSpriteBatch(image)
 		local center = { path:getCenter() }
@@ -84,7 +76,6 @@ function Floaters:draw()
 		love.graphics.setColor(1,1,1)
 		love.graphics.draw(s.sprite)
 	end
-	love.graphics.draw(self.testcanvas, 0, 0)
 end
 	
 return Floaters

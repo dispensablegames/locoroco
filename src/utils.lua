@@ -85,5 +85,31 @@ function utils.getWorldPoints(body, shape)
 	table.remove(points, #points)
 	return points
 end
-		
+
+-- polygons is a table of polygons
+-- a polygon is a table with two keys, points and color
+-- color is a table of 3 numbers 
+-- points is a table of at least 3 points
+-- width is the desired width of the image 
+-- height is the desired height of the image
+-- offsetX is the desired x offset of all polygons (optional, depends on shiftPoints, defaults to 0)
+-- offsetY is the desired y offset of all polygons (optional, depends on shiftPoints, defaults to 0)
+function utils.imageDataFromPolygons(polygons, width, height, offsetX, offsetY)
+	local xoffset = offsetX or 0
+	local yoffset = offsetY or 0
+	local canvas = love.graphics.newCanvas(width, height)
+	love.graphics.setCanvas(canvas)
+	for i,polygon in ipairs(polygons) do
+		love.graphics.setColor(polygon.color)
+		local points = polygon.points
+		if xoffset or yoffset then
+			points = utils.shiftPoints(points, xoffset, yoffset)
+		end
+		love.graphics.polygon("fill", points)
+	end
+	love.graphics.setCanvas()
+	local imageData = canvas:newImageData()
+	return imageData
+end
+
 return utils
