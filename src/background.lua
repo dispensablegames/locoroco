@@ -13,13 +13,14 @@ function Background:init(paths, uses, usepaths)
 
 	for i,path in ipairs(paths) do
 		local picture = {}
-		picture.color = utils.parseColor(path:getStyle("fill"))
-		local points = path:getPoints()
-		local triangles = love.math.triangulate(points)
-		picture.triangles = triangles
+		local imageData = path:toImageData()
+		local image = love.graphics.newImage(imageData)
+		local x, y = path:getTopLeftCorner()
+		picture.image = image
+		picture.x = x
+		picture.y = y
 		table.insert(background.pictures, picture)
 	end
-	
 	
 	background.usebatches = {}
 	background.usebatchesSorted = {}
@@ -43,10 +44,8 @@ end
 
 function Background:draw()
 	for i,picture in ipairs(self.pictures) do
-		love.graphics.setColor(picture.color)
-		for j,triangle in ipairs(picture.triangles) do
-			love.graphics.polygon("fill", triangle)
-		end
+		love.graphics.setColor(1, 1, 1)
+		love.graphics.draw(picture.image, picture.x, picture.y)
 	end
 	for i,usebatch in ipairs(self.usebatchesSorted) do
 		usebatch:draw()
