@@ -15,7 +15,6 @@ function LocoController:init(world)
 end
 
 function LocoController:update()
-	print(self.locoCount_)
 	local currentTime = love.timer.getTime()
 	for i, loco in pairs(self.locos_) do
 		if currentTime - loco:getCreationTime() > 2 then
