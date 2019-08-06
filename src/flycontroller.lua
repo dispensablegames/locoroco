@@ -5,8 +5,11 @@ function FlyController:init(world)
 	local finishedController = {}
 	finishedController.flies_ = {}
 	finishedController.world_ = world
+	finishedController.fliesTotal_ = nil
+	finishedController.fliesCollected_ = 0
 	self.__index = self
 	setmetatable(finishedController, self)
+
 	
 	return finishedController
 end
@@ -16,6 +19,7 @@ function FlyController:addFlies(pointsTable)
 		local fly = Fly:init(self.world_, pointsTable[2*i - 1], pointsTable[2*i], i)
 		table.insert(self.flies_, i, fly)
 	end
+	self.fliesTotal_ = #pointsTable/2
 end
 
 function FlyController:update()
@@ -24,6 +28,7 @@ function FlyController:update()
 		if status == "delete" then
 			table.remove(self.flies_, i)
 			fly:delete()
+			self.fliesCollected_ = self.fliesCollected_ + 1
 		end
 	end
 end
@@ -32,6 +37,10 @@ function FlyController:draw()
 	for i, fly in pairs(self.flies_) do
 		fly:draw()
 	end
+end
+
+function FlyController:getFlyScore()
+	return self.fliesCollected_, self.fliesTotal_
 end
 
 return FlyController

@@ -2,6 +2,7 @@ local Camera = require("camera")
 local Level = require("level")
 local Loco = require("loco")
 local FlyController = require("flycontroller")
+local LocoController = require("lococontroller")
 local Game = {}
 
 function Game:init(filename)
@@ -14,6 +15,7 @@ function Game:init(filename)
 	game.jumpStr = 0
 	game.locos = {}
 	game.flyController = FlyController:init(world)
+	game.locoController = LocoController:init(world)
 	love.graphics.setBackgroundColor(255, 255, 255)
 	game.secondsPassed = 0
 	game.madeALoco = false
@@ -32,40 +34,16 @@ function Game:update(dt)
 		self.world:update(dt)
 	end
 
-
 	self.level:update(dt, Camera)
 
 	self.flyController:update()
-
-	local currentTime = love.timer.getTime()
-	for i, loco in pairs(self.locos) do
-		if currentTime - loco:getCreationTime() > 2 then
-			loco:deleteBJoints()
-		end
-	end 
+	self.locoController:update()
 
 	if love.keyboard.isDown("c") then	
 		self.secondsPassed = self.secondsPassed + 1 * dt
 		if self.secondsPassed > 0.5 then
 			self.secondsPassed = 0
-			local newTable = {}
-			for i, loco1 in pairs(self.locos) do
-				local loco2 = loco1:getLocoCollision()
-				if loco2 then
-					local x1, y1 = loco1:getPosition()
-					local x2, y2 = loco2:getPosition()
-					local newX, newY = averagePoint(x1, x2, y1, y2)
-					newX = newX + 30
-					local newSize = loco1:getSize() + loco2:getSize()
-					self.locos[loco1:getId()] = nil
-					self.locos[loco2:getId()] = nil
-					loco1:delete()
-					loco2:delete()
-					local newLoco = Loco:init(world, newX, newY, newSize, newSize * -1)
-					newTable[newLoco:getId()] = newLoco
-				end
-			end
-			tableAppendFunky(self.locos, newTable)
+			self.locoController:mergeLocos()
 		end
 	end
 	
@@ -88,32 +66,26 @@ function Game:update(dt)
 end
 
 function Game:draw()
-	
-	if madeALoco then 
-		for i,loco in pairs(self.locos) do
-			local locoX, locoY = loco:getPosition()
-			Camera:set(locoX, locoY)
-			break
-		end
+	if self.locoController:getCameraPosition() then
+		local x, y = self.locoController:getCameraPosition()
+		Camera:set(x, y)
 	else
 		Camera:set(self.level.spawnX, self.level.spawnY)
 	end
 
 	self.level:draw()	
 	love.graphics.setBlendMode("alpha", "alphamultiply")
-	for i, loco in pairs(self.locos) do
-		love.graphics.setColor(0, 255, 255)
-		loco:draw(false)
-		if love.keyboard.isDown("t") then
-			love.graphics.setColor(255, 255, 0)
-			loco:draw(true)
-		end
-	end
+	
+	self.locoController:draw()
 
 	self.flyController:draw()
 	
+	local collected, total = self.flyController:getFlyScore()
+	love.graphics.setColor(0, 0, 0)
+
 
 	Camera:unset()
+
 end
 
 function Game:keyreleased(key)
@@ -121,60 +93,15 @@ function Game:keyreleased(key)
 	local world = self.world
 	local level = self.level
 	if key == "1" then
-		local loco = Loco:init(world, level.spawnX, level.spawnY, 1, 0)
-		locos[loco:getId()] = loco
-		loco.targetPoint_ = {x=10000, y=100}
-	elseif key == "2" then
-		local loco = Loco:init(world, level.spawnX, level.spawnY, 2, 0)
-		locos[loco:getId()] = loco
-	elseif key == "3" then
-		local loco = Loco:init(world, level.spawnX, level.spawnY, 3, 0)
-		locos[loco:getId()] = loco
-	elseif key == "4" then
-		local loco = Loco:init(world, level.spawnX, level.spawnY, 4, 0)
-		locos[loco:getId()] = loco
-	elseif key == "5" then
-		local loco = Loco:init(world, level.spawnX, level.spawnY, 5, 0)
-		locos[loco:getId()] = loco
-	elseif key == "6" then
-		local loco = Loco:init(world, level.spawnX, level.spawnY, 6, 0)
-		locos[loco:getId()] = loco
-	elseif key == "7" then
-		local loco = Loco:init(world, level.spawnX, level.spawnY, 7, 0)
-		locos[loco:getId()] = loco
-	elseif key == "8" then
-		local loco = Loco:init(world, level.spawnX, level.spawnY, 8, 0)
-		locos[loco:getId()] = loco
-	elseif key == "9" then
-		local loco = Loco:init(world, level.spawnX, level.spawnY, 9, 0)
-		locos[loco:getId()] = loco
-	elseif key == "0" then
-		local loco = Loco:init(world, level.spawnX, level.spawnY, 20, 0)
-		locos[loco:getId()] = loco
+		self.locoController:createLoco(level.spawnX, level.spawnY, 1, 0)
 	elseif key == "d" then
-		for i, loco in pairs(locos) do
-			locos[loco:getId()] = nil
-			loco:delete()
-			break
-		end
-
+		self.locoController:deleteRandomLoco()
 	elseif key == "c" then
 		self.secondsPassed = 0
-
 	elseif key == "p" then
-		local newTable = {}
-		for i, loco in pairs(locos) do
-			tableAppendFunky(newTable, loco:breakApart())
-			locos[loco:getId()] = nil
-		end
-		self.locos = newTable
-
+		self.locoController:breakApart()
 	elseif key == "space" then
-		for i, loco in pairs(locos) do
-			if loco:getJumpability() then
-				loco:impulse(0, -self.jumpStr*10)
-			end
-		end
+		self.locoController:impulse(0, -self.jumpStr*10)
 		self.jumpStr = 0
 	elseif key == "up" then
 		Camera.scaleX = Camera.scaleX * 1.1
@@ -187,17 +114,6 @@ function Game:mousereleased()
 end
 
 function Game:mousepressed()
-end
-
-function tableAppendFunky(table1, table2)
-	if table1 == nil then
-		return table1
-	elseif table2 == nil then
-		return table2
-	end
-	for key,value in pairs(table2) do
-		table1[key] = value
-	end
 end
 
 function averagePoint(x1, x2, y1, y2) 
