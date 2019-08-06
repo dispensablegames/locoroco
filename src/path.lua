@@ -51,6 +51,7 @@ end
 
 function Path:setPoints(points)
 	self.points = points
+	self:metadataSet()
 end
 
 function Path:getStyle(key)
@@ -88,6 +89,20 @@ function Path:tagged(tag)
 		end
 	end
 	return false
+end
+
+function Path:toImageData()
+	local canvas = love.graphics.newCanvas(self.width, self.height)
+	love.graphics.setCanvas(canvas)
+	love.graphics.setColor(utils.parseColor(self:getStyle("fill")))
+	local points = self.points
+	local x, y = self:getTopLeftCorner()
+	points = utils.shiftPoints(points, x, y)
+	for i,triangle in ipairs(love.math.triangulate(points)) do
+		love.graphics.polygon("fill", triangle)
+	end
+	love.graphics.setCanvas()
+	return canvas:newImageData()
 end
 
 function Path:parseStyles()
