@@ -1,13 +1,6 @@
 Loco = {}
-freeId_ = 1
-
 
 function Loco:init(world, x, y, size, popDist)
-
-
-	--REMOVE LATER
-	madeALoco = true
-
 
 	local baseUnit = 1000
 	local scaledSize = math.floor(10 + (size / 3))
@@ -136,9 +129,8 @@ function Loco:getMass()
 	return self:getNumRects() * self.smallRects_[1].body:getMass() + self.bigCircle_.body:getMass()
 end
 
-function Loco:setId()
-	self.id = freeId_
-	freeId_ = freeId_ + 1
+function Loco:setId(id)
+	self.id = id
 end
 
 function Loco:getId()
@@ -281,23 +273,6 @@ function Loco:deleteBJoints()
 	end
 end
 
-function Loco:breakApart()
-	if self:getSize() == 1 then
-		return { [self:getId()]=self }
-	end
-	local newLocos = {}
-	local x, y = self:getPosition()
-	local donePoints = {}	
-	for i=1, self:getSize() do
-		local newX, newY = self:getSuitablePoint(donePoints, 60, 50)
-
-		local newLoco = Loco:init(world, newX, newY, 1, -20)
-		table.insert(donePoints, {x=newX, y=newY})
-		newLocos[newLoco:getId()] = newLoco
-	end
-	self:delete()
-	return newLocos
-end
 
 function Loco:getSuitablePoint(prevPoints, minDist, rad)
 	local x, y = self:getPosition()

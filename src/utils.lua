@@ -85,5 +85,16 @@ function utils.getWorldPoints(body, shape)
 	table.remove(points, #points)
 	return points
 end
-		
+
+function utils.tableAppendFunky(table1, table2)
+	if table1 == nil then
+		return table1
+	elseif table2 == nil then
+		return table2
+	end
+	for key,value in pairs(table2) do
+		table1[key] = value
+	end
+end
+
 return utils
