@@ -11,6 +11,7 @@ function Foreground:init(world, paths, width, height)
 	foreground.hardbodies = {}
 	foreground.hardbodiesMoving = {}
 	foreground.hardbodiesStatic = {}
+	foreground.hardbodiesSecret = {}
 
 	foreground.triangleGrid = {}
 	foreground.gridCellSize = math.floor(math.sqrt(width * height / 16))
@@ -106,6 +107,8 @@ function Foreground:addBody(path)
 		end
 	elseif path:getStyle("invisible") then
 		self:addInvisibleBody(path)
+	elseif path:getStyle("secret") then
+		self:addSecretBody(path)
 	else
 		self:addStaticBody(path)
 	end
@@ -124,6 +127,27 @@ function Foreground:addInvisibleBody(path)
 	hardbody.fixture = fixture
 
 	table.insert(self.hardbodies, hardbody)
+end
+
+function Foreground:addSecretBody(path)
+	local shapePoints = path:getPoints()
+	local body = love.physics.newBody(self.world, 0, 0, "static")
+	local shape = love.physics.newChainShape(true, shapePoints)
+	local fixture = love.physics.newFixture(body, shape)
+	fixture:setUserData({ name = "foreground object" })
+	fixture:setSensor(true)
+
+	local imageData = path:toImageData()
+	local image = love.graphics.newImage(imageData)
+	local x, y = path:getTopLeftCorner()
+
+	local hardbody = {}
+	hardbody.body = body
+	hardbody.fixture = fixture
+	hardbody.picture = { image = image, x = x, y = y }
+	hardbody.shape = shape
+	table.insert(self.hardbodies, hardbody)
+	table.insert(self.hardbodiesSecret, hardbody)
 end
 
 function Foreground:addStaticBody(path)
@@ -224,6 +248,10 @@ function Foreground:draw()
 		end
 	end
 ]]--
+	for i,hbody in ipairs(self.hardbodiesSecret) do
+		local picture = hbody.picture
+		love.graphics.draw(picture.image, picture.x, picture.y)
+	end
 	for i, hbody in ipairs(self.hardbodiesMoving) do
 		local picture = hbody.picture
 		love.graphics.draw(picture.image, picture.x, picture.y, hbody.body:getAngle(), 1, 1, picture.offsetX, picture.offsetY)
