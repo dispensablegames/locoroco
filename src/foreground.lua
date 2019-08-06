@@ -13,9 +13,9 @@ function Foreground:init(world, paths, width, height)
 	foreground.hardbodiesStatic = {}
 
 	foreground.triangleGrid = {}
-	foreground.gridCellSize = love.graphics.getSystemLimits().texturesize
-	if foreground.gridCellSize > 4096 then
-		foreground.gridCellSize = 4096
+	foreground.gridCellSize = math.floor(math.sqrt(width * height / 16))
+	if love.graphics.getSystemLimits().texturesize < foreground.gridCellSize then
+		foreground.gridCellSize = love.graphics.getSystemLimits().texturesize
 	end
 
 	self.__index = self
@@ -24,7 +24,12 @@ function Foreground:init(world, paths, width, height)
 
 	local maxI = math.floor(width / foreground.gridCellSize)
 	local maxJ = math.floor(height / foreground.gridCellSize)
+	
+	print(maxI)
+	print(maxJ)
 
+	self.triangleGridWidth = maxI
+	self.triangleGridHeight = maxJ
 
 	for i=0,maxI do
 		local row = {}
@@ -49,7 +54,6 @@ function Foreground:init(world, paths, width, height)
 			local canvas = love.graphics.newCanvas(foreground.gridCellSize, foreground.gridCellSize)
 			love.graphics.setCanvas(canvas)
 			local triangles = foreground.triangleGrid[i][j]
-			print("adding triangles to canvas")
 			for k,t in ipairs(triangles) do
 				love.graphics.setColor(t.color)
 				local triangle = t.triangle
@@ -57,11 +61,9 @@ function Foreground:init(world, paths, width, height)
 				love.graphics.polygon("fill", newTriangle)
 			end
 			love.graphics.setCanvas()
-			print("creating image from canvas")
 			local imageData = canvas:newImageData()
 			local image = love.graphics.newImage(imageData)
 			table.insert(foreground.images, { x = i * foreground.gridCellSize, y = j * foreground.gridCellSize, image = image })
-			print("one canvas done")
 		end
 	end
 
@@ -71,25 +73,38 @@ end
 
 function Foreground:addTriangle(triangle, color)
 	local tMeta = { triangle = triangle, color = color }
-	local avgX, avgY = utils.averagePoints(triangle)
-	local gridCellSize = self.gridCellSize
-	local grid = self.triangleGrid
-	local x = math.floor(avgX / gridCellSize)
-	local y = math.floor(avgY / gridCellSize)
-	local cell = grid[x][y]
-	table.insert(cell, tMeta)
-	for i=1,#triangle - 1,2 do 
-		local x = triangle[i]
-		local y = triangle[i + 1]
-		local gridI = math.floor(x / gridCellSize)
-		local gridJ = math.floor(y / gridCellSize)
-		local cell = grid[gridI][gridJ]
-		if cell and cell[#cell] == tMeta then
-
-		else
-			table.insert(cell, tMeta)
+	local minX, minY, maxX, maxY = minMaxValues(triangle)
+	local gridMinX = math.floor(minX / self.gridCellSize)
+	local gridMinY = math.floor(minY / self.gridCellSize)
+	local gridMaxX = math.floor(maxX / self.gridCellSize)
+	local gridMaxY = math.floor(maxY / self.gridCellSize)
+	for x=gridMinX, gridMaxX  do
+		for y=gridMinY, gridMaxY  do
+			table.insert(self.triangleGrid[x][y], tMeta)
 		end
 	end
+end
+
+function minMaxValues(points)
+	local minX = points[1]
+	local minY = points[2]
+	local maxX = points[1]
+	local maxY = points[2]
+	for i=1,#points-1,2 do
+		if points[i] > maxX then
+			maxX = points[i]
+		end
+		if points[i] < minX then
+			minX = points[i]
+		end
+		if points[i + 1] > maxY then
+			maxY = points[i + 1]
+		end
+		if points[i + 1] < minY then
+			minY = points[i + 1]
+		end
+	end
+	return minX, minY, maxX, maxY
 end
 
 function Foreground:addBody(path)
@@ -215,6 +230,11 @@ function Foreground:draw()
 		local points = utils.getWorldPoints(hbody.body, hbody.shape)
 		for j,triangle in ipairs(love.math.triangulate(points)) do
 			love.graphics.polygon("fill", triangle)
+		end
+	end
+	for i=0,self.triangleGridWidth do
+		for j=0,self.triangleGridHeight do
+				love.graphics.rectangle("line", i * self.gridCellSize, j * self.gridCellSize, self.gridCellSize, self.gridCellSize)
 		end
 	end
 end
