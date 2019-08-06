@@ -88,11 +88,6 @@ function Game:update(dt)
 end
 
 function Game:draw()
-	love.graphics.scale(0.75)
-	love.graphics.print(self.jumpStr, 100, 100)
-	love.graphics.print(self.level.spawnX, 100, 110)
-	love.graphics.print(self.level.spawnY, 100, 120)
-
 	
 	if madeALoco then 
 		for i,loco in pairs(self.locos) do
