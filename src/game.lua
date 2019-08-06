@@ -112,8 +112,12 @@ function Game:draw()
 
 	self.flyController:draw()
 	
+	local collected, total = self.flyController:getFlyScore()
+	love.graphics.setColor(0, 0, 0)
+
 
 	Camera:unset()
+
 end
 
 function Game:keyreleased(key)
