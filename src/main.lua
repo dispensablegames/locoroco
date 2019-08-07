@@ -2,6 +2,7 @@ local Menu = require("menu")
 local Game = require("game")
 
 function love.load()
+	love.window.setTitle("LocoRoco")
 	love.window.setMode(500, 500, {vsync=true, resizable=true})
 	menu = Menu:init()
 	
