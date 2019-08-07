@@ -81,6 +81,8 @@ function Game:draw()
 	self.locoController:draw()
 
 	self.flyController:draw()
+
+	self.level:drawSecretWalls()
 	
 	local collected, total = self.flyController:getFlyScore()
 	love.graphics.setColor(0, 0, 0)

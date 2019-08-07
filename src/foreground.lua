@@ -144,6 +144,7 @@ function Foreground:addSecretBody(path)
 	hardbody.picture = { image = image, x = x, y = y }
 	hardbody.shape = shape
 	hardbody.transparency = 1
+	hardbody.state = 1
 	table.insert(self.hardbodies, hardbody)
 	table.insert(self.hardbodiesSecret, hardbody)
 end
@@ -232,35 +233,33 @@ function Foreground:addAutoRotatingBody(path, speed)
 	table.insert(self.hardbodiesMoving, hardbody)
 end
 
-function Foreground:draw()
-
+function Foreground:drawSecretWalls()
 	--very ugly
+
 	for i,hbody in ipairs(self.hardbodiesSecret) do
-		if hbody.transparency == 0 then
-			break
-		elseif hbody.transparency == 1 then
-			local locoInside = false
+		if hbody.state == 1 then
+			love.graphics.setBlendMode("alpha", "premultiplied")
 			for i, contact in ipairs(hbody.body:getContacts()) do
 				local fixture1, fixture2 = contact:getFixtures()
 				local userdata1 = fixture1:getUserData()
 				local userdata2 = fixture2:getUserData()
 				if userdata1.name == "circle" or userdata2.name == "circle" then
-					locoInside = true
+					hbody.state = 0
 					break
 				end
 			end
-			if locoInside then
+		else
+			love.graphics.setBlendMode("alpha", "alphamultiply")
+			if hbody.transparency > 0 then
 				hbody.transparency = hbody.transparency - 0.1
 			end
-		elseif hbody.transparency > 0 and hbody.transparency < 1 then
-			hbody.transparency = hbody.transparency - 0.1
 		end
-
 		love.graphics.setColor(1, 1, 1, hbody.transparency)
 		love.graphics.draw(hbody.picture.image, hbody.picture.x, hbody.picture.y)
-		love.graphics.setColor(1, 1, 1, 1)
 	end
+end
 
+function Foreground:draw()
 	for i,img in ipairs(self.images) do
 		love.graphics.setColor(1,1,1)
 		love.graphics.draw(img.image, img.x, img.y)

@@ -74,6 +74,10 @@ function Level:getName()
 	return self.name
 end
 
+function Level:drawSecretWalls()
+	self.foreground:drawSecretWalls()
+end
+
 function Level:draw()
 	love.graphics.setBlendMode("alpha", "premultiplied")
 	self.background:draw()
