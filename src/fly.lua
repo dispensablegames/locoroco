@@ -69,13 +69,13 @@ function Fly:draw()
 		return
 	end
 	local x, y = self.body_:getPosition()
+
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.setBlendMode("alpha", "premultiplied")
+
 	if self.state_ == "collected" then
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.setBlendMode("alpha", "premultiplied")
 		love.graphics.draw(self.image_, x, y, 1 - self.animationState_, self.animationState_)
 	else
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.setBlendMode("alpha", "premultiplied")
 		love.graphics.draw(self.image_, x, y)
 	end
 end

@@ -129,7 +129,7 @@ end
 function Foreground:addSecretBody(path)
 	local shapePoints = path:getPoints()
 	local body = love.physics.newBody(self.world, 0, 0, "static")
-	local shape = love.physics.newChainShape(true, shapePoints)
+	local shape = love.physics.newChainShape(true, shapePoints)	
 	local fixture = love.physics.newFixture(body, shape)
 	fixture:setUserData({ name = "foreground object" })
 	fixture:setSensor(true)
@@ -143,6 +143,7 @@ function Foreground:addSecretBody(path)
 	hardbody.fixture = fixture
 	hardbody.picture = { image = image, x = x, y = y }
 	hardbody.shape = shape
+	hardbody.transparency = 1
 	table.insert(self.hardbodies, hardbody)
 	table.insert(self.hardbodiesSecret, hardbody)
 end
@@ -232,6 +233,34 @@ function Foreground:addAutoRotatingBody(path, speed)
 end
 
 function Foreground:draw()
+
+	--very ugly
+	for i,hbody in ipairs(self.hardbodiesSecret) do
+		if hbody.transparency == 0 then
+			break
+		elseif hbody.transparency == 1 then
+			local locoInside = false
+			for i, contact in ipairs(hbody.body:getContacts()) do
+				local fixture1, fixture2 = contact:getFixtures()
+				local userdata1 = fixture1:getUserData()
+				local userdata2 = fixture2:getUserData()
+				if userdata1.name == "circle" or userdata2.name == "circle" then
+					locoInside = true
+					break
+				end
+			end
+			if locoInside then
+				hbody.transparency = hbody.transparency - 0.1
+			end
+		elseif hbody.transparency > 0 and hbody.transparency < 1 then
+			hbody.transparency = hbody.transparency - 0.1
+		end
+
+		love.graphics.setColor(1, 1, 1, hbody.transparency)
+		love.graphics.draw(hbody.picture.image, hbody.picture.x, hbody.picture.y)
+		love.graphics.setColor(1, 1, 1, 1)
+	end
+
 	for i,img in ipairs(self.images) do
 		love.graphics.setColor(1,1,1)
 		love.graphics.draw(img.image, img.x, img.y)
@@ -245,10 +274,7 @@ function Foreground:draw()
 		end
 	end
 ]]--
-	for i,hbody in ipairs(self.hardbodiesSecret) do
-		local picture = hbody.picture
-		love.graphics.draw(picture.image, picture.x, picture.y)
-	end
+
 	for i, hbody in ipairs(self.hardbodiesMoving) do
 		local picture = hbody.picture
 		love.graphics.draw(picture.image, picture.x, picture.y, hbody.body:getAngle(), 1, 1, picture.offsetX, picture.offsetY)
