@@ -19,7 +19,7 @@ function FlyController:init(world)
 end
 
 function FlyController:addFlies(pointsTable)
-	self:addItems(pointsTable, Fly)
+	self:addItems(pointsTable, Fly, {self.image_})
 end
 
 function FlyController:update()
