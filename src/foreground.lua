@@ -24,9 +24,6 @@ function Foreground:init(world, paths, width, height)
 
 	local maxI = math.floor(width / foreground.gridCellSize)
 	local maxJ = math.floor(height / foreground.gridCellSize)
-	
-	print(maxI)
-	print(maxJ)
 
 	self.triangleGridWidth = maxI
 	self.triangleGridHeight = maxJ
