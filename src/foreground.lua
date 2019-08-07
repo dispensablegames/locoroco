@@ -12,6 +12,7 @@ function Foreground:init(world, paths, width, height)
 	foreground.hardbodiesMoving = {}
 	foreground.hardbodiesStatic = {}
 	foreground.hardbodiesSecret = {}
+	foreground.pictures = {}
 
 	foreground.triangleGrid = {}
 	foreground.gridCellSize = math.floor(math.sqrt(width * height / 16))
@@ -106,6 +107,8 @@ function Foreground:addBody(path)
 		self:addInvisibleBody(path)
 	elseif path:getStyle("secret") then
 		self:addSecretBody(path)
+	elseif path:getStyle("mask") then
+		self:addMask(path)
 	else
 		self:addStaticBody(path)
 	end
@@ -124,6 +127,13 @@ function Foreground:addInvisibleBody(path)
 	hardbody.fixture = fixture
 
 	table.insert(self.hardbodies, hardbody)
+end
+
+function Foreground:addMask(path)
+	local pathPoints = path:getPoints()
+	local image = love.graphics.newImage(path:toImageData())
+	local x, y = path:getTopLeftCorner()
+	table.insert(self.pictures, { image = image, x = x, y = y })
 end
 
 function Foreground:addSecretBody(path)
@@ -271,6 +281,12 @@ function Foreground:drawSecretWalls()
 		love.graphics.draw(hbody.picture.image, hbody.picture.x, hbody.picture.y)
 		love.graphics.setColor(1, 1, 1, 1)
 	end
+
+	love.graphics.setBlendMode("alpha", "premultiplied")
+	for i,picture in ipairs(self.pictures) do
+		love.graphics.draw(picture.image, picture.x, picture.y)
+	end
+
 end
 
 function Foreground:draw()
@@ -293,11 +309,13 @@ function Foreground:draw()
 		love.graphics.draw(picture.image, picture.x, picture.y, hbody.body:getAngle(), 1, 1, picture.offsetX, picture.offsetY)
 	end
 	love.graphics.setColor(1, 1, 0)
+--[[
 	for i=0,self.triangleGridWidth do
 		for j=0,self.triangleGridHeight do
 				love.graphics.rectangle("line", i * self.gridCellSize, j * self.gridCellSize, self.gridCellSize, self.gridCellSize)
 		end
 	end
+--]]
 end
 
 function splitTable(t, n)
