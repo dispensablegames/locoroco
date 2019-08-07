@@ -61,6 +61,10 @@ function Drawing:getHeight()
 	return self.height
 end
 
+function Drawing:getTopLeftCorner()
+	return self.boundingBox[1], self.boundingBox[2]
+end
+
 function Drawing:getPath(id)
 	for i,path in ipairs(self.paths) do
 		if path:getId() == id then
@@ -68,6 +72,23 @@ function Drawing:getPath(id)
 		end
 	end
 	return nil
+end
+
+function Drawing:toImageData()
+	local offsetX, offsetY = self:getTopLeftCorner(self.width, self.height)
+	local canvas = love.graphics.newCanvas()
+	for i,path in ipairs(self.paths) do
+		local imageData = path:toImageData()
+		local image = love.graphics.newImage(imageData)
+		love.graphics.setCanvas(canvas)
+		love.graphics.setColor(1, 1, 1)
+		love.graphics.setBlendMode("alpha", "premultiplied")
+		local x, y = path:getTopLeftCorner()
+		love.graphics.draw(image, x - offsetX, y - offsetY)
+	end
+	love.graphics.setCanvas()
+	local imageData = canvas:newImageData()
+	return imageData
 end
 
 -- takes out all paths from svg node, deep search
