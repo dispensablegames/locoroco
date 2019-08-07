@@ -14,10 +14,10 @@ function ItemController:init(world)
 	return finishedController
 end
 
-function ItemController:addItems(pointsTable, object, argTable)
+function ItemController:addItems(pointsTable, Object, argTable)
 	for i=1, #pointsTable/2 do
-		local fly = object:init(self.world_, pointsTable[2*i - 1], pointsTable[2*i], i, unpack(argTable))
-		table.insert(self.items_, i, fly)
+		local item = Object:init(self.world_, pointsTable[2*i - 1], pointsTable[2*i], i, unpack(argTable))
+		table.insert(self.items_, i, item)
 	end
 	self.itemsTotal_ = #pointsTable/2
 end

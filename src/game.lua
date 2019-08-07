@@ -3,6 +3,7 @@ local Level = require("level")
 local Loco = require("loco")
 local FlyController = require("flycontroller")
 local LocoController = require("lococontroller")
+local FruitController= require("fruitcontroller")
 local Game = {}
 
 function Game:init(filename)
@@ -16,6 +17,7 @@ function Game:init(filename)
 	game.locos = {}
 	game.flyController = FlyController:init(world)
 	game.locoController = LocoController:init(world)
+	game.fruitController = FruitController:init(world)
 	love.graphics.setBackgroundColor(255, 255, 255)
 	game.secondsPassed = 0
 	game.madeALoco = false
@@ -40,6 +42,7 @@ function Game:update(dt)
 
 	self.flyController:update()
 	self.locoController:update()
+	self.fruitController:update(self.locoController)
 
 	if love.keyboard.isDown("c") then	
 		self.secondsPassed = self.secondsPassed + 1 * dt
@@ -80,6 +83,7 @@ function Game:draw()
 	
 	self.locoController:draw()
 
+	self.fruitController:draw()
 	self.flyController:draw()
 
 	self.level:drawSecretWalls()
