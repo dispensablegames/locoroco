@@ -8,9 +8,7 @@ function FlyController:init(world)
 	finishedController.world_ = world
 	finishedController.fliesTotal_ = nil
 	finishedController.fliesCollected_ = 0
-	local flyDrawing = Drawing:init("src/assets/fly.svg")
-	local image = love.graphics.newImage(flyDrawing:toImageData())
-	finishedController.image_ = image
+	finishedController.frames_ = { importFrame("src/assets/fly1.svg"), importFrame("src/assets/fly2.svg") }
 	self.__index = self
 	setmetatable(finishedController, self)
 
@@ -18,9 +16,17 @@ function FlyController:init(world)
 	return finishedController
 end
 
+function importFrame(filename)
+	local drawing = Drawing:init(filename)
+	local image = love.graphics.newImage(drawing:toImageData())
+	local height = drawing:getHeight()
+	local width = drawing:getWidth()
+	return { image = image, height = height, width = width }
+end
+
 function FlyController:addFlies(pointsTable)
 	for i=1, #pointsTable/2 do
-		local fly = Fly:init(self.world_, pointsTable[2*i - 1], pointsTable[2*i], i, self.image_)
+		local fly = Fly:init(self.world_, pointsTable[2*i - 1], pointsTable[2*i], i, self.frames_)
 		table.insert(self.flies_, i, fly)
 	end
 	self.fliesTotal_ = #pointsTable/2

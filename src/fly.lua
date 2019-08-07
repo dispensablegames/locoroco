@@ -1,16 +1,17 @@
 Fly = {}
 
-function Fly:init(world, x, y, id, image)
+function Fly:init(world, x, y, id, frames)
 	local detectionRadius = 30
 	
 	local finishedFly = {}
 	
 	finishedFly.state_ = "uncollected"
 	finishedFly.animationState_ = love.math.random()
+	finishedFly.frameState_ = 1
 	finishedFly.targetLoco_ = nil
 	finishedFly.id_ = id
 	
-	finishedFly.image_ = image
+	finishedFly.frames_ = frames
 
 	finishedFly.body_ = love.physics.newBody(world, x, y, "static")
 	finishedFly.shape_ = love.physics.newCircleShape(detectionRadius)
@@ -58,6 +59,8 @@ function Fly:update()
 			self.animationState_ = self.animationState_ - 0.05
 		end
 	end		
+	self.frameState_ = self.frameState_ + 1
+	self.frameState_ = self.frameState_ % (#self.frames_ * 2)
 end
 
 function Fly:delete()
@@ -73,10 +76,12 @@ function Fly:draw()
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setBlendMode("alpha", "premultiplied")
 
+	local picture = self.frames_[math.floor(self.frameState_ / 2) + 1]
 	if self.state_ == "collected" then
-		love.graphics.draw(self.image_, x, y, 1 - self.animationState_, self.animationState_)
+		love.graphics.draw(picture.image, x, y, 1 - self.animationState_, self.animationState_)
 	else
-		love.graphics.draw(self.image_, x, y)
+		print(self.frameState_)
+		love.graphics.draw(picture.image, x - picture.width / 2, y - picture.height )
 	end
 end
 
