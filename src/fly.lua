@@ -1,14 +1,13 @@
 Fly = {}
 
 function Fly:init(world, x, y, id, image)
-	local detectionRadius = 50
+	local detectionRadius = 30
 	
 	local finishedFly = {}
 	
 	finishedFly.state_ = "uncollected"
 	finishedFly.animationState_ = love.math.random()
 	finishedFly.targetLoco_ = nil
-	finishedFly.size_ = 15
 	finishedFly.id_ = id
 	
 	finishedFly.image_ = image
@@ -47,7 +46,7 @@ function Fly:update()
 			end
 		end		
 		local currentX, currentY = self.body_:getPosition()
-		self.body_:setPosition(currentX, currentY + 1.1*math.sin(self.animationState_))
+		self.body_:setPosition(currentX, currentY + 0.6*math.sin(self.animationState_))
 		self.animationState_ = self.animationState_ + 0.1
 	elseif self.state_ == "collected" then
 		if self.animationState_ <= 0 then
@@ -55,7 +54,7 @@ function Fly:update()
 		else
 			local targetX, targetY = self.targetLoco_:getPosition()
 			local selfX, selfY = self.body_:getPosition()
-			self.body_:setPosition(selfX + (targetX - selfX)/5, selfY + (targetY - selfY)/5)
+			self.body_:setPosition(selfX + (targetX - selfX)/3, selfY + (targetY - selfY)/3)
 			self.animationState_ = self.animationState_ - 0.05
 		end
 	end		
@@ -70,7 +69,6 @@ function Fly:draw()
 		return
 	end
 	local x, y = self.body_:getPosition()
-	local size = 15
 	if self.state_ == "collected" then
 		love.graphics.setColor(1, 1, 1)
 		love.graphics.setBlendMode("alpha", "premultiplied")

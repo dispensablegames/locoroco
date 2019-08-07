@@ -20,7 +20,9 @@ function Game:init(filename)
 	game.secondsPassed = 0
 	game.madeALoco = false
 
-	game.flyController:addFlies({game.level.spawnX, game.level.spawnY, game.level.spawnX, game.level.spawnY + 100, game.level.spawnX, game.level.spawnY + 200, game.level.spawnX, game.level.spawnY + 300})
+	game.flyController:addFlies(game.level:getFlyPositions())
+
+	local flyPositions = game.level:getFlyPositions()
 
 	self.__index = self
 	setmetatable(game, self)

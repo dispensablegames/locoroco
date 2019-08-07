@@ -19,13 +19,21 @@ function Level:init(world, filename)
 	level.foreground = nil
 	level.background = nil
 
+	level.flyPositions = {}
+
 	local foregroundPaths = {}
 	local backgroundPaths = {}
 	for i,path in ipairs(level.drawing:getPaths()) do
-		if path:getStyle("spawn") then
-			local spawnX, spawnY = utils.averagePoints(path:getPoints())
-			level.spawnX = spawnX
-			level.spawnY = spawnY
+		if path:getStyle("meta") then
+			if path:getStyle("meta") == "spawn" then
+				local spawnX, spawnY = utils.averagePoints(path:getPoints())
+				level.spawnX = spawnX
+				level.spawnY = spawnY
+			elseif path:tagged("flies") then
+				local x, y = utils.averagePoints(path:getPoints())
+				table.insert(level.flyPositions, x)
+				table.insert(level.flyPositions, y)
+				end
 		elseif path:tagged("objects") then
 
 		elseif path:tagged("background") then
@@ -56,6 +64,10 @@ function Level:init(world, filename)
 	self.__index = self
 	setmetatable(level, self)
 	return level
+end
+
+function Level:getFlyPositions()
+	return self.flyPositions
 end
 
 function Level:getName()
