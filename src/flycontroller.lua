@@ -1,45 +1,35 @@
 local Drawing = require("drawing")
 local Fly = require("fly")
-FlyController = {}
+local ItemController = require("itemcontroller")
+FlyController = ItemController:init()
 
 function FlyController:init(world)
 	local finishedController = {}
-	finishedController.flies_ = {}
+	finishedController.items_ = {}
 	finishedController.world_ = world
-	finishedController.fliesTotal_ = nil
-	finishedController.fliesCollected_ = 0
+	finishedController.itemsTotal_ = nil
+	finishedController.itemsCollected_ = 0
 	local flyDrawing = Drawing:init("src/assets/fly.svg")
 	local image = love.graphics.newImage(flyDrawing:toImageData())
 	finishedController.image_ = image
 	self.__index = self
 	setmetatable(finishedController, self)
 
-	
 	return finishedController
 end
 
 function FlyController:addFlies(pointsTable)
-	for i=1, #pointsTable/2 do
-		local fly = Fly:init(self.world_, pointsTable[2*i - 1], pointsTable[2*i], i, self.image_)
-		table.insert(self.flies_, i, fly)
-	end
-	self.fliesTotal_ = #pointsTable/2
+	self:addItems(pointsTable, Fly)
 end
 
 function FlyController:update()
-	for i, fly in pairs(self.flies_) do
+	for i, fly in pairs(self.items_) do
 		local status = fly:update()
 		if status == "delete" then
-			table.remove(self.flies_, i)
+			table.remove(self.items_, i)
 			fly:delete()
-			self.fliesCollected_ = self.fliesCollected_ + 1
+			self.itemsCollected_ = self.itemsCollected_ + 1
 		end
-	end
-end
-
-function FlyController:draw()
-	for i, fly in pairs(self.flies_) do
-		fly:draw()
 	end
 end
 
