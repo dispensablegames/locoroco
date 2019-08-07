@@ -9,17 +9,23 @@ function FlyController:init(world)
 	finishedController.world_ = world
 	finishedController.itemsTotal_ = nil
 	finishedController.itemsCollected_ = 0
-	local flyDrawing = Drawing:init("src/assets/fly.svg")
-	local image = love.graphics.newImage(flyDrawing:toImageData())
-	finishedController.image_ = image
+	finishedController.frames_ = { importFrame("src/assets/fly1.svg"), importFrame("src/assets/fly2.svg") }
 	self.__index = self
 	setmetatable(finishedController, self)
 
 	return finishedController
 end
 
+function importFrame(filename)
+	local drawing = Drawing:init(filename)
+	local image = love.graphics.newImage(drawing:toImageData())
+	local height = drawing:getHeight()
+	local width = drawing:getWidth()
+	return { image = image, height = height, width = width }
+end
+
 function FlyController:addFlies(pointsTable)
-	self:addItems(pointsTable, Fly, {self.image_})
+	self:addItems(pointsTable, Fly, {self.frames_})
 end
 
 function FlyController:update()

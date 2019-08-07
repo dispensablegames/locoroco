@@ -12,6 +12,7 @@ function Foreground:init(world, paths, width, height)
 	foreground.hardbodiesMoving = {}
 	foreground.hardbodiesStatic = {}
 	foreground.hardbodiesSecret = {}
+	foreground.pictures = {}
 
 	foreground.triangleGrid = {}
 	foreground.gridCellSize = math.floor(math.sqrt(width * height / 16))
@@ -106,6 +107,8 @@ function Foreground:addBody(path)
 		self:addInvisibleBody(path)
 	elseif path:getStyle("secret") then
 		self:addSecretBody(path)
+	elseif path:getStyle("mask") then
+		self:addMask(path)
 	else
 		self:addStaticBody(path)
 	end
@@ -126,13 +129,25 @@ function Foreground:addInvisibleBody(path)
 	table.insert(self.hardbodies, hardbody)
 end
 
+function Foreground:addMask(path)
+	local pathPoints = path:getPoints()
+	local image = love.graphics.newImage(path:toImageData())
+	local x, y = path:getTopLeftCorner()
+	table.insert(self.pictures, { image = image, x = x, y = y })
+end
+
 function Foreground:addSecretBody(path)
 	local shapePoints = path:getPoints()
 	local body = love.physics.newBody(self.world, 0, 0, "static")
-	local shape = love.physics.newChainShape(true, shapePoints)	
-	local fixture = love.physics.newFixture(body, shape)
-	fixture:setUserData({ name = "foreground object" })
-	fixture:setSensor(true)
+	for i,triangle in ipairs(love.math.triangulate(shapePoints)) do
+		local shape = nil
+		pcall(function() shape = love.physics.newPolygonShape(triangle) end)
+		if shape then
+			local fixture = love.physics.newFixture(body, shape)
+			fixture:setUserData({ name = "secretpiece" })
+			fixture:setSensor(true)
+		end
+	end
 
 	local imageData = path:toImageData()
 	local image = love.graphics.newImage(imageData)
@@ -140,11 +155,9 @@ function Foreground:addSecretBody(path)
 
 	local hardbody = {}
 	hardbody.body = body
-	hardbody.fixture = fixture
 	hardbody.picture = { image = image, x = x, y = y }
-	hardbody.shape = shape
 	hardbody.transparency = 1
-	hardbody.state = 1
+	hardbody.hidden = true
 	table.insert(self.hardbodies, hardbody)
 	table.insert(self.hardbodiesSecret, hardbody)
 end
@@ -237,26 +250,43 @@ function Foreground:drawSecretWalls()
 	--very ugly
 
 	for i,hbody in ipairs(self.hardbodiesSecret) do
-		if hbody.state == 1 then
-			love.graphics.setBlendMode("alpha", "premultiplied")
-			for i, contact in ipairs(hbody.body:getContacts()) do
-				local fixture1, fixture2 = contact:getFixtures()
-				local userdata1 = fixture1:getUserData()
-				local userdata2 = fixture2:getUserData()
-				if userdata1.name == "circle" or userdata2.name == "circle" then
-					hbody.state = 0
-					break
+		hbody.hidden = true
+		for i, contact in ipairs(hbody.body:getContacts()) do
+			local fixture1, fixture2 = contact:getFixtures()
+			local userdata1 = fixture1:getUserData()
+			local userdata2 = fixture2:getUserData()
+			if userdata1.name == "circle" or userdata2.name == "circle" then
+				hbody.hidden = false
+				break
+			end
+		end
+		if hbody.hidden then
+			if hbody.transparency < 1 then
+				if hbody.transparency < 0.5 then
+					hbody.transparency = hbody.transparency + 0.1
 				end
+				hbody.transparency = hbody.transparency * 1.1
 			end
 		else
-			love.graphics.setBlendMode("alpha", "alphamultiply")
 			if hbody.transparency > 0 then
-				hbody.transparency = hbody.transparency - 0.1
+				hbody.transparency = hbody.transparency * 0.9
 			end
+		end
+		if hbody.transparency >= 1 then
+			love.graphics.setBlendMode("alpha", "premultiplied")
+		else 
+			love.graphics.setBlendMode("alpha", "alphamultiply")
 		end
 		love.graphics.setColor(1, 1, 1, hbody.transparency)
 		love.graphics.draw(hbody.picture.image, hbody.picture.x, hbody.picture.y)
+		love.graphics.setColor(1, 1, 1, 1)
 	end
+
+	love.graphics.setBlendMode("alpha", "premultiplied")
+	for i,picture in ipairs(self.pictures) do
+		love.graphics.draw(picture.image, picture.x, picture.y)
+	end
+
 end
 
 function Foreground:draw()
@@ -279,11 +309,13 @@ function Foreground:draw()
 		love.graphics.draw(picture.image, picture.x, picture.y, hbody.body:getAngle(), 1, 1, picture.offsetX, picture.offsetY)
 	end
 	love.graphics.setColor(1, 1, 0)
+--[[
 	for i=0,self.triangleGridWidth do
 		for j=0,self.triangleGridHeight do
 				love.graphics.rectangle("line", i * self.gridCellSize, j * self.gridCellSize, self.gridCellSize, self.gridCellSize)
 		end
 	end
+--]]
 end
 
 function splitTable(t, n)
