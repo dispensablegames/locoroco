@@ -1,6 +1,6 @@
 Loco = {}
 
-function Loco:init(world, x, y, size, popDist)
+function Loco:init(world, x, y, size, popDist, ahoge)
 
 	local baseUnit = 1000
 	local scaledSize = math.floor(10 + (size / 3))
@@ -13,6 +13,7 @@ function Loco:init(world, x, y, size, popDist)
 	local friction = 0.05
 	local finishedLoco = {}
 	
+	finishedLoco.ahoge = ahoge
 	finishedLoco.numRects_ = scaledSize
 	finishedLoco.size_ = size
 
@@ -199,7 +200,19 @@ function Loco:draw(debugState)
 	else
 		self:normalDraw()
 		self:drawFace()
+		self:drawAhoge()
 	end
+end
+
+function Loco:drawAhoge()
+	local centerX, centerY = self:getPosition()
+	local edgeX, edgeY = self.distanceJoints_[1]:getAnchors()
+	local angle = math.pi / 2 + self.bigCircle_.body:getAngle()
+	local width = self.ahoge.width
+	local height = self.ahoge.height
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.setBlendMode("alpha", "premultiplied")
+	love.graphics.draw(self.ahoge.image, edgeX + math.sin(angle) * height, edgeY - math.cos(angle) * height, angle)
 end
 
 function Loco:drawFace()
@@ -209,7 +222,7 @@ function Loco:drawFace()
 	local centerX, centerY = self:getPosition()
 	local edgeX, edgeY = self.distanceJoints_[1]:getAnchors()
 
-	local angle = utils.quadAwareATan((edgeY - centerY), (edgeX - centerX))
+	local angle = self.bigCircle_.body:getAngle()
 
 	local eyeCenterX = edgeX - math.cos(angle)*eyeRetraction
 	local eyeCenterY = edgeY - math.sin(angle)*eyeRetraction

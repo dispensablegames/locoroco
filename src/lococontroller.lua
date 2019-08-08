@@ -7,6 +7,12 @@ function LocoController:init(world)
 	finishedController.locoCount_ = 0
 	finishedController.world_ = world
 	finishedController.freeId_ = 1
+	local ahogeDrawing = Drawing:init("src/assets/ahoge1.svg")
+	local ahogeImage = love.graphics.newImage(ahogeDrawing:toImageData())
+	finishedController.ahogeSmall = { image = ahogeImage, width = ahogeDrawing:getWidth(), height = ahogeDrawing:getHeight() }
+	ahogeDrawing = Drawing:init("src/assets/ahoge2.svg")
+	ahogeImage = love.graphics.newImage(ahogeDrawing:toImageData())
+	finishedController.ahogeBig = { image = ahogeImage, width = ahogeDrawing:getWidth(), height = ahogeDrawing:getHeight() }
 	
 	self.__index = self
 	setmetatable(finishedController, self)
@@ -25,7 +31,11 @@ end
 
 function LocoController:createLoco(x, y, size, popDist, t, vx, vy, w)
 	local tab = t or self.locos_
-	local loco = Loco:init(self.world_, x, y, size, popDist)
+	local ahoge = self.ahogeSmall
+	if size > 1 then
+		ahoge = self.ahogeBig
+	end
+	local loco = Loco:init(self.world_, x, y, size, popDist, ahoge)
 	local linearX = vx or 0
 	local linearY = vy or 0
 	local angular = w or 0
