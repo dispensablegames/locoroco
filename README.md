@@ -32,6 +32,8 @@ eval $(luarocks path --bin)
 
 The navigate to the `locoroco` folder created in the previous step. Then run
 
-`love src`
+```
+love src
+```
 
 And enjoy!
