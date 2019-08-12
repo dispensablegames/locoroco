@@ -1,18 +1,29 @@
 Loco = {}
 
-function Loco:init(world, x, y, size, popDist)
+function Loco:init(world, x, y, size, shapeOverride)
 
 	local baseUnit = 1000
-	local scaledSize = math.floor(10 + (size / 3))
+	local scaledSize = math.floor(10 + (size / 2))
 	local rectWidth = 10
 	local sideLengthShortening = 5 + size / 3
-	local radius = math.sqrt(size * baseUnit)
+	local radius = math.sqrt(size * baseUnit) + size*3
 	local ropeJointMaxLength = 4 + size / 3
-	local dampingRatio = 1.4
-	local frequency = 1.4
+	local dampingRatio = 1.5 - size/20
+	local frequency = 1.5 - size/15
 	local friction = 0.05
 	local finishedLoco = {}
 	
+	local rectAnchors, sideLength, angleList = ngon(x, y, radius, scaledSize)
+
+	local rectCenters = nil
+	local shapeoverride = shapeOverride or 0
+	if type(shapeoverride) == "table" then
+		rectCenters = shapeoverride
+		rectCenters, angleList = utils.evenlyDistributePoints(rectCenters, scaledSize)
+	else
+		rectCenters = ngon(x, y, radius + shapeoverride, scaledSize)	
+	end	
+
 	finishedLoco.numRects_ = scaledSize
 	finishedLoco.size_ = size
 
@@ -32,12 +43,10 @@ function Loco:init(world, x, y, size, popDist)
 
 	finishedLoco.smallRects_ = {}
 	
-	local rectCenters, sideLength, angleList = ngon(x, y, radius, scaledSize)
-	local poppedRectCenters = ngon(x, y, radius + popDist, scaledSize)
-	
+
 	for i, angle in ipairs(angleList) do
 		local smallRect = {}
-		smallRect.body = love.physics.newBody(world, poppedRectCenters[2*i - 1], poppedRectCenters[2*i], "dynamic")
+		smallRect.body = love.physics.newBody(world, rectCenters[2*i - 1], rectCenters[2*i], "dynamic")
 		smallRect.shape = love.physics.newRectangleShape(0, 0, rectWidth, sideLength - sideLengthShortening, math.pi/2 - angle)
 		smallRect.fixture = love.physics.newFixture(smallRect.body, smallRect.shape)
 		smallRect.fixture:setFriction(friction)
@@ -46,14 +55,25 @@ function Loco:init(world, x, y, size, popDist)
 				
 		smallRect.leftPoint = {}
 		smallRect.rightPoint = {}
-		smallRect.leftPoint.x = poppedRectCenters[2*i - 1] + math.cos(math.pi - angle)*(sideLength - sideLengthShortening)/2
-		smallRect.leftPoint.y = poppedRectCenters[2*i] + math.sin(math.pi - angle)*(sideLength - sideLengthShortening)/2
-		smallRect.rightPoint.x = poppedRectCenters[2*i - 1] - math.cos(math.pi - angle)*(sideLength - sideLengthShortening)/2
-		smallRect.rightPoint.y = poppedRectCenters[2*i] - math.sin(math.pi - angle)*(sideLength - sideLengthShortening)/2
+		smallRect.leftPoint.x = rectCenters[2*i - 1] + math.cos(math.pi - angle)*(sideLength - sideLengthShortening)/2
+		smallRect.leftPoint.y = rectCenters[2*i] + math.sin(math.pi - angle)*(sideLength - sideLengthShortening)/2
+		smallRect.rightPoint.x = rectCenters[2*i - 1] - math.cos(math.pi - angle)*(sideLength - sideLengthShortening)/2
+		smallRect.rightPoint.y = rectCenters[2*i] - math.sin(math.pi - angle)*(sideLength - sideLengthShortening)/2
 		
 		table.insert(finishedLoco.smallRects_, smallRect)
 	end
-	
+
+--[[
+	print("#rectAnchors=" .. #rectAnchors)
+	print("#rectCenters=" .. #rectCenters)
+	if #rectAnchors ~= #rectCenters then
+		print("!!!!!")
+		for i, element in ipairs(rectCenters) do
+			print(element)
+		end
+		print("!!!!!")
+	end
+]]--
 	finishedLoco.ropeJoints_ = {}
 	finishedLoco.ropeJointsB_ = {}
 
@@ -83,14 +103,14 @@ function Loco:init(world, x, y, size, popDist)
 
 		end
 
-	
 	end
 
 	finishedLoco.distanceJoints_ = {}
-	
+
+
 	for i, rect in ipairs(finishedLoco.smallRects_) do
 		local x, y = rect.body:getWorldCenter()
-		local distanceJoint = love.physics.newDistanceJoint(rect.body, finishedLoco.bigCircle_.body, x, y, rectCenters[2*i - 1], rectCenters[2*i], false)
+		local distanceJoint = love.physics.newDistanceJoint(rect.body, finishedLoco.bigCircle_.body, x, y, rectAnchors[2*i - 1], rectAnchors[2*i], false)
 		distanceJoint:setDampingRatio(dampingRatio)
 		distanceJoint:setFrequency(frequency)
 		distanceJoint:setLength(0)
@@ -107,6 +127,16 @@ end
 
 function Loco:getCreationTime()	
 	return self.creationTime_
+end
+
+function Loco:getRectCenters()
+	local returnTable = {}
+	for i, rect in ipairs(self.smallRects_) do
+		local x, y = rect.body:getPosition()
+		table.insert(returnTable, x)
+		table.insert(returnTable, y)
+	end
+	return returnTable
 end
 
 function Loco:getPosition()
@@ -378,26 +408,15 @@ function checkChainShapeCollision(fixture, x, y, originX, originY)
 	end
 end
 
-function orientation(ax, ay, bx, by, cx, cy)
-	local val = (by - ay) * (cx - bx) - (bx - ax) * (cy - by)
-	if val == 0 then
-		return "colinear"
-	elseif val > 0 then
-		return "clockwise"
-	else
-		return "counterclockwise"
-	end
-end
-
 function onLine(ax, ay, bx, by, cx, cy)
 	return (bx <= math.max(ax, cx) and bx >= math.min(ax, cx) and by <= math.max(ay, cy) and bx >= math.min(ay, cy))
 end
 
 function checkLineCollision(p1x, p1y, q1x, q1y, p2x, p2y, q2x, q2y)
-	local orient1 = orientation(p1x, p1y, q1x, q1y, p2x, p2y)
-	local orient2 = orientation(p1x, p1y, q1x, q1y, q2x, q2y)
-	local orient3 = orientation(p2x, p2y, q2x, q2y, p1x, p1y)
-	local orient4 = orientation(p2x, p2y, q2x, q2y, q1x, q1y)
+	local orient1 = utils.orientation(p1x, p1y, q1x, q1y, p2x, p2y)
+	local orient2 = utils.orientation(p1x, p1y, q1x, q1y, q2x, q2y)
+	local orient3 = utils.orientation(p2x, p2y, q2x, q2y, p1x, p1y)
+	local orient4 = utils.orientation(p2x, p2y, q2x, q2y, q1x, q1y)
 
 	if (orient1 ~= orient2) and (orient3 ~= orient4) then
 		return true

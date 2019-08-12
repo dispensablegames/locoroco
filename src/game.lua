@@ -19,7 +19,7 @@ function Game:init(filename)
 	game.locoController = LocoController:init(world)
 	game.fruitController = FruitController:init(world)
 	love.graphics.setBackgroundColor(255, 255, 255)
-	game.secondsPassed = 0
+	game.secondsPassed = 0.5
 	game.madeALoco = false
 
 	game.flyController:addFlies(game.level:getFlyPositions())
@@ -43,9 +43,9 @@ function Game:update(dt)
 	self.flyController:update()
 	self.locoController:update()
 	self.fruitController:update(self.locoController)
-
+	self.secondsPassed = self.secondsPassed + 1 * dt
 	if love.keyboard.isDown("c") then	
-		self.secondsPassed = self.secondsPassed + 1 * dt
+
 		if self.secondsPassed > 0.5 then
 			self.secondsPassed = 0
 			self.locoController:mergeLocos()

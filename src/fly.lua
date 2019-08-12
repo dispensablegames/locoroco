@@ -53,7 +53,12 @@ function Fly:update()
 		if self.animationState_ <= 0 then
 			self.state_ = "deleted"
 		else
-			local targetX, targetY = self.targetLoco_:getPosition()
+			local targetX, targetY = nil
+			if not self.targetLoco_.bigCircle_.body:isDestroyed() then
+				targetX, targetY = self.targetLoco_:getPosition()
+			else
+				targetX, targetY = self.body_:getPosition()
+			end
 			local selfX, selfY = self.body_:getPosition()
 			self.body_:setPosition(selfX + (targetX - selfX)/3, selfY + (targetY - selfY)/3)
 			self.animationState_ = self.animationState_ - 0.05
@@ -80,7 +85,6 @@ function Fly:draw()
 	if self.state_ == "collected" then
 		love.graphics.draw(picture.image, x, y, 1 - self.animationState_, self.animationState_)
 	else
-		print(self.frameState_)
 		love.graphics.draw(picture.image, x - picture.width / 2, y - picture.height )
 	end
 end

@@ -23,9 +23,9 @@ function LocoController:update()
 	end
 end
 
-function LocoController:createLoco(x, y, size, popDist, t, vx, vy, w)
+function LocoController:createLoco(x, y, size, shapeOverride, t, vx, vy, w)
 	local tab = t or self.locos_
-	local loco = Loco:init(self.world_, x, y, size, popDist)
+	local loco = Loco:init(self.world_, x, y, size, shapeOverride)
 	local linearX = vx or 0
 	local linearY = vy or 0
 	local angular = w or 0
@@ -45,7 +45,7 @@ function LocoController:incrementLocoSize(loco)
 	local vx, vy = loco:getLinearVelocity()
 	local w = loco:getAngularVelocity()
 	self:deleteLoco(loco)
-	self:createLoco(x, y, size + 1, -radius/2, self.locos_, vx, vy, w)
+	self:createLoco(x, y, size + 1, -2*radius/3, self.locos_, vx, vy, w)
 	
 end
 
@@ -60,14 +60,21 @@ function LocoController:mergeLocos()
 	for i, loco1 in pairs(self.locos_) do
 		local loco2 = loco1:getLocoCollision()
 		if loco2 then
-			local x1, y1 = loco1:getPosition()
-			local x2, y2 = loco2:getPosition()
-			local newX, newY = averagePoint(x1, x2, y1, y2)
-			newX = newX + 30
+			local table1 = loco1:getRectCenters()
+			local table2 = loco2:getRectCenters()
+			for i, element in ipairs(table2) do
+				table.insert(table1, element)
+			end
+		
+			local newTable = utils.jenkins(table1)
+
+			local newX, newY = utils.averagePoints(newTable)
+
 			local newSize = loco1:getSize() + loco2:getSize()
 			self:deleteLoco(loco1)
 			self:deleteLoco(loco2)
-			self:createLoco(newX, newY, newSize, newSize * -1, newTable)
+			self:createLoco(newX, newY, newSize, newTable, self.locos_, 0, 0, 0)
+			
 		end		
 	end
 	utils.tableAppendFunky(self.locos_, newTable)
@@ -91,8 +98,8 @@ function LocoController:breakApart()
 			local x, y = loco:getPosition()
 			local donePoints = {}	
 			for i=1, loco:getSize() do
-				local newX, newY = loco:getSuitablePoint(donePoints, 60, 50)
-				self:createLoco(newX, newY, 1, -20, newLocos)
+				local newX, newY = loco:getSuitablePoint(donePoints, 30, 50)
+				self:createLoco(newX, newY, 1, -30, newLocos)
 				table.insert(donePoints, {x=newX, y=newY})
 			end
 			self:deleteLoco(loco)
@@ -127,6 +134,7 @@ function LocoController:getCameraPosition()
 end
 
 function LocoController:draw()
+	local pointTable = {}
 	for i, loco in pairs(self.locos_) do
 		love.graphics.setColor(0, 255, 255)
 		loco:draw(false)
@@ -134,6 +142,16 @@ function LocoController:draw()
 			love.graphics.setColor(255, 255, 0)
 			loco:draw(true)
 		end
+		local locoTable = loco:getRectCenters()
+		for i, thing in ipairs(locoTable) do
+			table.insert(pointTable, thing)
+		end
+	end
+	local jenkinsTable = utils.jenkins(pointTable)
+	table.insert(jenkinsTable, jenkinsTable[1])
+	table.insert(jenkinsTable, jenkinsTable[2])
+	if #self.locos_ > 0 then
+		love.graphics.line(unpack(jenkinsTable))
 	end
 end
 
