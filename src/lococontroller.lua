@@ -70,8 +70,9 @@ function LocoController:incrementLocoSize(loco)
 	local x, y = loco:getPosition()
 	local vx, vy = loco:getLinearVelocity()
 	local w = loco:getAngularVelocity()
+	local points = utils.turnPointsAround(loco:getRectCenters())
 	self:deleteLoco(loco)
-	self:createLoco(x, y, size + 1, -2*radius/3, self.locos_, vx, vy, w)
+	self:createLoco(x, y, size + 1, points, self.locos_, vx, vy, w)
 	
 end
 
