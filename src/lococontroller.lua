@@ -20,6 +20,19 @@ function LocoController:init(world)
 	return finishedController
 end
 
+function LocoController:getLocoCount()
+	return self.locoCount_
+end
+
+function LocoController:checkLocoCollision()
+	for i, loco in pairs(self.locos_) do
+		if loco:getLocoCollision() then
+			return true
+		end
+	end
+	return false
+end
+
 function LocoController:update()
 	local currentTime = love.timer.getTime()
 	for i, loco in pairs(self.locos_) do
@@ -98,6 +111,12 @@ function LocoController:impulse(x, y)
 		if loco:getJumpability() then
 			loco:impulse(x, y)
 		end
+	end
+end
+
+function LocoController:setSpringValues(damping, frequency)
+	for i, loco in pairs(self.locos_) do
+		loco:setSpringValues(damping, frequency)
 	end
 end
 

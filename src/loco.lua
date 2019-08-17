@@ -42,7 +42,6 @@ function Loco:init(world, x, y, size, ahoge, shapeOverride)
 	finishedLoco.bigCircle_.fixture:setUserData({name="circle", parent=finishedLoco})
 	finishedLoco.bigCircle_.fixture:setSensor(true)
 
-
 	finishedLoco.bigCircle_.body:setMass(0)
 
 	finishedLoco.smallRects_ = {}
@@ -120,9 +119,14 @@ function Loco:init(world, x, y, size, ahoge, shapeOverride)
 		distanceJoint:setLength(0)
 		table.insert(finishedLoco.distanceJoints_, distanceJoint)
 	end
-		
+
+	finishedLoco.dampingRatio_ = dampingRatio
+	finishedLoco.frequency_ = frequency
+
 	self.__index = self
 	setmetatable(finishedLoco, self)
+	
+
 
 	finishedLoco:setId()
 
@@ -161,6 +165,13 @@ end
 
 function Loco:getMass()
 	return self:getNumRects() * self.smallRects_[1].body:getMass() + self.bigCircle_.body:getMass()
+end
+
+function Loco:setSpringValues(dampingMult, frequencyMult)
+	for i, joint in ipairs(self.distanceJoints_) do
+		joint:setDampingRatio(self.dampingRatio_ * dampingMult)
+		joint:setFrequency(self.frequency_ * frequencyMult)
+	end
 end
 
 function Loco:setId(id)
