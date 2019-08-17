@@ -160,12 +160,15 @@ function LocoController:getCameraPosition()
 	if self.locoCount_ > 0 then 
 		local avgX = 0
 		local avgY = 0
+		local sizeTotal = 0
 		for i,loco in pairs(self.locos_) do
 			local x, y = loco:getPosition()
-			avgX = avgX + x
-			avgY = avgY + y
+			local size = loco:getSize()
+			avgX = avgX + x*size
+			avgY = avgY + y*size
+			sizeTotal = sizeTotal + size
 		end
-		return avgX / self.locoCount_, avgY /self.locoCount_
+		return avgX / sizeTotal, avgY /sizeTotal
 	else
 		return nil
 	end
