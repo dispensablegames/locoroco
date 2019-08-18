@@ -231,6 +231,7 @@ function Loco:getJumpability()
 end
 
 function Loco:draw(debugState)
+	love.graphics.setBlendMode("alpha", "alphamultiply")
 	if debugState then
 		love.graphics.setColor(0, 0, 0)
 		love.graphics.print(self.id, self:getPosition())

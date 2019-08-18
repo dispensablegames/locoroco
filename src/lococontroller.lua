@@ -188,12 +188,6 @@ function LocoController:draw()
 			table.insert(pointTable, thing)
 		end
 	end
-	local jenkinsTable = utils.jenkins(pointTable)
-	table.insert(jenkinsTable, jenkinsTable[1])
-	table.insert(jenkinsTable, jenkinsTable[2])
-	if #self.locos_ > 0 then
-		love.graphics.line(unpack(jenkinsTable))
-	end
 end
 
 return LocoController
