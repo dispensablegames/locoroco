@@ -261,11 +261,17 @@ function Loco:drawAhoge()
 	local centerX, centerY = self:getPosition()
 	local edgeX, edgeY = self.distanceJoints_[1]:getAnchors()
 	local angle = math.pi / 2 + self.bigCircle_.body:getAngle()
-	local width = self.ahoge.width
-	local height = self.ahoge.height
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setBlendMode("alpha", "premultiplied")
-	love.graphics.draw(self.ahoge.image, edgeX + math.sin(angle) * height, edgeY - math.cos(angle) * height, angle)
+	if self.size_ == 1 then
+		local width = self.ahoge.width
+		local height = self.ahoge.height
+		love.graphics.draw(self.ahoge.image, edgeX + math.sin(angle) * height, edgeY - math.cos(angle) * height, angle)
+	else
+		local width = self.ahoge.width + 10
+		local height = self.ahoge.height - 10
+		love.graphics.draw(self.ahoge.image, edgeX - math.cos(angle)*height + math.cos(math.pi/2-angle)*width/2, edgeY - math.sin(angle)*height - math.sin(math.pi/2 - angle)*width/2, angle)
+	end
 end
 
 function Loco:drawFace()

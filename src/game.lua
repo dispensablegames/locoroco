@@ -22,8 +22,8 @@ function Game:init(filename)
 	game.secondsPassed = 0
 	game.madeALoco = false
 
-	--game.flyController:addFlies(game.level:getFlyPositions())
-	game.fruitController:addFruit(game.level:getFlyPositions())
+	game.flyController:addFlies(game.level:getFlyPositions())
+	--game.fruitController:addFruit(game.level:getFlyPositions())
 
 	local flyPositions = game.level:getFlyPositions()
 
