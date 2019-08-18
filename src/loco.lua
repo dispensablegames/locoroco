@@ -137,6 +137,15 @@ function Loco:getCreationTime()
 	return self.creationTime_
 end
 
+function Loco:setTarget(x, y, override)
+	local override = override or nil
+	if override then
+		self.targetPoint_ = override
+	else
+		self.targetPoint_ = {x=x, y=y}
+	end
+end
+
 function Loco:getRectCenters()
 	local returnTable = {}
 	for i, rect in ipairs(self.smallRects_) do
@@ -289,8 +298,16 @@ function Loco:drawFace()
 	love.graphics.setColor(84/255, 61/255, 19/255)
 	
 	if self.targetPoint_ then
-		local targetX = self.targetPoint_.x
-		local targetY = self.targetPoint_.y
+		local targetX, targetY = nil
+		if self.targetPoint_ == "self" then
+	
+			targetX, targetY = self:getPosition()
+		else
+
+			targetX = self.targetPoint_.x
+			targetY = self.targetPoint_.y
+		end
+
 		
 		for i, eye in ipairs({{x=eye1X, y=eye1Y}, {x=eye2X, y=eye2Y}}) do
 

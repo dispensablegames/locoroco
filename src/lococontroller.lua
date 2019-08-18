@@ -64,7 +64,7 @@ function LocoController:createLoco(x, y, size, shapeOverride, t, vx, vy, w)
 	loco:setLinearVelocity(linearX, linearY)
 end
 
-function LocoController:incrementLocoSize(loco)
+function LocoController:incrementLocoSize(loco, incAmount)
 	local size = loco:getSize()
 	local radius = loco:getRadius()
 	local x, y = loco:getPosition()
@@ -72,7 +72,7 @@ function LocoController:incrementLocoSize(loco)
 	local w = loco:getAngularVelocity()
 	local points = utils.turnPointsAround(loco:getRectCenters())
 	self:deleteLoco(loco)
-	self:createLoco(x, y, size + 1, points, self.locos_, vx, vy, w)
+	self:createLoco(x, y, size + incAmount, points, self.locos_, vx, vy, w)
 	
 end
 
@@ -151,7 +151,7 @@ end
 
 function LocoController:incrementRandomLoco()
 	for i, loco in pairs(self.locos_) do
-		self:incrementLocoSize(loco)
+		self:incrementLocoSize(loco, 1)
 		return
 	end
 end
