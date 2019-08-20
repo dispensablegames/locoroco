@@ -1,11 +1,11 @@
 local Menu = require("menu")
 local Game = require("game")
+local ResultScreen = require("resultscreen")
 
 function love.load()
 	love.window.setTitle("LocoRoco")
 	love.window.setMode(500, 500, {vsync=true, resizable=true})
 	menu = Menu:init()
-	
 	state = menu
 end
 

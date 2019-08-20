@@ -20,6 +20,19 @@ function LocoController:init(world)
 	return finishedController
 end
 
+function LocoController:getLocoCount()
+	return self.locoCount_
+end
+
+function LocoController:checkLocoCollision()
+	for i, loco in pairs(self.locos_) do
+		if loco:getLocoCollision() then
+			return true
+		end
+	end
+	return false
+end
+
 function LocoController:update()
 	local currentTime = love.timer.getTime()
 	for i, loco in pairs(self.locos_) do
@@ -51,14 +64,15 @@ function LocoController:createLoco(x, y, size, shapeOverride, t, vx, vy, w)
 	loco:setLinearVelocity(linearX, linearY)
 end
 
-function LocoController:incrementLocoSize(loco)
+function LocoController:incrementLocoSize(loco, incAmount)
 	local size = loco:getSize()
 	local radius = loco:getRadius()
 	local x, y = loco:getPosition()
 	local vx, vy = loco:getLinearVelocity()
 	local w = loco:getAngularVelocity()
+	local points = utils.turnPointsAround(loco:getRectCenters())
 	self:deleteLoco(loco)
-	self:createLoco(x, y, size + 1, -2*radius/3, self.locos_, vx, vy, w)
+	self:createLoco(x, y, size + incAmount, points, self.locos_, vx, vy, w)
 	
 end
 
@@ -101,6 +115,12 @@ function LocoController:impulse(x, y)
 	end
 end
 
+function LocoController:setSpringValues(damping, frequency)
+	for i, loco in pairs(self.locos_) do
+		loco:setSpringValues(damping, frequency)
+	end
+end
+
 function LocoController:breakApart()
 	local newTable = {}
 	for i, loco in pairs(self.locos_) do
@@ -131,16 +151,24 @@ end
 
 function LocoController:incrementRandomLoco()
 	for i, loco in pairs(self.locos_) do
-		self:incrementLocoSize(loco)
+		self:incrementLocoSize(loco, 1)
 		return
 	end
 end
 
 function LocoController:getCameraPosition()
 	if self.locoCount_ > 0 then 
+		local avgX = 0
+		local avgY = 0
+		local sizeTotal = 0
 		for i,loco in pairs(self.locos_) do
-			return loco:getPosition()
+			local x, y = loco:getPosition()
+			local size = loco:getSize()
+			avgX = avgX + x*size
+			avgY = avgY + y*size
+			sizeTotal = sizeTotal + size
 		end
+		return avgX / sizeTotal, avgY /sizeTotal
 	else
 		return nil
 	end
@@ -159,12 +187,6 @@ function LocoController:draw()
 		for i, thing in ipairs(locoTable) do
 			table.insert(pointTable, thing)
 		end
-	end
-	local jenkinsTable = utils.jenkins(pointTable)
-	table.insert(jenkinsTable, jenkinsTable[1])
-	table.insert(jenkinsTable, jenkinsTable[2])
-	if #self.locos_ > 0 then
-		love.graphics.line(unpack(jenkinsTable))
 	end
 end
 

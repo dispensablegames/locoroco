@@ -42,7 +42,6 @@ function Loco:init(world, x, y, size, ahoge, shapeOverride)
 	finishedLoco.bigCircle_.fixture:setUserData({name="circle", parent=finishedLoco})
 	finishedLoco.bigCircle_.fixture:setSensor(true)
 
-
 	finishedLoco.bigCircle_.body:setMass(0)
 
 	finishedLoco.smallRects_ = {}
@@ -120,9 +119,14 @@ function Loco:init(world, x, y, size, ahoge, shapeOverride)
 		distanceJoint:setLength(0)
 		table.insert(finishedLoco.distanceJoints_, distanceJoint)
 	end
-		
+
+	finishedLoco.dampingRatio_ = dampingRatio
+	finishedLoco.frequency_ = frequency
+
 	self.__index = self
 	setmetatable(finishedLoco, self)
+	
+
 
 	finishedLoco:setId()
 
@@ -131,6 +135,15 @@ end
 
 function Loco:getCreationTime()	
 	return self.creationTime_
+end
+
+function Loco:setTarget(x, y, override)
+	local override = override or nil
+	if override then
+		self.targetPoint_ = override
+	else
+		self.targetPoint_ = {x=x, y=y}
+	end
 end
 
 function Loco:getRectCenters()
@@ -161,6 +174,13 @@ end
 
 function Loco:getMass()
 	return self:getNumRects() * self.smallRects_[1].body:getMass() + self.bigCircle_.body:getMass()
+end
+
+function Loco:setSpringValues(dampingMult, frequencyMult)
+	for i, joint in ipairs(self.distanceJoints_) do
+		joint:setDampingRatio(self.dampingRatio_ * dampingMult)
+		joint:setFrequency(self.frequency_ * frequencyMult)
+	end
 end
 
 function Loco:setId(id)
@@ -211,6 +231,7 @@ function Loco:getJumpability()
 end
 
 function Loco:draw(debugState)
+	love.graphics.setBlendMode("alpha", "alphamultiply")
 	if debugState then
 		love.graphics.setColor(0, 0, 0)
 		love.graphics.print(self.id, self:getPosition())
@@ -241,11 +262,17 @@ function Loco:drawAhoge()
 	local centerX, centerY = self:getPosition()
 	local edgeX, edgeY = self.distanceJoints_[1]:getAnchors()
 	local angle = math.pi / 2 + self.bigCircle_.body:getAngle()
-	local width = self.ahoge.width
-	local height = self.ahoge.height
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setBlendMode("alpha", "premultiplied")
-	love.graphics.draw(self.ahoge.image, edgeX + math.sin(angle) * height, edgeY - math.cos(angle) * height, angle)
+	if self.size_ == 1 then
+		local width = self.ahoge.width
+		local height = self.ahoge.height
+		love.graphics.draw(self.ahoge.image, edgeX + math.sin(angle) * height, edgeY - math.cos(angle) * height, angle)
+	else
+		local width = self.ahoge.width + 10
+		local height = self.ahoge.height - 10
+		love.graphics.draw(self.ahoge.image, edgeX - math.cos(angle)*height + math.cos(math.pi/2-angle)*width/2, edgeY - math.sin(angle)*height - math.sin(math.pi/2 - angle)*width/2, angle)
+	end
 end
 
 function Loco:drawFace()
@@ -278,8 +305,16 @@ function Loco:drawFace()
 	love.graphics.setColor(84/255, 61/255, 19/255)
 	
 	if self.targetPoint_ then
-		local targetX = self.targetPoint_.x
-		local targetY = self.targetPoint_.y
+		local targetX, targetY = nil
+		if self.targetPoint_ == "self" then
+	
+			targetX, targetY = self:getPosition()
+		else
+
+			targetX = self.targetPoint_.x
+			targetY = self.targetPoint_.y
+		end
+
 		
 		for i, eye in ipairs({{x=eye1X, y=eye1Y}, {x=eye2X, y=eye2Y}}) do
 

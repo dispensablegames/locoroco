@@ -287,4 +287,23 @@ function getTotalLengthOfPolygon(points)
 	return total + math.sqrt((yF-yI)*(yF-yI)+ (xF-xI)*(xF-xI))
 end
 
+function utils.turnPointsAround(points)
+	local maxX = 1
+	for i=1, #points, 2 do
+		local x = points[i]
+		if x > points[maxX] then
+			maxX = i
+		end
+	end
+
+	for j=1, maxX-1 do
+		table.insert(points, points[1])
+		table.remove(points, 1)
+	end
+	
+	return points
+end
+		
+
 return utils
+

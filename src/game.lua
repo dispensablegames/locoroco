@@ -4,7 +4,9 @@ local Loco = require("loco")
 local FlyController = require("flycontroller")
 local LocoController = require("lococontroller")
 local FruitController= require("fruitcontroller")
+local ResultScreen = require("resultscreen")
 local Game = {}
+
 
 function Game:init(filename)
 	local game = {}
@@ -19,10 +21,11 @@ function Game:init(filename)
 	game.locoController = LocoController:init(world)
 	game.fruitController = FruitController:init(world)
 	love.graphics.setBackgroundColor(255, 255, 255)
-	game.secondsPassed = 0.5
+	game.secondsPassed = 0
 	game.madeALoco = false
 
 	game.flyController:addFlies(game.level:getFlyPositions())
+	--game.fruitController:addFruit(game.level:getFlyPositions())
 
 	local flyPositions = game.level:getFlyPositions()
 
@@ -43,16 +46,24 @@ function Game:update(dt)
 	self.flyController:update()
 	self.locoController:update()
 	self.fruitController:update(self.locoController)
-	self.secondsPassed = self.secondsPassed + 1 * dt
-	if love.keyboard.isDown("c") then	
 
+
+	if love.keyboard.isDown("c") and self.locoController:checkLocoCollision() then	
+		self.secondsPassed = self.secondsPassed + 1 * dt
+		self.locoController:setSpringValues(1.5, 2)
 		if self.secondsPassed > 0.5 then
 			self.secondsPassed = 0
 			self.locoController:mergeLocos()
 		end
+	else
+		self.locoController:setSpringValues(1, 1)
 	end
 	
- 	if love.keyboard.isDown("right") then
+ 	if love.keyboard.isDown("right") and love.keyboard.isDown("left") then
+		if self.jumpStr < 30 then
+			self.jumpStr = self.jumpStr + 2
+		end
+	elseif love.keyboard.isDown("right") then
  	 	if self.gravAngle < self.maxAngle then
 			self.gravAngle = self.gravAngle + 0.015
 			Camera:setRotation(self.gravAngle)
@@ -64,10 +75,11 @@ function Game:update(dt)
 			Camera:setRotation(self.gravAngle)
 			self.world:setGravity(math.sin(self.gravAngle)*9.81*16, math.cos(self.gravAngle)*9.81*16)
 		end
+	elseif love.keyboard.isDown("f") then
+		local resultScreen = ResultScreen:init(self.locoController:getLocoCount(), 10, self.flyController:getFlyScore(), 0)
+		return resultScreen
 	end
-	if love.keyboard.isDown("space") and self.jumpStr < 30 then
-		self.jumpStr = self.jumpStr + 2
-	end
+
 end
 
 function Game:draw()
@@ -91,9 +103,7 @@ function Game:draw()
 	local collected, total = self.flyController:getFlyScore()
 	love.graphics.setColor(0, 0, 0)
 
-
 	Camera:unset()
-
 end
 
 function Game:keyreleased(key)
@@ -108,9 +118,11 @@ function Game:keyreleased(key)
 		self.secondsPassed = 0
 	elseif key == "p" then
 		self.locoController:breakApart()
-	elseif key == "space" then
+	elseif key == "right" or key == "left" then
+
 		self.locoController:impulse(0, -self.jumpStr*10)
 		self.jumpStr = 0
+
 	elseif key == "up" then
 		Camera.scaleX = Camera.scaleX * 1.1
 	elseif key == "down" then
