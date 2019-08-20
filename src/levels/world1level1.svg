@@ -26,11 +26,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.46178216"
-     inkscape:cx="13353.978"
-     inkscape:cy="-6488.7445"
+     inkscape:zoom="1.8471286"
+     inkscape:cx="4329.8855"
+     inkscape:cy="-1869.5149"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer7"
      showgrid="false"
      inkscape:snap-global="false"
      units="px"
@@ -3944,6 +3944,19 @@
        d="m 2464.3367,1622.8658 c -4.0452,11.998 -13.5699,21.7121 -26.1559,23.0928 -20.7371,2.2751 -35.6734,-22.0108 -55.5081,-28.4759 -22.2605,-7.2558 -45.008,-9.0107 -68.391,-10.1962 -52.1845,-2.6457 -145.522,-8.4098 -173.1203,9.5004 -25.4428,16.5115 -38.7618,80.9655 -23.6207,105.108 16.8592,26.8815 100.1015,-6.8024 121.429,16.1723 13.3872,14.421 1.1157,52.8829 8.9051,72.8903 9.9002,25.4287 59.2076,26.8303 81.1701,10.6352 25.6872,-18.9414 3.195,-74.7362 25.2508,-91.8381 9.2823,-7.1975 24.3118,-5.5556 29.3077,-0.3579 9.5215,9.9055 7.4103,24.8198 17.8122,32.5093 10.1338,7.4912 26.2046,1.2899 35.4861,9.8145 2.2899,2.1032 3.6066,6.0522 4.5327,11.0443 0,0 -113.6565,128.7181 -147.8706,125.8037 -53.3726,-4.5464 -358.1742,-184.1452 -251.9343,-309.8583 93.8115,-111.0065 422.7072,24.1556 422.7072,24.1556 z"
        style="fill:#fe8203;fill-opacity:1;stroke:#ffff00;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        mask="true" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer7"
+     inkscape:label="Fruits">
+    <rect
+       style="display:inline;opacity:1;fill:#00ffff;fill-opacity:1;stroke:none;stroke-width:13.22916603;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.88888891;paint-order:normal"
+       id="rect1510"
+       width="18.764482"
+       height="18.764482"
+       x="1089.6293"
+       y="827.2757"
+       meta="fruit" />
   </g>
   <g
      inkscape:groupmode="layer"
