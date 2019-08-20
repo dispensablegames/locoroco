@@ -15,7 +15,7 @@ function Foreground:init(world, paths, width, height)
 	foreground.pictures = {}
 
 	foreground.triangleGrid = {}
-	foreground.gridCellSize = math.floor(math.sqrt(width * height / 16))
+	foreground.gridCellSize = 4096
 	if love.graphics.getSystemLimits().texturesize < foreground.gridCellSize then
 		foreground.gridCellSize = love.graphics.getSystemLimits().texturesize
 	end
@@ -50,7 +50,9 @@ function Foreground:init(world, paths, width, height)
 	for i=0,maxI do
 		for j=0,maxJ do
 			local triangles = foreground.triangleGrid[i][j]
+			print("adding triangles to canvas...")
 			local imageData = utils.imageDataFromPolygons(triangles, foreground.gridCellSize, foreground.gridCellSize, i * foreground.gridCellSize, j * foreground.gridCellSize)
+			print("generating image from canvas...")
 			local image = love.graphics.newImage(imageData)
 			table.insert(foreground.images, { x = i * foreground.gridCellSize, y = j * foreground.gridCellSize, image = image })
 		end
@@ -309,13 +311,11 @@ function Foreground:draw()
 		love.graphics.draw(picture.image, picture.x, picture.y, hbody.body:getAngle(), 1, 1, picture.offsetX, picture.offsetY)
 	end
 	love.graphics.setColor(1, 1, 0)
---[[
 	for i=0,self.triangleGridWidth do
 		for j=0,self.triangleGridHeight do
 				love.graphics.rectangle("line", i * self.gridCellSize, j * self.gridCellSize, self.gridCellSize, self.gridCellSize)
 		end
 	end
---]]
 end
 
 function splitTable(t, n)
