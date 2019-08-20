@@ -4,7 +4,9 @@ local Loco = require("loco")
 local FlyController = require("flycontroller")
 local LocoController = require("lococontroller")
 local FruitController= require("fruitcontroller")
+local ResultScreen = require("resultscreen")
 local Game = {}
+
 
 function Game:init(filename)
 	local game = {}
@@ -73,6 +75,9 @@ function Game:update(dt)
 			Camera:setRotation(self.gravAngle)
 			self.world:setGravity(math.sin(self.gravAngle)*9.81*16, math.cos(self.gravAngle)*9.81*16)
 		end
+	elseif love.keyboard.isDown("f") then
+		local resultScreen = ResultScreen:init(self.locoController:getLocoCount(), 10, self.flyController:getFlyScore(), 0)
+		return resultScreen
 	end
 
 end
@@ -98,9 +103,7 @@ function Game:draw()
 	local collected, total = self.flyController:getFlyScore()
 	love.graphics.setColor(0, 0, 0)
 
-
 	Camera:unset()
-
 end
 
 function Game:keyreleased(key)
