@@ -20,6 +20,7 @@ function Level:init(world, filename)
 	level.background = nil
 
 	level.flyPositions = {}
+	level.fruitPositions = {}
 
 	local foregroundPaths = {}
 	local backgroundPaths = {}
@@ -33,7 +34,12 @@ function Level:init(world, filename)
 				local x, y = utils.averagePoints(path:getPoints())
 				table.insert(level.flyPositions, x)
 				table.insert(level.flyPositions, y)
-				end
+			elseif path:tagged("fruits") then
+				print("fruit")
+				local x, y = utils.averagePoints(path:getPoints())
+				table.insert(level.fruitPositions, x)
+				table.insert(level.fruitPositions, y)
+			end				
 		elseif path:tagged("objects") then
 
 		elseif path:tagged("background") then
@@ -68,6 +74,10 @@ end
 
 function Level:getFlyPositions()
 	return self.flyPositions
+end
+
+function Level:getFruitPositions()
+	return self.fruitPositions
 end
 
 function Level:getName()

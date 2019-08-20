@@ -1,6 +1,6 @@
 Fruit = {}
 
-function Fruit:init(world, x, y, id)
+function Fruit:init(world, x, y, id, frames)
 	local detectionRadius = 30
 	local finishedFruit = {}
 	
@@ -10,9 +10,12 @@ function Fruit:init(world, x, y, id)
 	finishedFruit.body_ = love.physics.newBody(world, x, y, "static")
 	finishedFruit.shape_ = love.physics.newCircleShape(detectionRadius)
 	finishedFruit.fixture_ = love.physics.newFixture(finishedFruit.body_, finishedFruit.shape_)
+	finishedFruit.frames_ = frames
 
+	finishedFruit.animationState_ = 0
 	finishedFruit.fixture_:setUserData({name = "fruit", parent = finishedFruit})
 	finishedFruit.fixture_:setSensor(true)
+
 
 	self.__index = self
 	setmetatable(finishedFruit, self)
@@ -38,13 +41,19 @@ function Fruit:update()
 end
 
 function Fruit:draw()	
-	love.graphics.setColor(0, 0, 0)
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.setBlendMode("alpha", "premultiplied")
 	local x, y = self.body_:getPosition()
+
+	local xshear = math.sin(self.animationState_)/8
+	local yscale = -math.abs(math.cos(self.animationState_*2))/6 + 1
+
 	if self.state_ == "eaten" then
-		love.graphics.circle("line", x, y, 30)
+		love.graphics.draw(self.frames_[2].image, x, y, rot, 1, yscale, self.frames_[2].width/2, self.frames_[2].height, xshear)
 	else
-		love.graphics.circle("fill", x, y, 30)
+		love.graphics.draw(self.frames_[1].image, x, y, rot, 1, yscale, self.frames_[1].width/2, self.frames_[1].height, xshear)
 	end
+	self.animationState_ = self.animationState_ + 0.05
 end
 
 return Fruit

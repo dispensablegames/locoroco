@@ -27,10 +27,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.8471286"
-     inkscape:cx="4329.8855"
-     inkscape:cy="-1869.5149"
+     inkscape:cx="4188.8826"
+     inkscape:cy="-1981.5387"
      inkscape:document-units="px"
-     inkscape:current-layer="layer7"
+     inkscape:current-layer="fruits"
      showgrid="false"
      inkscape:snap-global="false"
      units="px"
@@ -39,7 +39,12 @@
      inkscape:snap-center="true"
      inkscape:snap-bbox="true"
      inkscape:bbox-nodes="true"
-     inkscape:snap-page="true" />
+     inkscape:snap-page="true"
+     inkscape:window-width="1600"
+     inkscape:window-height="1150"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -3947,16 +3952,14 @@
   </g>
   <g
      inkscape:groupmode="layer"
-     id="layer7"
-     inkscape:label="Fruits">
-    <rect
+     id="fruits"
+     inkscape:label="fruits">
+    <path
        style="display:inline;opacity:1;fill:#00ffff;fill-opacity:1;stroke:none;stroke-width:13.22916603;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.88888891;paint-order:normal"
+       d="m 1089.6293,827.2757 h 18.7645 v 18.76448 h -18.7645 z"
        id="rect1510"
-       width="18.764482"
-       height="18.764482"
-       x="1089.6293"
-       y="827.2757"
-       meta="fruit" />
+       meta="fruit"
+       inkscape:connector-curvature="0" />
   </g>
   <g
      inkscape:groupmode="layer"
