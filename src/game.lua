@@ -57,7 +57,11 @@ function Game:update(dt)
 		self.locoController:setSpringValues(1, 1)
 	end
 	
- 	if love.keyboard.isDown("right") then
+ 	if love.keyboard.isDown("right") and love.keyboard.isDown("left") then
+		if self.jumpStr < 30 then
+			self.jumpStr = self.jumpStr + 2
+		end
+	elseif love.keyboard.isDown("right") then
  	 	if self.gravAngle < self.maxAngle then
 			self.gravAngle = self.gravAngle + 0.015
 			Camera:setRotation(self.gravAngle)
@@ -71,9 +75,6 @@ function Game:update(dt)
 		end
 	end
 
-	if love.keyboard.isDown("space") and self.jumpStr < 30 then
-		self.jumpStr = self.jumpStr + 2
-	end
 end
 
 function Game:draw()
@@ -114,9 +115,11 @@ function Game:keyreleased(key)
 		self.secondsPassed = 0
 	elseif key == "p" then
 		self.locoController:breakApart()
-	elseif key == "space" then
+	elseif key == "right" or key == "left" then
+
 		self.locoController:impulse(0, -self.jumpStr*10)
 		self.jumpStr = 0
+
 	elseif key == "up" then
 		Camera.scaleX = Camera.scaleX * 1.1
 	elseif key == "down" then
