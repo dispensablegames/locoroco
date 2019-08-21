@@ -53,7 +53,11 @@ function FruitController:update(locoController)
 		local incAmount = thing[2]
 		local count = thing[3]
 		if count == 0 then
-			locoController:incrementLocoSize(loco, incAmount)
+			if not loco:getDestroyed() then
+				locoController:incrementLocoSize(loco, incAmount)
+			else
+				locoController:incrementRandomLoco(incAmount)
+			end
 			table.remove(self.locosToIncrement_, i)
 		end
 		thing[3] = thing[3] - 1

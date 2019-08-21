@@ -7,6 +7,7 @@ function LocoController:init(world)
 	finishedController.locoCount_ = 0
 	finishedController.world_ = world
 	finishedController.freeId_ = 1
+	finishedController.idleTime = 300
 	local ahogeDrawing = Drawing:init("src/assets/ahoge1.svg")
 	local ahogeImage = love.graphics.newImage(ahogeDrawing:toImageData())
 	finishedController.ahogeSmall = { image = ahogeImage, width = ahogeDrawing:getWidth(), height = ahogeDrawing:getHeight() }
@@ -40,6 +41,10 @@ function LocoController:update()
 			loco:deleteBJoints()
 		end
 	end
+	self.idleTime = self.idleTime - 1
+	if self.idleTime <= 0 then
+		 
+	end
 end
 
 function LocoController:createLoco(x, y, size, shapeOverride, t, vx, vy, w)
@@ -59,7 +64,7 @@ function LocoController:createLoco(x, y, size, shapeOverride, t, vx, vy, w)
 	loco:setId(self.freeId_)
 	table.insert(tab, self.freeId_, loco)
 	self.freeId_ = self.freeId_ + 1
-	self.locoCount_ = self.locoCount_ + 1
+	self.locoCount_ = self.locoCount_ + loco:getSize()
 	loco:setAngularVelocity(angular)
 	loco:setLinearVelocity(linearX, linearY)
 end
@@ -73,12 +78,12 @@ function LocoController:incrementLocoSize(loco, incAmount)
 	local points = utils.turnPointsAround(loco:getRectCenters())
 	self:deleteLoco(loco)
 	self:createLoco(x, y, size + incAmount, points, self.locos_, vx, vy, w)
-	
+	self.locoCount_ = self.locoCount_ + 1
 end
 
 function LocoController:deleteLoco(loco)
 	self.locos_[loco:getId()] = nil
-	self.locoCount_ = self.locoCount_ - 1
+	self.locoCount_ = self.locoCount_ - loco:getSize()
 	loco:delete()
 end
 	
@@ -113,6 +118,9 @@ function LocoController:impulse(x, y)
 			loco:impulse(x, y)
 		end
 	end
+	if self.idleTime <= 0 then
+		self.idleTime = 300
+	end
 end
 
 function LocoController:setSpringValues(damping, frequency)
@@ -130,11 +138,21 @@ function LocoController:breakApart()
 			local newLocos = {}
 			local x, y = loco:getPosition()
 			local donePoints = {}	
+
+			local points = loco:getRectCenters()
+
 			for i=1, loco:getSize() do
+				local x = points[2*i - 1]
+				local y = points[2*i]
+				self:createLoco(x, y, 1, -30, newLocos)
+			end
+
+--[[			for i=1, loco:getSize() do
 				local newX, newY = loco:getSuitablePoint(donePoints, 30, 50)
 				self:createLoco(newX, newY, 1, -30, newLocos)
 				table.insert(donePoints, {x=newX, y=newY})
-			end
+]]--			end
+
 			self:deleteLoco(loco)
 			utils.tableAppendFunky(newTable, newLocos)
 		end
@@ -149,9 +167,9 @@ function LocoController:deleteRandomLoco()
 	end
 end
 
-function LocoController:incrementRandomLoco()
+function LocoController:incrementRandomLoco(incAmount)
 	for i, loco in pairs(self.locos_) do
-		self:incrementLocoSize(loco, 1)
+		self:incrementLocoSize(loco, incAmount)
 		return
 	end
 end
@@ -173,6 +191,7 @@ function LocoController:getCameraPosition()
 		return nil
 	end
 end
+
 
 function LocoController:draw()
 	local pointTable = {}

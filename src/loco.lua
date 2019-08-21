@@ -14,7 +14,6 @@ function Loco:init(world, x, y, size, ahoge, shapeOverride)
 	local friction = 0.05
 	local finishedLoco = {}
 	
-
 	local rectAnchors, sideLength, angleList = ngon(x, y, radius, scaledSize)
 
 	local rectCenters = nil
@@ -27,10 +26,11 @@ function Loco:init(world, x, y, size, ahoge, shapeOverride)
 	end	
 
 	finishedLoco.ahoge = ahoge
-
+	finishedLoco.idling_ = false
 	finishedLoco.numRects_ = scaledSize
 	finishedLoco.size_ = size
-
+	finishedLoco.destroyed_ = false
+	
 	finishedLoco.creationTime_ = love.timer.getTime()
 	
 	finishedLoco.targetPoint_ = nil
@@ -66,17 +66,6 @@ function Loco:init(world, x, y, size, ahoge, shapeOverride)
 		table.insert(finishedLoco.smallRects_, smallRect)
 	end
 
---[[
-	print("#rectAnchors=" .. #rectAnchors)
-	print("#rectCenters=" .. #rectCenters)
-	if #rectAnchors ~= #rectCenters then
-		print("!!!!!")
-		for i, element in ipairs(rectCenters) do
-			print(element)
-		end
-		print("!!!!!")
-	end
-]]--
 	finishedLoco.ropeJoints_ = {}
 	finishedLoco.ropeJointsB_ = {}
 
@@ -135,6 +124,10 @@ end
 
 function Loco:getCreationTime()	
 	return self.creationTime_
+end
+
+function Loco:getDestroyed()
+	return self.destroyed_
 end
 
 function Loco:setTarget(x, y, override)
@@ -319,7 +312,7 @@ function Loco:drawFace()
 		for i, eye in ipairs({{x=eye1X, y=eye1Y}, {x=eye2X, y=eye2Y}}) do
 
 			angle = utils.quadAwareATan(targetY - eye.y, targetX - eye.x)
-			love.graphics.circle("fill", eye.x + math.cos(angle)*3, eye.y + math.sin(angle)*3, 4)
+			love.graphics.circle("fill", eye.x + math.cos(angle)*4, eye.y + math.sin(angle)*4, 4)
 		end			
 	else
 		love.graphics.circle("fill", eye1X, eye1Y, 4)
@@ -363,6 +356,7 @@ function Loco:delete()
 		end
 	end
 	self.bigCircle_.body:destroy()
+	self.destroyed_ = true
 end
 
 function Loco:deleteBJoints() 
@@ -372,7 +366,6 @@ function Loco:deleteBJoints()
 		end
 	end
 end
-
 
 function Loco:getSuitablePoint(prevPoints, minDist, rad)
 	local x, y = self:getPosition()
