@@ -37,6 +37,9 @@ end
 function LocoController:update()
 	local currentTime = love.timer.getTime()
 	for i, loco in pairs(self.locos_) do
+		if currentTime - loco:getCreationTime() > 0.5 then
+			loco:setSpringValues(1, 1)
+		end
 		if currentTime - loco:getCreationTime() > 2 then
 			loco:deleteBJoints()
 		end
@@ -137,23 +140,23 @@ function LocoController:breakApart()
 		else
 			local newLocos = {}
 			local x, y = loco:getPosition()
-			local donePoints = {}	
+			local vx, vy = loco:getLinearVelocity()
+			local w = loco:getAngularVelocity()
+
 
 			local points = loco:getRectCenters()
 
 			for i=1, loco:getSize() do
-				local x = points[2*i - 1]
-				local y = points[2*i]
-				self:createLoco(x, y, 1, -30, newLocos)
+				local nx = points[2*i - 1]
+				local ny = points[2*i]
+				self:createLoco(nx, ny, 1, -30, newLocos, vx, vy, w)
 			end
 
---[[			for i=1, loco:getSize() do
-				local newX, newY = loco:getSuitablePoint(donePoints, 30, 50)
-				self:createLoco(newX, newY, 1, -30, newLocos)
-				table.insert(donePoints, {x=newX, y=newY})
-]]--			end
-
 			self:deleteLoco(loco)
+
+			for i, loco in ipairs(newLocos) do
+				loco:setSpringValues(2, 2)
+			end
 			utils.tableAppendFunky(newTable, newLocos)
 		end
 	end
