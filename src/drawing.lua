@@ -76,7 +76,7 @@ end
 
 function Drawing:toImageData()
 	local offsetX, offsetY = self:getTopLeftCorner(self.width, self.height)
-	local canvas = love.graphics.newCanvas()
+	local canvas = love.graphics.newCanvas(self.width, self.height)
 	for i,path in ipairs(self.paths) do
 		local imageData = path:toImageData()
 		local image = love.graphics.newImage(imageData)
