@@ -82,8 +82,6 @@ end
 
 function newTextElement(text, padding, callback)
 	return { 
-			love.graphics.setColor(1, 0, 0)
-			love.graphics.polygon("fill", element.rectangle)
 		text = text,
 		callback = callback,
 		padding = padding,
