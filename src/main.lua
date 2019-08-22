@@ -31,3 +31,11 @@ end
 function love.mousereleased(x, y, button)
 	state:mousereleased(x, y, button)
 end
+
+function love.mousemoved(x, y)
+	state:mousemoved(x, y)
+end
+
+function love.resize()
+	state:resize()
+end

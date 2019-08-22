@@ -16,8 +16,8 @@ function Menu:init()
 
 	menu.root = { 
 		children = {
-			newImageElement(logo),
-			{ children = {} } 
+			newImageElement(logo, true),
+			{ children = {}, paddingY = 10, paddingX = 0 }
 		}
 	}
 
@@ -28,51 +28,81 @@ function Menu:init()
 
 	menu.doc = {}
 
-	renderNode(menu.root, menu.doc, 30, 20, 40)
+	menu:renderRoot()
 
 	menu.game = nil
 
 	return menu
 end
 
-function renderNode(node, doc, padding, x, y)
+function Menu:renderRoot()
+	self.doc = {}
+	renderNode(self.root, self.doc, 0, 0, 50, 50)
+end
+
+function renderNode(node, doc, x, y, paddingX, paddingY)
+	local paddingX = paddingX or 0
+	local paddingY = paddingY or 0 
 	if node.children then
-		local nextY = y
+		local nextY = y + paddingY
 		local lastY = nil
 		for key,child in pairs(node.children) do
 			if child.x then
-				renderNode(child, doc, padding, x + child.x, y + child.x)
+				renderNode(child, doc, x + child.x, y + child.x)
 			else
-				lastY = renderNode(child, doc, padding, x, nextY)
-				nextY = lastY + padding
+				if child.padding then
+					lastY = renderNode(child, doc, x + paddingX, nextY, child.padding, child.padding)
+				elseif child.paddingX then
+					lastY = renderNode(child, doc, x + paddingX, nextY, child.paddingX, child.paddingY)
+				else 
+					lastY = renderNode(child, doc, x + paddingX, nextY)
+				end
+				nextY = lastY + paddingY
 			end
 		end
 		return lastY or nextY
 	else
 		if node.text then
-			local font = love.graphics.newFont()
+			local font = love.graphics.newFont(16)
 			local contents = love.graphics.newText(font, node.text)
 			local width = contents:getWidth()
 			local height = contents:getHeight()
-			local internalPadding = node.padding
-			local rectangle = { x, y, x + width + 2 * internalPadding, y, x + width + 2 * internalPadding, y + height + 2 * internalPadding, x, y + height + 2 * internalPadding }
+			local internalPadding = node.padding or 0
+			local position = nil
+			if node.centered then
+				local windowwidth = love.graphics.getWidth()
+				position = { windowwidth / 2 - width / 2, y }
+			else
+				position = { x, y }
+			end	
+			local rectangle = { position[1], position[2], position[1] + width + 2 * internalPadding, position[2], position[1] + width + 2 * internalPadding, position[2] + height + 2 * internalPadding, position[1], position[2] + height + 2 * internalPadding }
 			local renderedNode = { 
 				contents = contents, 
 				rectangle = rectangle, 
-				textoffset = { x + internalPadding, y + internalPadding },
+				textoffset = { position[1] + internalPadding, position[2] + internalPadding },
 				callback = node.callback, 
-				background = node.background,
-				color = node.color
+				curbackground = node.background,
+				normalbackground = node.background,
+				hoverbackground = node.hoverbackground or node.background,
+				curcolor = node.color,
+				normalcolor = node.color,
+				hovercolor = node.hovercolor or node.color,
 			}
 			table.insert(doc, renderedNode)
 			return rectangle[6]
 		else 
 			local image = node.image
-			local position = { x, y }
+			local position = nil
+			if node.centered then
+				local windowwidth = love.graphics.getWidth()
+				position = { windowwidth / 2 - image:getWidth() / 2, y }
+			else
+				position = { x, y }
+			end	
 			local renderedNode = {
 				image = image,
 				position = position,
-				rectangle = { x, y, x + image:getWidth(), y, x + image:getWidth(), y + image:getHeight(), x, y + image:getHeight() }
+				rectangle = { position[1], position[2], position[1] + image:getWidth(), position[2], position[1] + image:getWidth(), position[2] + image:getHeight(), position[1], position[2] + image:getHeight() }
 			}
 			table.insert(doc, renderedNode)
 			return y + image:getHeight()
@@ -86,13 +116,16 @@ function newTextElement(text, padding, callback)
 		callback = callback,
 		padding = padding,
 		background = { 1, 0, 0 },
-		color = { 0, 0, 0 }
+		hoverbackground = { 1, 1, 0 },
+		color = { 0, 0, 0 },
+		centered = true
 	}
 end
 
-function newImageElement(image, callback)
+function newImageElement(image, centered, callback)
 	return {
 		image = image,
+		centered = centered,
 		callback = callback
 	}
 end
@@ -100,9 +133,9 @@ end
 function drawDoc(doc)
 	for key,element in pairs(doc) do
 		if element.contents then
-			love.graphics.setColor(element.background)
+			love.graphics.setColor(element.curbackground)
 			love.graphics.polygon("fill", element.rectangle)
-			love.graphics.setColor(element.color)
+			love.graphics.setColor(element.curcolor)
 			love.graphics.draw(element.contents, unpack(element.textoffset))
 		else
 			love.graphics.setColor(1, 1, 1)
@@ -132,6 +165,18 @@ end
 function Menu:keyreleased(key)
 end
 
+function Menu:mousemoved(x, y)
+	for i,e in ipairs(self.doc) do
+		if inRectangle(e.rectangle, x, y) then
+			e.curcolor = e.hovercolor
+			e.curbackground = e.hoverbackground
+		else
+			e.curcolor = e.normalcolor
+			e.curbackground = e.normalbackground
+		end
+	end
+end
+
 function Menu:mousereleased(x, y, mousebutton)
 	for i,e in ipairs(self.doc) do
 		if inRectangle(e.rectangle, x, y) then
@@ -144,6 +189,10 @@ function Menu:mousereleased(x, y, mousebutton)
 end
 
 function Menu:mousepressed()
+end
+
+function Menu:resize()
+	self:renderRoot()
 end
 
 function inRectangle(rectangle, x, y)
