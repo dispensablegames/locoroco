@@ -1,7 +1,7 @@
 Loco = {}
 
 
-function Loco:init(world, x, y, size, ahoge, mouth, shapeOverride)
+function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverride)
 
 	local baseUnit = 1000
 	local scaledSize = math.floor(10 + (size / 2))
@@ -26,7 +26,9 @@ function Loco:init(world, x, y, size, ahoge, mouth, shapeOverride)
 	end	
 
 	finishedLoco.ahoge = ahoge
-	finishedLoco.mouth = mouth
+	finishedLoco.mouthopen = mouthopen
+	finishedLoco.mouthclosed = mouthclosed
+	finishedLoco.isMouthOpen = false
 	finishedLoco.idling_ = false
 	finishedLoco.numRects_ = scaledSize
 	finishedLoco.size_ = size
@@ -138,6 +140,10 @@ function Loco:setTarget(x, y, override)
 	else
 		self.targetPoint_ = {x=x, y=y}
 	end
+end
+
+function Loco:openMouth()
+	self.isMouthOpen = true
 end
 
 function Loco:getRectCenters()
@@ -271,20 +277,16 @@ function Loco:drawAhoge()
 end
 
 function Loco:drawMouth()
---[[
-	local centerX, centerY = self:getPosition()
-	local edgeX, edgeY = self.distanceJoints_[1]:getAnchors()
-	local angle = self.bigCircle_.body:getAngle()
-	edgeY = edgeY - math.sin(angle) * 30
-	edgeX = edgeX - math.cos(angle) * 30
-	love.graphics.setColor(1, 1, 1)
-	love.graphics.setBlendMode("alpha", "premultiplied")
-	local width = self.mouth.width
-	local height = self.mouth.height
-	love.graphics.draw(self.mouth.image, edgeX - math.cos(angle) * width / 2, edgeY - math.sin(angle) * height / 2, math.pi / 2 + angle)
-]]--
-	local retraction = 35
-
+	local image = nil
+	local retraction = nil
+	if self.isMouthOpen then
+		image = self.mouthopen
+		retraction = 40
+	else
+		image = self.mouthclosed
+		retraction = 35
+	end
+		
 	local centerX, centerY = self:getPosition()
 	local edgeX, edgeY = self.distanceJoints_[1]:getAnchors()
 
@@ -293,7 +295,8 @@ function Loco:drawMouth()
 	local mouthCenterX = edgeX - math.cos(angle) * retraction
 	local mouthCenterY = edgeY - math.sin(angle) * retraction
 	
-	love.graphics.draw(self.mouth.image, mouthCenterX, mouthCenterY, math.pi / 2 + angle, 1, 1, self.mouth.width / 2, self.mouth.height / 2)
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.draw(image.image, mouthCenterX, mouthCenterY, math.pi / 2 + angle, 1, 1, image.width / 2, image.height / 2)
 end
 
 function Loco:drawFace()

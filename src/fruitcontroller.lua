@@ -44,6 +44,7 @@ function FruitController:update(locoController)
 			if not inList then
 				table.insert(self.locosToIncrement_, {loco, 1, 100})
 				loco:setTarget(0, 0, "self")
+				loco:openMouth()
 			end
 		end
 	end
