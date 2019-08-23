@@ -168,25 +168,19 @@ function Foreground:addStaticBody(path)
 	local pathPoints = path:getPoints()
 
 	local body = love.physics.newBody(self.world, 0, 0, "static")
-	local tempShape = love.physics.newChainShape(true, pathPoints)
-	local shapePoints = utils.getWorldPoints(body, tempShape)
+	local shape = love.physics.newChainShape(true, pathPoints)
+	local fixture = love.physics.newFixture(body, shape)
+	fixture:setFriction(2)
+
+	local shapePoints = utils.getWorldPoints(body, shape)
 	local triangles = love.math.triangulate(shapePoints)
 	local color = utils.parseColor(path:getStyle("fill"))
 	for i,triangle in ipairs(triangles) do
 		self:addTriangle(triangle, color)
 	end
 
-	local shapes = {}
-	for i,pointsChunk in ipairs(splitTable(shapePoints, 200)) do
-		local shape = love.physics.newChainShape(false, pointsChunk)
-		table.insert(shapes, shape)
-		local fixture = love.physics.newFixture(body, shape)
-		fixture:setFriction(2)
-		fixture:setUserData({ name = "foreground object" })
-	end
-
 	local hardbody = {}
-	hardbody.shapes = shapes
+	hardbody.shape = shape
 	hardbody.body = body
 	hardbody.fixture = fixture
 
@@ -230,7 +224,7 @@ function Foreground:addAutoRotatingBody(path, speed)
 	local shape = love.physics.newChainShape(true, shapePoints)
 	local fixture = love.physics.newFixture(body, shape)
 	body:setAngularVelocity(speed)
-	fixture:setFriction(3) 
+	fixture:setFriction(2) 
 	fixture:setUserData({ name = "foreground object" })
 
 	local imageData = path:toImageData()
