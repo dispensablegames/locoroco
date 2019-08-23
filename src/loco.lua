@@ -5,12 +5,12 @@ function Loco:init(world, x, y, size, ahoge, mouth, shapeOverride)
 
 	local baseUnit = 1000
 	local scaledSize = math.floor(10 + (size / 2))
-	local rectWidth = 10
+	local rectWidth = 5
 	local sideLengthShortening = 5 + size / 3
-	local radius = math.sqrt(size * baseUnit) + size*3
+	local radius = math.sqrt(size * baseUnit)
 	local ropeJointMaxLength = 4 + size / 3
-	local dampingRatio = 1.5 - size/20
-	local frequency = 1.5 - size/15
+	local dampingRatio = 1.5 - size/40
+	local frequency = 1.5 - size/30
 	local friction = 0.05
 	local finishedLoco = {}
 	
@@ -228,7 +228,7 @@ function Loco:draw(debugState)
 	love.graphics.setBlendMode("alpha", "alphamultiply")
 	if debugState then
 		love.graphics.setColor(0, 0, 0)
-		love.graphics.print(self.id, self:getPosition())
+		love.graphics.print(self.size_, self:getPosition())
 		local x, y = self:getPosition()
 		local r = self:getRadius()
 		love.graphics.circle("line", x, y, r)
