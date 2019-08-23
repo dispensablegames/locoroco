@@ -90,7 +90,7 @@ function Game:draw()
 		Camera:set(self.level.spawnX, self.level.spawnY)
 	end
 
-	self.level:draw()	
+	self.level:drawBackground()	
 	love.graphics.setBlendMode("alpha", "alphamultiply")
 	
 	self.locoController:draw()
@@ -98,7 +98,7 @@ function Game:draw()
 	self.fruitController:draw()
 	self.flyController:draw()
 
-	self.level:drawSecretWalls()
+	self.level:drawForeground()
 	
 	local collected, total = self.flyController:getFlyScore()
 	love.graphics.setColor(0, 0, 0)

@@ -84,15 +84,16 @@ function Level:getName()
 	return self.name
 end
 
-function Level:drawSecretWalls()
+function Level:drawForeground()
+	love.graphics.setBlendMode("alpha", "premultiplied")
+	self.foreground:draw()
 	self.foreground:drawSecretWalls()
 end
 
-function Level:draw()
+function Level:drawBackground()
 	love.graphics.setBlendMode("alpha", "premultiplied")
 	self.background:draw()
 	self.floaters:draw()
-	self.foreground:draw()
 end
 
 function Level:update(dt, Camera)
