@@ -14,6 +14,9 @@ function LocoController:init(world)
 	ahogeDrawing = Drawing:init("src/assets/ahoge2.svg")
 	ahogeImage = love.graphics.newImage(ahogeDrawing:toImageData())
 	finishedController.ahogeBig = { image = ahogeImage, width = ahogeDrawing:getWidth(), height = ahogeDrawing:getHeight() }
+	local mouthDrawing = Drawing:init("src/assets/mouth.svg")
+	local mouthImage = love.graphics.newImage(mouthDrawing:toImageData())
+	finishedController.mouth = { image = mouthImage, width = mouthDrawing:getWidth(), height = mouthDrawing:getHeight() }
 	
 	self.__index = self
 	setmetatable(finishedController, self)
@@ -58,7 +61,7 @@ function LocoController:createLoco(x, y, size, shapeOverride, t, vx, vy, w)
 		ahoge = self.ahogeBig
 	end
 
-	local loco = Loco:init(self.world_, x, y, size, ahoge, shapeOverride)
+	local loco = Loco:init(self.world_, x, y, size, ahoge, self.mouth, shapeOverride)
 
 	local linearX = vx or 0
 	local linearY = vy or 0

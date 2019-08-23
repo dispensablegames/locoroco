@@ -1,7 +1,7 @@
 Loco = {}
 
 
-function Loco:init(world, x, y, size, ahoge, shapeOverride)
+function Loco:init(world, x, y, size, ahoge, mouth, shapeOverride)
 
 	local baseUnit = 1000
 	local scaledSize = math.floor(10 + (size / 2))
@@ -26,6 +26,7 @@ function Loco:init(world, x, y, size, ahoge, shapeOverride)
 	end	
 
 	finishedLoco.ahoge = ahoge
+	finishedLoco.mouth = mouth
 	finishedLoco.idling_ = false
 	finishedLoco.numRects_ = scaledSize
 	finishedLoco.size_ = size
@@ -247,6 +248,7 @@ function Loco:draw(debugState)
 	else
 		self:normalDraw()
 		self:drawFace()
+		self:drawMouth()
 		self:drawAhoge()
 	end
 end
@@ -266,6 +268,32 @@ function Loco:drawAhoge()
 		local height = self.ahoge.height - 10
 		love.graphics.draw(self.ahoge.image, edgeX - math.cos(angle)*height + math.cos(math.pi/2-angle)*width/2, edgeY - math.sin(angle)*height - math.sin(math.pi/2 - angle)*width/2, angle)
 	end
+end
+
+function Loco:drawMouth()
+--[[
+	local centerX, centerY = self:getPosition()
+	local edgeX, edgeY = self.distanceJoints_[1]:getAnchors()
+	local angle = self.bigCircle_.body:getAngle()
+	edgeY = edgeY - math.sin(angle) * 30
+	edgeX = edgeX - math.cos(angle) * 30
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.setBlendMode("alpha", "premultiplied")
+	local width = self.mouth.width
+	local height = self.mouth.height
+	love.graphics.draw(self.mouth.image, edgeX - math.cos(angle) * width / 2, edgeY - math.sin(angle) * height / 2, math.pi / 2 + angle)
+]]--
+	local retraction = 35
+
+	local centerX, centerY = self:getPosition()
+	local edgeX, edgeY = self.distanceJoints_[1]:getAnchors()
+
+	local angle = self.bigCircle_.body:getAngle()
+
+	local mouthCenterX = edgeX - math.cos(angle) * retraction
+	local mouthCenterY = edgeY - math.sin(angle) * retraction
+	
+	love.graphics.draw(self.mouth.image, mouthCenterX, mouthCenterY, math.pi / 2 + angle, 1, 1, self.mouth.width / 2, self.mouth.height / 2)
 end
 
 function Loco:drawFace()
