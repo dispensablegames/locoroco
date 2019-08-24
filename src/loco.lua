@@ -407,42 +407,6 @@ function Loco:deleteBJoints()
 	end
 end
 
-function Loco:getSuitablePoint(prevPoints, minDist, rad)
-	local x, y = self:getPosition()
-	local newX, newY = nil
-	local r = self:getRadius() * 1.2
-
-	while true do
-		newX = love.math.random(x - r, x+ r)
-		newY = love.math.random(y - r, y + r)
-		if not self:checkPoint(newX, newY, minDist, rad, prevPoints) then
-			return newX, newY
-		end
-		r = r + 3
-	end
-end
-
-function Loco:checkPoint(x, y, minDist, rad, prevPoints)
-	local collision = false
-	local contacts = self.bigCircle_.body:getContacts()
-
-	for i, contact in ipairs(contacts) do
-		local fixture = self:getOtherContactFixture(contact)
-		if fixture:getUserData().name == "foreground object" then
-			local originX, originY = self:getPosition()
-			if checkChainShapeCollision(fixture, x, y, originX, originY) or checkChainShapeCollision(fixture, x + rad, y, originX, originY) or checkChainShapeCollision(fixture, x - rad, y, originX, originY) or checkChainShapeCollision(fixture, x, y + rad, originX, originY) then
-				return true
-			end
-		end
-	end
-	for i, point in ipairs(prevPoints) do
-		if (math.sqrt((point.x - x) * (point.x - x) + (point.y - y) * (point.y - y)) < minDist) then
-			return true
-		end
-	end
-	return false
-end
-
 function Loco:getOtherContactFixture(contact)
 	local fixture1, fixture2 = contact:getFixtures()
 	local name1 = fixture1:getUserData().name
@@ -472,49 +436,6 @@ function ngon(x, y, r, n)
 	local sidelength = 2*r*math.sin(angle / 2)
 	
 	return points, sidelength, angleList
-end
-
-function checkChainShapeCollision(fixture, x, y, originX, originY)
-	local shape = fixture:getShape()
-	local body = fixture:getBody()
-	local collisions = 0
-	for i=1, shape:getChildCount() do
-		local edge = shape:getChildEdge(i)
-		local x1, y1, x2, y2 = body:getWorldPoints(edge:getPoints())
-		if checkLineCollision(x1, y1, x2, y2, originX, originY, x, y) then
-			collisions = collisions + 1
-		end
-	end
-	if collisions % 2 == 0 then
-		return false
-	else
-		return true
-	end
-end
-
-function onLine(ax, ay, bx, by, cx, cy)
-	return (bx <= math.max(ax, cx) and bx >= math.min(ax, cx) and by <= math.max(ay, cy) and bx >= math.min(ay, cy))
-end
-
-function checkLineCollision(p1x, p1y, q1x, q1y, p2x, p2y, q2x, q2y)
-	local orient1 = utils.orientation(p1x, p1y, q1x, q1y, p2x, p2y)
-	local orient2 = utils.orientation(p1x, p1y, q1x, q1y, q2x, q2y)
-	local orient3 = utils.orientation(p2x, p2y, q2x, q2y, p1x, p1y)
-	local orient4 = utils.orientation(p2x, p2y, q2x, q2y, q1x, q1y)
-
-	if (orient1 ~= orient2) and (orient3 ~= orient4) then
-		return true
-	elseif (orient1 == "colinear") and onLine(p1x, p1y, p2x, p2y, q1x, q1y) then
-		return true
-	elseif (orient2 == "colinear") and onLine(p1x, p1y, q2x, q2y, q1x, q1y) then
-		return true
-	elseif (orient3 == "colinear") and onLine(p2x, p2y, p1x, p1y, q2x, q2y) then
-		return true
-	elseif (orient4 == "colinear") and onLine(p2x, p2y, q1x, q1y, q2x, q2y) then
-		return true
-	else
-		return false
-	end
 end
 
 --[[
