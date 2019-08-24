@@ -15,11 +15,10 @@ function Game:init(filename)
 	game.gravAngle = 0
 	game.maxAngle = 0.4
 	game.jumpStr = 0
-	game.locos = {}
 	game.flyController = FlyController:init(world)
 	game.locoController = LocoController:init(world)
 	game.fruitController = FruitController:init(world)
-	love.graphics.setBackgroundColor(255, 255, 255)
+
 	game.secondsPassed = 0
 	game.backgroundColor = 1
 
@@ -37,6 +36,7 @@ function Game:init(filename)
 	self.__index = self
 	setmetatable(game, self)
 
+	love.graphics.setBackgroundColor(255, 255, 255)
 
 	return game
 end
@@ -53,23 +53,6 @@ function Game:update(dt)
 	self.fruitController:update(self.locoController)
 
 	self.backgroundColor = self.backgroundColor + 0.05
-
-	local finishedLocoCount = 0
-	for i, contact in ipairs(self.endRect.body:getContacts()) do
-		local fixture1, fixture2 = contact:getFixtures()
-		local name1 = fixture1:getUserData().name
-		local name2 = fixture2:getUserData().name
-		if name1 == "circle" or name2 == "circle" then
-			if name1 == "circle" then
-				finishedLocoCount = finishedLocoCount + fixture1:getUserData().parent:getSize()
-			else
-				finishedLocoCount = finishedLocoCount + fixture2:getUserData().parent:getSize()
-			end	
-		end
-	end
-	if finishedLocoCount > 0 then
-		self.gameEndCount = self.gameEndCount - finishedLocoCount
-	end
 
 	if self.gameEndCount <= 0 then
 		return {"ResultScreen", {self.locoController:getLocosCollected(), 20, self.flyController:getFlyScore(), 0}}
@@ -99,14 +82,11 @@ function Game:update(dt)
 			Camera:setRotation(self.gravAngle)
 			self.world:setGravity(math.sin(self.gravAngle)*9.81*16, math.cos(self.gravAngle)*9.81*16)
 		end
-	elseif love.keyboard.isDown("f") then
-	
 	end
-
 end
 
 function Game:draw()
-	love.graphics.print(self.locoController.locosCollected_, 100, 100)
+
 	love.graphics.setBackgroundColor(self.backgroundColor, self.backgroundColor, self.backgroundColor)
 	if self.locoController:getCameraPosition() then
 		local x, y = self.locoController:getCameraPosition()
@@ -116,7 +96,6 @@ function Game:draw()
 	end
 
 	self.level:drawBackground()	
-	love.graphics.setBlendMode("alpha", "alphamultiply")
 	
 	self.locoController:draw()
 
@@ -124,15 +103,30 @@ function Game:draw()
 	self.flyController:draw()
 
 	self.level:drawForeground()
-	
-	local collected, total = self.flyController:getFlyScore()
-	love.graphics.setColor(0, 0, 0)
 
 	Camera:unset()
 end
 
+function Game:checkEndRect()
+	local finishedLocoCount = 0
+	for i, contact in ipairs(self.endRect.body:getContacts()) do
+		local fixture1, fixture2 = contact:getFixtures()
+		local name1 = fixture1:getUserData().name
+		local name2 = fixture2:getUserData().name
+		if name1 == "circle" or name2 == "circle" then
+			if name1 == "circle" then
+				finishedLocoCount = finishedLocoCount + fixture1:getUserData().parent:getSize()
+			else
+				finishedLocoCount = finishedLocoCount + fixture2:getUserData().parent:getSize()
+			end	
+		end
+	end
+	if finishedLocoCount > 0 then
+		self.gameEndCount = self.gameEndCount - finishedLocoCount
+	end
+end
+
 function Game:keyreleased(key)
-	local locos = self.locos
 	local world = self.world
 	local level = self.level
 	if key == "1" then
@@ -145,10 +139,8 @@ function Game:keyreleased(key)
 		self.locoController:breakApart()
 		self.backgroundColor = 0
 	elseif key == "right" or key == "left" then
-
 		self.locoController:impulse(0, -self.jumpStr*10)
 		self.jumpStr = 0
-
 	elseif key == "up" then
 		Camera.scaleX = Camera.scaleX * 1.1
 	elseif key == "down" then

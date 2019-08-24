@@ -172,8 +172,7 @@ end
 
 function LocoController:deleteRandomLoco()
 	for i, loco in pairs(self.locos_) do
-		--self:deleteLoco(loco)
-		loco:rotate(math.pi)
+		self:deleteLoco(loco)
 		return
 	end
 end
