@@ -170,7 +170,7 @@ function Foreground:addStaticBody(path)
 	local body = love.physics.newBody(self.world, 0, 0, "static")
 	local shape = love.physics.newChainShape(true, pathPoints)
 	local fixture = love.physics.newFixture(body, shape)
-	fixture:setFriction(2)
+	fixture:setFriction(3)
 
 	local shapePoints = utils.getWorldPoints(body, shape)
 	local triangles = love.math.triangulate(shapePoints)

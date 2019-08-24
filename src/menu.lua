@@ -1,4 +1,3 @@
-local Game = require("game")
 local Drawing = require("drawing")
 
 local utils = require("utils")
@@ -147,13 +146,12 @@ end
 
 function Menu:startGame(filename)
 	print("STARTING GAME")
-	local game = Game:init(filename)
-	self.game = game
+	self.game = filename
 end
 
 function Menu:update()
 	if self.game then
-		return self.game
+		return {"Game", {self.game}}
 	end
 end
 

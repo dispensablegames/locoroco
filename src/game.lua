@@ -4,7 +4,6 @@ local Loco = require("loco")
 local FlyController = require("flycontroller")
 local LocoController = require("lococontroller")
 local FruitController= require("fruitcontroller")
-local ResultScreen = require("resultscreen")
 local Game = {}
 
 
@@ -27,6 +26,16 @@ function Game:init(filename)
 	game.flyController:addFlies(game.level:getFlyPositions())
 	game.fruitController:addFruit(game.level:getFruitPositions())
 
+	game.finishedLocoCount = 0
+	game.maxLocoCount = 20
+	game.gameEndCount = 100
+	game.endRect = {} 
+	game.endRect.shape = love.physics.newPolygonShape(game.level.gameEndRectangle)
+	game.endRect.body = love.physics.newBody(world, x, y, "static")
+	game.endRect.fixture = love.physics.newFixture(game.endRect.body, game.endRect.shape)
+	game.endRect.fixture:setSensor(true)
+	game.endRect.fixture:setUserData({name="endrect"})
+
 	self.__index = self
 	setmetatable(game, self)
 
@@ -47,7 +56,22 @@ function Game:update(dt)
 
 	self.backgroundColor = self.backgroundColor + 0.05
 
+	self.finishedLocoCount = 0
+	for i, contact in ipairs(self.endRect.body:getContacts()) do
+		local fixture1, fixture2 = contact:getFixtures()
+		local name1 = fixture1:getUserData().name
+		local name2 = fixture2:getUserData().name
+		if name1 == "circle" or name2 == "circle" then
+			self.finishedLocoCount = self.finishedLocoCount + 1
+		end
+	end
+	if self.finishedLocoCount > 0 then
+		self.gameEndCount = self.gameEndCount - 1
+	end
 
+	if self.gameEndCount <= 0 then
+		return {"ResultScreen", {self.locoController:getLocosCollected(), 20, self.flyController:getFlyScore(), 0}}
+	end
 	if love.keyboard.isDown("c") and self.locoController:checkLocoCollision() then	
 		self.secondsPassed = self.secondsPassed + 1 * dt
 		self.locoController:setSpringValues(1.5, 2)
@@ -55,8 +79,6 @@ function Game:update(dt)
 			self.secondsPassed = 0
 			self.locoController:mergeLocos()
 		end
-	else
-		self.locoController:setSpringValues(1, 1)
 	end
 	
  	if love.keyboard.isDown("right") and love.keyboard.isDown("left") then
@@ -76,13 +98,13 @@ function Game:update(dt)
 			self.world:setGravity(math.sin(self.gravAngle)*9.81*16, math.cos(self.gravAngle)*9.81*16)
 		end
 	elseif love.keyboard.isDown("f") then
-		local resultScreen = ResultScreen:init(self.locoController:getLocoCount(), 10, self.flyController:getFlyScore(), 0)
-		return resultScreen
+	
 	end
 
 end
 
 function Game:draw()
+	love.graphics.print(self.locoController.locosCollected_, 100, 100)
 	love.graphics.setBackgroundColor(self.backgroundColor, self.backgroundColor, self.backgroundColor)
 	if self.locoController:getCameraPosition() then
 		local x, y = self.locoController:getCameraPosition()

@@ -48,13 +48,11 @@ end
 function LocoController:update()
 	local currentTime = love.timer.getTime()
 	for i, loco in pairs(self.locos_) do
-		if currentTime - loco:getCreationTime() > 0.5 then
-			loco:setSpringValues(1, 1)
-		end
 		if currentTime - loco:getCreationTime() > 2 then
 			loco:deleteBJoints()
 		end
 	end
+
 	self.idleTime = self.idleTime - 1
 	if self.idleTime <= 0 then
 		 
@@ -93,7 +91,6 @@ function LocoController:incrementLocoSize(loco, incAmount)
 	local points = utils.turnPointsAround(loco:getRectCenters())
 	self:deleteLoco(loco)
 	self:createLoco(x, y, size + incAmount, points, self.locos_, vx, vy, w)
-	self.locosCollected_ = self.locosCollected_ + incAmount
 end
 
 function LocoController:deleteLoco(loco)
@@ -167,9 +164,6 @@ function LocoController:breakApart()
 
 			self:deleteLoco(loco)
 
-			for i, loco in ipairs(newLocos) do
-				loco:setSpringValues(2, 2)
-			end
 			utils.tableAppendFunky(newTable, newLocos)
 		end
 	end
@@ -212,6 +206,7 @@ end
 
 function LocoController:draw()
 	local pointTable = {}
+
 	for i, loco in pairs(self.locos_) do
 		love.graphics.setColor(0, 255, 255)
 		loco:draw(false)

@@ -12,7 +12,15 @@ end
 function love.update(dt)
 	local newState = state:update(dt)
 	if newState then
-		state = newState
+		local stateName = newState[1]
+		local args = newState[2]
+		if stateName == "Menu" then
+			state = Menu:init(unpack(args))
+		elseif stateName == "Game" then
+			state = Game:init(unpack(args))
+		elseif stateName == "ResultScreen" then
+			state = ResultScreen:init(unpack(args))
+		end
 	end
 end
 
