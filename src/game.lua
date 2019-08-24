@@ -23,6 +23,7 @@ function Game:init(filename)
 	love.graphics.setBackgroundColor(255, 255, 255)
 	game.secondsPassed = 0
 	game.madeALoco = false
+	game.backgroundColor = 1
 
 	game.flyController:addFlies(game.level:getFlyPositions())
 	game.fruitController:addFruit(game.level:getFruitPositions())
@@ -46,6 +47,8 @@ function Game:update(dt)
 	self.flyController:update()
 	self.locoController:update()
 	self.fruitController:update(self.locoController)
+
+	self.backgroundColor = self.backgroundColor + 0.05
 
 
 	if love.keyboard.isDown("c") and self.locoController:checkLocoCollision() then	
@@ -83,6 +86,7 @@ function Game:update(dt)
 end
 
 function Game:draw()
+	love.graphics.setBackgroundColor(self.backgroundColor, self.backgroundColor, self.backgroundColor)
 	if self.locoController:getCameraPosition() then
 		local x, y = self.locoController:getCameraPosition()
 		Camera:set(x, y)
@@ -118,6 +122,7 @@ function Game:keyreleased(key)
 		self.secondsPassed = 0
 	elseif key == "p" then
 		self.locoController:breakApart()
+		self.backgroundColor = 0
 	elseif key == "right" or key == "left" then
 
 		self.locoController:impulse(0, -self.jumpStr*10)
