@@ -1,6 +1,5 @@
 Loco = {}
 
-
 function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverride)
 
 	local baseUnit = 1000
@@ -48,7 +47,6 @@ function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverri
 	finishedLoco.bigCircle_.body:setMass(0.01)
 
 	finishedLoco.smallRects_ = {}
-	
 
 	for i, angle in ipairs(angleList) do
 		local smallRect = {}
@@ -57,7 +55,6 @@ function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverri
 		smallRect.fixture = love.physics.newFixture(smallRect.body, smallRect.shape)
 		smallRect.fixture:setFriction(friction)
 		smallRect.fixture:setUserData({name="smallRect"})
-
 				
 		smallRect.leftPoint = {}
 		smallRect.rightPoint = {}
@@ -84,7 +81,6 @@ function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverri
 				local ropeJoint = love.physics.newRopeJoint(thisRect.body, nextRect.body, thisRect.rightPoint.x, thisRect.rightPoint.y, nextRect.leftPoint.x, nextRect.leftPoint.y, ropeJointMaxLength, false)
 			table.insert(finishedLoco.ropeJoints_, ropeJoint)
 			end
-
 		end
 	
 		local firstRect = finishedLoco.smallRects_[j]
@@ -95,13 +91,10 @@ function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverri
 		else
 			local finalRopeJoint = love.physics.newRopeJoint(lastRect.body, firstRect.body, lastRect.rightPoint.x, lastRect.rightPoint.y, firstRect.leftPoint.x, firstRect.leftPoint.y, ropeJointMaxLength, false)
 		table.insert(finishedLoco.ropeJoints_, finalRopeJoint)
-
 		end
-
 	end
 
 	finishedLoco.distanceJoints_ = {}
-
 
 	for i, rect in ipairs(finishedLoco.smallRects_) do
 		local x, y = rect.body:getWorldCenter()
@@ -117,8 +110,6 @@ function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverri
 
 	self.__index = self
 	setmetatable(finishedLoco, self)
-	
-
 
 	finishedLoco:setId()
 
@@ -133,7 +124,6 @@ function Loco:rotate(angle)
 	end
 end
 	
-
 function Loco:getCreationTime()	
 	return self.creationTime_
 end
@@ -224,7 +214,7 @@ function Loco:impulse(x, y)
 	for i, rect in ipairs(self.smallRects_) do
 		rect.body:applyLinearImpulse(x * powerRatio, y * powerRatio)
 	end
-	self.bigCircle_.body:applyLinearImpulse(x * powerRatio, y * powerRatio) -- remove?
+	self.bigCircle_.body:applyLinearImpulse(x * powerRatio, y * powerRatio)
 end
 
 function Loco:getJumpability()
@@ -340,17 +330,13 @@ function Loco:drawFace()
 	if self.targetPoint_ then
 		local targetX, targetY = nil
 		if self.targetPoint_ == "self" then
-	
 			targetX, targetY = self:getPosition()
 		else
-
 			targetX = self.targetPoint_.x
 			targetY = self.targetPoint_.y
 		end
 
-		
 		for i, eye in ipairs({{x=eye1X, y=eye1Y}, {x=eye2X, y=eye2Y}}) do
-
 			angle = utils.quadAwareATan(targetY - eye.y, targetX - eye.x)
 			love.graphics.circle("fill", eye.x + math.cos(angle)*4, eye.y + math.sin(angle)*4, 4)
 		end			
@@ -404,16 +390,6 @@ function Loco:deleteBJoints()
 		if not joint:isDestroyed() then
 			joint:destroy()
 		end
-	end
-end
-
-function Loco:getOtherContactFixture(contact)
-	local fixture1, fixture2 = contact:getFixtures()
-	local name1 = fixture1:getUserData().name
-	if name1 == "bigcircle" and fixture1:getUserData().parent:getId() == self:getId() then
-		return fixture2
-	else
-		return fixture1
 	end
 end
 
