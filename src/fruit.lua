@@ -45,8 +45,8 @@ function Fruit:draw()
 	love.graphics.setBlendMode("alpha", "premultiplied")
 	local x, y = self.body_:getPosition()
 
-	local xshear = math.sin(self.animationState_)/8
-	local yscale = -math.abs(math.cos(self.animationState_*2))/6 + 1
+	local xshear = math.sin(self.animationState_)/15
+	local yscale = -math.abs(math.cos(self.animationState_*2))/8 + 1
 
 	if self.state_ == "eaten" then
 		love.graphics.draw(self.frames_[2].image, x, y, rot, 1, yscale, self.frames_[2].width/2, self.frames_[2].height, xshear)
