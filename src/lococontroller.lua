@@ -4,6 +4,7 @@ LocoController = {}
 function LocoController:init(world)
 	local finishedController = {}
 	finishedController.locos_ = {}
+	finishedController.locosCollected_ = 0
 	finishedController.locoCount_ = 0
 	finishedController.world_ = world
 	finishedController.freeId_ = 1
@@ -29,6 +30,10 @@ end
 
 function LocoController:getLocoCount()
 	return self.locoCount_
+end
+
+function LocoController:getLocosCollected()
+	return self.locosCollected_
 end
 
 function LocoController:checkLocoCollision()
@@ -73,7 +78,8 @@ function LocoController:createLoco(x, y, size, shapeOverride, t, vx, vy, w)
 	loco:setId(self.freeId_)
 	table.insert(tab, self.freeId_, loco)
 	self.freeId_ = self.freeId_ + 1
-	self.locoCount_ = self.locoCount_ + loco:getSize()
+	self.locosCollected_ = self.locosCollected_ + loco:getSize()
+	self.locoCount_ = self.locoCount_ + 1
 	loco:setAngularVelocity(angular)
 	loco:setLinearVelocity(linearX, linearY)
 end
@@ -87,12 +93,13 @@ function LocoController:incrementLocoSize(loco, incAmount)
 	local points = utils.turnPointsAround(loco:getRectCenters())
 	self:deleteLoco(loco)
 	self:createLoco(x, y, size + incAmount, points, self.locos_, vx, vy, w)
-	self.locoCount_ = self.locoCount_ + 1
+	self.locosCollected_ = self.locosCollected_ + incAmount
 end
 
 function LocoController:deleteLoco(loco)
 	self.locos_[loco:getId()] = nil
-	self.locoCount_ = self.locoCount_ - loco:getSize()
+	self.locosCollected_ = self.locosCollected_ - loco:getSize()
+	self.locoCount_ = self.locoCount_ - 1
 	loco:delete()
 end
 	
@@ -171,7 +178,8 @@ end
 
 function LocoController:deleteRandomLoco()
 	for i, loco in pairs(self.locos_) do
-		self:deleteLoco(loco)
+		--self:deleteLoco(loco)
+		loco:rotate(math.pi)
 		return
 	end
 end
@@ -184,7 +192,7 @@ function LocoController:incrementRandomLoco(incAmount)
 end
 
 function LocoController:getCameraPosition()
-	if self.locoCount_ > 0 then 
+	if self.locosCollected_ > 0 then 
 		local avgX = 0
 		local avgY = 0
 		local sizeTotal = 0

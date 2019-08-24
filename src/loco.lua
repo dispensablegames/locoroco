@@ -9,8 +9,8 @@ function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverri
 	local sideLengthShortening = 5 + size / 3
 	local radius = math.sqrt(size * baseUnit)
 	local ropeJointMaxLength = 4 + size / 3
-	local dampingRatio = 1.5 - size/40
-	local frequency = 1.5 - size/30
+	local dampingRatio = 3 - size/40
+	local frequency = 3 - size/30
 	local friction = 0.05
 	local finishedLoco = {}
 	
@@ -45,7 +45,7 @@ function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverri
 	finishedLoco.bigCircle_.fixture:setUserData({name="circle", parent=finishedLoco})
 	finishedLoco.bigCircle_.fixture:setSensor(true)
 
-	finishedLoco.bigCircle_.body:setMass(0)
+	finishedLoco.bigCircle_.body:setMass(0.01)
 
 	finishedLoco.smallRects_ = {}
 	
@@ -124,6 +124,15 @@ function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverri
 
 	return finishedLoco
 end
+
+function Loco:rotate(angle)
+	self.bigCircle_.body:setAngle(angle)
+	for i, rect in ipairs(self.smallRects_) do
+		local x, y, x2, y2 = self.distanceJoints_[i]:getAnchors()
+		rect.body:setPosition(x, y)
+	end
+end
+	
 
 function Loco:getCreationTime()	
 	return self.creationTime_

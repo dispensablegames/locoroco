@@ -22,13 +22,10 @@ function Game:init(filename)
 	game.fruitController = FruitController:init(world)
 	love.graphics.setBackgroundColor(255, 255, 255)
 	game.secondsPassed = 0
-	game.madeALoco = false
 	game.backgroundColor = 1
 
 	game.flyController:addFlies(game.level:getFlyPositions())
 	game.fruitController:addFruit(game.level:getFruitPositions())
-
-	local flyPositions = game.level:getFlyPositions()
 
 	self.__index = self
 	setmetatable(game, self)
