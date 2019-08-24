@@ -26,9 +26,7 @@ function Game:init(filename)
 	game.flyController:addFlies(game.level:getFlyPositions())
 	game.fruitController:addFruit(game.level:getFruitPositions())
 
-	game.finishedLocoCount = 0
-	game.maxLocoCount = 20
-	game.gameEndCount = 100
+	game.gameEndCount = 1000
 	game.endRect = {} 
 	game.endRect.shape = love.physics.newPolygonShape(game.level.gameEndRectangle)
 	game.endRect.body = love.physics.newBody(world, x, y, "static")
@@ -56,17 +54,21 @@ function Game:update(dt)
 
 	self.backgroundColor = self.backgroundColor + 0.05
 
-	self.finishedLocoCount = 0
+	local finishedLocoCount = 0
 	for i, contact in ipairs(self.endRect.body:getContacts()) do
 		local fixture1, fixture2 = contact:getFixtures()
 		local name1 = fixture1:getUserData().name
 		local name2 = fixture2:getUserData().name
 		if name1 == "circle" or name2 == "circle" then
-			self.finishedLocoCount = self.finishedLocoCount + 1
+			if name1 == "circle" then
+				finishedLocoCount = finishedLocoCount + fixture1:getUserData().parent:getSize()
+			else
+				finishedLocoCount = finishedLocoCount + fixture2:getUserData().parent:getSize()
+			end	
 		end
 	end
-	if self.finishedLocoCount > 0 then
-		self.gameEndCount = self.gameEndCount - 1
+	if finishedLocoCount > 0 then
+		self.gameEndCount = self.gameEndCount - finishedLocoCount
 	end
 
 	if self.gameEndCount <= 0 then
