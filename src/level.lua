@@ -21,6 +21,10 @@ function Level:init(world, filename)
 
 	level.flyPositions = {}
 	level.fruitPositions = {}
+	level.spawnX = nil
+	level.spawnY = nil
+	level.gameEndRectangle = nil
+	level.zoomOutAreas = {}
 
 	local foregroundPaths = {}
 	local backgroundPaths = {}
@@ -30,6 +34,10 @@ function Level:init(world, filename)
 				local spawnX, spawnY = utils.averagePoints(path:getPoints())
 				level.spawnX = spawnX
 				level.spawnY = spawnY
+			elseif path:getStyle("meta") == "gameend" then
+				level.gameEndRectangle = path:getPoints()
+			elseif path:getStyle("meta") == "zoomout" then
+				table.insert(level.zoomOutAreas, path:getPoints())
 			elseif path:tagged("flies") then
 				local x, y = utils.averagePoints(path:getPoints())
 				table.insert(level.flyPositions, x)
