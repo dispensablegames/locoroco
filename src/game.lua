@@ -33,6 +33,9 @@ function Game:init(filename)
 	game.endRect.fixture:setSensor(true)
 	game.endRect.fixture:setUserData({name="endrect"})
 
+	game.locoController:createLoco(game.level.spawnX, game.level.spawnY, 1, 0)
+	Camera:set(game.level.spawnX, game.level.spawnY)
+
 	self.__index = self
 	setmetatable(game, self)
 
@@ -60,7 +63,7 @@ function Game:update(dt)
 	if love.keyboard.isDown("c") and self.locoController:checkLocoCollision() then	
 		self.secondsPassed = self.secondsPassed + 1 * dt
 		self.locoController:setSpringValues(1.5, 2)
-		if self.secondsPassed > 0.5 then
+		if self.secondsPassed > 0.3 then
 			self.secondsPassed = 0
 			self.locoController:mergeLocos()
 		end
@@ -86,19 +89,17 @@ function Game:update(dt)
 end
 
 function Game:draw()
-
 	love.graphics.setBackgroundColor(self.backgroundColor, self.backgroundColor, self.backgroundColor)
+
 	if self.locoController:getCameraPosition() then
-		local x, y = self.locoController:getCameraPosition()
-		Camera:set(x, y)
+		Camera:set(self.locoController:getCameraPosition())
 	else
 		Camera:set(self.level.spawnX, self.level.spawnY)
 	end
 
 	self.level:drawBackground()	
-	
-	self.locoController:draw()
 
+	self.locoController:draw()
 	self.fruitController:draw()
 	self.flyController:draw()
 
@@ -121,17 +122,14 @@ function Game:checkEndRect()
 			end	
 		end
 	end
-	if finishedLocoCount > 0 then
-		self.gameEndCount = self.gameEndCount - finishedLocoCount
-	end
+	self.gameEndCount = self.gameEndCount - finishedLocoCount
 end
 
 function Game:keyreleased(key)
 	local world = self.world
 	local level = self.level
-	if key == "1" then
-		self.locoController:createLoco(level.spawnX, level.spawnY, 1, 0)
-	elseif key == "d" then
+
+	if key == "d" then
 		self.locoController:deleteRandomLoco()
 	elseif key == "c" then
 		self.secondsPassed = 0
