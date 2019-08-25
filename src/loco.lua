@@ -252,7 +252,7 @@ function Loco:draw(debugState)
 
 	else
 		self:normalDraw()
-		self:drawFace()
+		self:drawEyes()
 		self:drawMouth()
 		self:drawAhoge()
 	end
@@ -298,7 +298,7 @@ function Loco:drawMouth()
 	love.graphics.draw(image.image, mouthCenterX, mouthCenterY, math.pi / 2 + angle, 1, 1, image.width / 2, image.height / 2)
 end
 
-function Loco:drawFace()
+function Loco:drawEyes()
 	local eyeSeparation = 13
 	local eyeRetraction = 16
 
