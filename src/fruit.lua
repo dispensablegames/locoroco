@@ -54,7 +54,6 @@ function Fruit:draw()
 	end
 	self.animationState_ = self.animationState_ + 0.05
 
-	love.graphics.polygon("fill", self.body_:getWorldPoints(self.shape_:getPoints()))
 end
 
 return Fruit
