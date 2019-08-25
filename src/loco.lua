@@ -4,7 +4,7 @@ function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverri
 
 	local baseUnit = 1000
 	local scaledSize = math.floor(10 + (size / 2))
-	local rectWidth = 5
+	local rectWidth = 3
 	local sideLengthShortening = 5 + size / 3
 	local radius = math.sqrt(size * baseUnit)
 	local ropeJointMaxLength = 4 + size / 3
@@ -346,20 +346,35 @@ function Loco:drawFace()
 	end
 end
 
-function Loco:getLocoCollision()
+function Loco:getLocoCollision() --if multiple, returns the closest one.
+	local validList = {}
 	for i, contact in ipairs(self.bigCircle_.body:getContacts()) do
 		local fixture1, fixture2 = contact:getFixtures()
 		local userData1 = fixture1:getUserData()
 		local userData2 = fixture2:getUserData()
 		if type(userData1) == "table" and type(userData2) == "table" and userData1.name == "circle" and userData2.name == "circle" then
 			if userData1.parent:getId() == self:getId() then
-				return userData2.parent
+				table.insert(validList, userData2.parent)
 			else
-				return userData1.parent
+				table.insert(validList, userData1.parent)
 			end
 		end
 	end
-	return nil
+	if #validList == 0 then
+		return nil
+	end
+	local minDist = 9999
+	local minLoco = nil
+	for i, loco in ipairs(validList) do
+		local x1, y1 = self:getPosition()
+		local x2, y2 = loco:getPosition()
+		local dist = math.sqrt((y2-y1)*(y2-y1) + (x2-x1)*(x2-x1))
+		if minDist > dist then
+			minDist = dist
+			minLoco = loco
+		end
+	end
+	return minLoco
 end
  
 function Loco:delete()
