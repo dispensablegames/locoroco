@@ -43,7 +43,6 @@ function Level:init(world, filename)
 				table.insert(level.flyPositions, x)
 				table.insert(level.flyPositions, y)
 			elseif path:tagged("fruits") then
-				print("fruit")
 				local x, y = utils.averagePoints(path:getPoints())
 				table.insert(level.fruitPositions, x)
 				table.insert(level.fruitPositions, y)

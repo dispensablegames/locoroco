@@ -57,6 +57,8 @@ function Game:update(dt)
 
 	self.backgroundColor = self.backgroundColor + 0.05
 
+	self:checkEndRect()
+
 	if self.gameEndCount <= 0 then
 		return {"ResultScreen", {self.locoController:getLocosCollected(), 20, self.flyController:getFlyScore(), 0}}
 	end
@@ -158,10 +160,6 @@ function Game:mousemoved()
 end
 
 function Game:resize()
-end
-
-function averagePoint(x1, x2, y1, y2) 
-	return (x1 + x2) / 2, (y1 + y2) /2
 end
 
 return Game
