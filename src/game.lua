@@ -99,6 +99,8 @@ function Game:draw()
 		Camera:set(self.level.spawnX, self.level.spawnY)
 	end
 
+	Camera:setScale(0.75 * love.graphics.getWidth() / 1000)
+
 	self.level:drawBackground()	
 
 	self.locoController:draw()

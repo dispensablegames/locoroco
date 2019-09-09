@@ -73,6 +73,4 @@ end
 function ResultScreen:keyreleased(key)
 end
 
-
-
 return ResultScreen
