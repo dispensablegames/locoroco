@@ -34,7 +34,7 @@ function Game:init(filename)
 	game.endRect.fixture:setUserData({name="endrect"})
 
 	game.locoController:createLoco(game.level.spawnX, game.level.spawnY, 1, 0)
-	Camera:set(game.level.spawnX, game.level.spawnY)
+	Camera:setPosition(game.level.spawnX, game.level.spawnY)
 
 	self.__index = self
 	setmetatable(game, self)
