@@ -3,7 +3,7 @@ Loco = {}
 function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverride)
 
 	local baseUnit = 1000
-	local scaledSize = math.floor(10 + (size / 2))
+	local scaledSize = math.floor(12 + (size / 2))
 	local rectWidth = 3
 	local sideLengthShortening = 5 + size / 3
 	local radius = math.sqrt(size * baseUnit)

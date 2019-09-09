@@ -25,7 +25,7 @@ function Game:init(filename)
 	game.flyController:addFlies(game.level:getFlyPositions())
 	game.fruitController:addFruit(game.level:getFruitPositions())
 
-	game.gameEndCount = 1000
+	game.gameEndCount = 5000
 	game.endRect = {} 
 	game.endRect.shape = love.physics.newPolygonShape(game.level.gameEndRectangle)
 	game.endRect.body = love.physics.newBody(world, x, y, "static")
@@ -108,6 +108,14 @@ function Game:draw()
 	self.level:drawForeground()
 
 	Camera:unset()
+	love.graphics.setBlendMode("alpha", "alphamultiply")
+	if self.gameEndCount <= 500 then
+		love.graphics.setColor(1, 1, 1, (500 - self.gameEndCount)/500)
+	else
+		love.graphics.setColor(1, 1, 1, 0)
+	end
+
+	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 end
 
 function Game:checkEndRect()
