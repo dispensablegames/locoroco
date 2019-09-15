@@ -60,9 +60,9 @@ function Game:update(dt)
 	self:checkEndRect()
 
 	if self.gameEndCount <= 0 then
-		return {"ResultScreen", {self.locoController:getLocosCollected(), 20, self.flyController:getFlyScore(), 0}}
+		return {"ResultScreen", {self.locoController:getLocosCollected(), 20, self.flyController:getFlyScore()}}
 	end
-	if love.keyboard.isDown("c") and self.locoController:checkLocoCollision() then	
+	if love.keyboard.isDown("down") and self.locoController:checkLocoCollision() then	
 		self.secondsPassed = self.secondsPassed + 1 * dt
 		self.locoController:setSpringValues(1.5, 2)
 		if self.secondsPassed > 0.3 then
@@ -141,22 +141,14 @@ function Game:keyreleased(key)
 	local world = self.world
 	local level = self.level
 
-	if key == "d" then
-		self.locoController:deleteRandomLoco()
-	elseif key == "c" then
+	if key == "down" then
 		self.secondsPassed = 0
-	elseif key == "p" then
+	elseif key == "up" then
 		self.locoController:breakApart()
 		self.backgroundColor = 0
 	elseif key == "right" or key == "left" then
 		self.locoController:impulse(0, -self.jumpStr*10)
 		self.jumpStr = 0
-	elseif key == "up" then
-		Camera.scaleX = Camera.scaleX * 1.1
-	elseif key == "down" then
-		Camera.scaleX = Camera.scaleX * 0.9
-	elseif key == "u" then
-		self.locoController:incrementRandomLoco(1)
 	end
 end
 

@@ -209,10 +209,6 @@ function LocoController:draw()
 	for i, loco in pairs(self.locos_) do
 		love.graphics.setColor(0, 255, 255)
 		loco:draw(false)
-		if love.keyboard.isDown("t") then
-			love.graphics.setColor(255, 255, 0)
-			loco:draw(true)
-		end
 		local locoTable = loco:getRectCenters()
 		for i, thing in ipairs(locoTable) do
 			table.insert(pointTable, thing)

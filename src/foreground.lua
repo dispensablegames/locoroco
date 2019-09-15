@@ -305,11 +305,6 @@ function Foreground:draw()
 		love.graphics.draw(picture.image, picture.x, picture.y, hbody.body:getAngle(), 1, 1, picture.offsetX, picture.offsetY)
 	end
 	love.graphics.setColor(1, 1, 0)
-	for i=0,self.triangleGridWidth do
-		for j=0,self.triangleGridHeight do
-				love.graphics.rectangle("line", i * self.gridCellSize, j * self.gridCellSize, self.gridCellSize, self.gridCellSize)
-		end
-	end
 end
 
 function splitTable(t, n)
