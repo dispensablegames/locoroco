@@ -1,6 +1,7 @@
 local utils = require("utils")
 local LocoController = require("lococontroller")
 local Level = require("level")
+
 local ResultScreen = {}
 
 function ResultScreen:init(numLocos, maxLocos, numFlies, maxFlies, time)
@@ -47,6 +48,8 @@ function ResultScreen:update(dt)
 		if self.droppedLocos == self.numLocos then
 			self.state = "displaying flies"
 		end
+	else
+		return {"Menu", {}}
 	end
 end
 
@@ -61,11 +64,13 @@ end
 function ResultScreen:mousepressed()
 end
 
+function ResultScreen:mousemoved()
+end
+
 function ResultScreen:mousereleased()
 end
 
 function ResultScreen:keyreleased(key)
 end
-
 
 return ResultScreen

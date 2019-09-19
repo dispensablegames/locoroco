@@ -4,6 +4,7 @@ LocoController = {}
 function LocoController:init(world)
 	local finishedController = {}
 	finishedController.locos_ = {}
+	finishedController.locosCollected_ = 0
 	finishedController.locoCount_ = 0
 	finishedController.world_ = world
 	finishedController.freeId_ = 1
@@ -31,6 +32,10 @@ function LocoController:getLocoCount()
 	return self.locoCount_
 end
 
+function LocoController:getLocosCollected()
+	return self.locosCollected_
+end
+
 function LocoController:checkLocoCollision()
 	for i, loco in pairs(self.locos_) do
 		if loco:getLocoCollision() then
@@ -43,13 +48,11 @@ end
 function LocoController:update()
 	local currentTime = love.timer.getTime()
 	for i, loco in pairs(self.locos_) do
-		if currentTime - loco:getCreationTime() > 0.5 then
-			loco:setSpringValues(1, 1)
-		end
 		if currentTime - loco:getCreationTime() > 2 then
 			loco:deleteBJoints()
 		end
 	end
+
 	self.idleTime = self.idleTime - 1
 	if self.idleTime <= 0 then
 		 
@@ -73,7 +76,8 @@ function LocoController:createLoco(x, y, size, shapeOverride, t, vx, vy, w)
 	loco:setId(self.freeId_)
 	table.insert(tab, self.freeId_, loco)
 	self.freeId_ = self.freeId_ + 1
-	self.locoCount_ = self.locoCount_ + loco:getSize()
+	self.locosCollected_ = self.locosCollected_ + loco:getSize()
+	self.locoCount_ = self.locoCount_ + 1
 	loco:setAngularVelocity(angular)
 	loco:setLinearVelocity(linearX, linearY)
 end
@@ -87,12 +91,12 @@ function LocoController:incrementLocoSize(loco, incAmount)
 	local points = utils.turnPointsAround(loco:getRectCenters())
 	self:deleteLoco(loco)
 	self:createLoco(x, y, size + incAmount, points, self.locos_, vx, vy, w)
-	self.locoCount_ = self.locoCount_ + 1
 end
 
 function LocoController:deleteLoco(loco)
 	self.locos_[loco:getId()] = nil
-	self.locoCount_ = self.locoCount_ - loco:getSize()
+	self.locosCollected_ = self.locosCollected_ - loco:getSize()
+	self.locoCount_ = self.locoCount_ - 1
 	loco:delete()
 end
 	
@@ -160,9 +164,6 @@ function LocoController:breakApart()
 
 			self:deleteLoco(loco)
 
-			for i, loco in ipairs(newLocos) do
-				loco:setSpringValues(2, 2)
-			end
 			utils.tableAppendFunky(newTable, newLocos)
 		end
 	end
@@ -184,7 +185,7 @@ function LocoController:incrementRandomLoco(incAmount)
 end
 
 function LocoController:getCameraPosition()
-	if self.locoCount_ > 0 then 
+	if self.locosCollected_ > 0 then 
 		local avgX = 0
 		local avgY = 0
 		local sizeTotal = 0
@@ -204,13 +205,10 @@ end
 
 function LocoController:draw()
 	local pointTable = {}
+
 	for i, loco in pairs(self.locos_) do
 		love.graphics.setColor(0, 255, 255)
 		loco:draw(false)
-		if love.keyboard.isDown("t") then
-			love.graphics.setColor(255, 255, 0)
-			loco:draw(true)
-		end
 		local locoTable = loco:getRectCenters()
 		for i, thing in ipairs(locoTable) do
 			table.insert(pointTable, thing)

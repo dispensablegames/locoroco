@@ -1,16 +1,15 @@
 Loco = {}
 
-
 function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverride)
 
 	local baseUnit = 1000
-	local scaledSize = math.floor(10 + (size / 2))
-	local rectWidth = 5
+	local scaledSize = math.floor(12 + (size / 2))
+	local rectWidth = 3
 	local sideLengthShortening = 5 + size / 3
 	local radius = math.sqrt(size * baseUnit)
 	local ropeJointMaxLength = 4 + size / 3
-	local dampingRatio = 1.5 - size/40
-	local frequency = 1.5 - size/30
+	local dampingRatio = 3 - size/40
+	local frequency = 3 - size/30
 	local friction = 0.05
 	local finishedLoco = {}
 	
@@ -45,10 +44,9 @@ function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverri
 	finishedLoco.bigCircle_.fixture:setUserData({name="circle", parent=finishedLoco})
 	finishedLoco.bigCircle_.fixture:setSensor(true)
 
-	finishedLoco.bigCircle_.body:setMass(0)
+	finishedLoco.bigCircle_.body:setMass(0.01)
 
 	finishedLoco.smallRects_ = {}
-	
 
 	for i, angle in ipairs(angleList) do
 		local smallRect = {}
@@ -57,7 +55,6 @@ function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverri
 		smallRect.fixture = love.physics.newFixture(smallRect.body, smallRect.shape)
 		smallRect.fixture:setFriction(friction)
 		smallRect.fixture:setUserData({name="smallRect"})
-
 				
 		smallRect.leftPoint = {}
 		smallRect.rightPoint = {}
@@ -84,7 +81,6 @@ function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverri
 				local ropeJoint = love.physics.newRopeJoint(thisRect.body, nextRect.body, thisRect.rightPoint.x, thisRect.rightPoint.y, nextRect.leftPoint.x, nextRect.leftPoint.y, ropeJointMaxLength, false)
 			table.insert(finishedLoco.ropeJoints_, ropeJoint)
 			end
-
 		end
 	
 		local firstRect = finishedLoco.smallRects_[j]
@@ -95,13 +91,10 @@ function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverri
 		else
 			local finalRopeJoint = love.physics.newRopeJoint(lastRect.body, firstRect.body, lastRect.rightPoint.x, lastRect.rightPoint.y, firstRect.leftPoint.x, firstRect.leftPoint.y, ropeJointMaxLength, false)
 		table.insert(finishedLoco.ropeJoints_, finalRopeJoint)
-
 		end
-
 	end
 
 	finishedLoco.distanceJoints_ = {}
-
 
 	for i, rect in ipairs(finishedLoco.smallRects_) do
 		local x, y = rect.body:getWorldCenter()
@@ -117,14 +110,20 @@ function Loco:init(world, x, y, size, ahoge, mouthopen, mouthclosed, shapeOverri
 
 	self.__index = self
 	setmetatable(finishedLoco, self)
-	
-
 
 	finishedLoco:setId()
 
 	return finishedLoco
 end
 
+function Loco:rotate(angle)
+	self.bigCircle_.body:setAngle(angle)
+	for i, rect in ipairs(self.smallRects_) do
+		local x, y, x2, y2 = self.distanceJoints_[i]:getAnchors()
+		rect.body:setPosition(x, y)
+	end
+end
+	
 function Loco:getCreationTime()	
 	return self.creationTime_
 end
@@ -215,7 +214,7 @@ function Loco:impulse(x, y)
 	for i, rect in ipairs(self.smallRects_) do
 		rect.body:applyLinearImpulse(x * powerRatio, y * powerRatio)
 	end
-	self.bigCircle_.body:applyLinearImpulse(x * powerRatio, y * powerRatio) -- remove?
+	self.bigCircle_.body:applyLinearImpulse(x * powerRatio, y * powerRatio)
 end
 
 function Loco:getJumpability()
@@ -253,7 +252,7 @@ function Loco:draw(debugState)
 
 	else
 		self:normalDraw()
-		self:drawFace()
+		self:drawEyes()
 		self:drawMouth()
 		self:drawAhoge()
 	end
@@ -299,7 +298,7 @@ function Loco:drawMouth()
 	love.graphics.draw(image.image, mouthCenterX, mouthCenterY, math.pi / 2 + angle, 1, 1, image.width / 2, image.height / 2)
 end
 
-function Loco:drawFace()
+function Loco:drawEyes()
 	local eyeSeparation = 13
 	local eyeRetraction = 16
 
@@ -331,17 +330,13 @@ function Loco:drawFace()
 	if self.targetPoint_ then
 		local targetX, targetY = nil
 		if self.targetPoint_ == "self" then
-	
 			targetX, targetY = self:getPosition()
 		else
-
 			targetX = self.targetPoint_.x
 			targetY = self.targetPoint_.y
 		end
 
-		
 		for i, eye in ipairs({{x=eye1X, y=eye1Y}, {x=eye2X, y=eye2Y}}) do
-
 			angle = utils.quadAwareATan(targetY - eye.y, targetX - eye.x)
 			love.graphics.circle("fill", eye.x + math.cos(angle)*4, eye.y + math.sin(angle)*4, 4)
 		end			
@@ -351,20 +346,35 @@ function Loco:drawFace()
 	end
 end
 
-function Loco:getLocoCollision()
+function Loco:getLocoCollision() --if multiple, returns the closest one.
+	local validList = {}
 	for i, contact in ipairs(self.bigCircle_.body:getContacts()) do
 		local fixture1, fixture2 = contact:getFixtures()
 		local userData1 = fixture1:getUserData()
 		local userData2 = fixture2:getUserData()
 		if type(userData1) == "table" and type(userData2) == "table" and userData1.name == "circle" and userData2.name == "circle" then
 			if userData1.parent:getId() == self:getId() then
-				return userData2.parent
+				table.insert(validList, userData2.parent)
 			else
-				return userData1.parent
+				table.insert(validList, userData1.parent)
 			end
 		end
 	end
-	return nil
+	if #validList == 0 then
+		return nil
+	end
+	local minDist = 9999
+	local minLoco = nil
+	for i, loco in ipairs(validList) do
+		local x1, y1 = self:getPosition()
+		local x2, y2 = loco:getPosition()
+		local dist = math.sqrt((y2-y1)*(y2-y1) + (x2-x1)*(x2-x1))
+		if minDist > dist then
+			minDist = dist
+			minLoco = loco
+		end
+	end
+	return minLoco
 end
  
 function Loco:delete()
@@ -398,52 +408,6 @@ function Loco:deleteBJoints()
 	end
 end
 
-function Loco:getSuitablePoint(prevPoints, minDist, rad)
-	local x, y = self:getPosition()
-	local newX, newY = nil
-	local r = self:getRadius() * 1.2
-
-	while true do
-		newX = love.math.random(x - r, x+ r)
-		newY = love.math.random(y - r, y + r)
-		if not self:checkPoint(newX, newY, minDist, rad, prevPoints) then
-			return newX, newY
-		end
-		r = r + 3
-	end
-end
-
-function Loco:checkPoint(x, y, minDist, rad, prevPoints)
-	local collision = false
-	local contacts = self.bigCircle_.body:getContacts()
-
-	for i, contact in ipairs(contacts) do
-		local fixture = self:getOtherContactFixture(contact)
-		if fixture:getUserData().name == "foreground object" then
-			local originX, originY = self:getPosition()
-			if checkChainShapeCollision(fixture, x, y, originX, originY) or checkChainShapeCollision(fixture, x + rad, y, originX, originY) or checkChainShapeCollision(fixture, x - rad, y, originX, originY) or checkChainShapeCollision(fixture, x, y + rad, originX, originY) then
-				return true
-			end
-		end
-	end
-	for i, point in ipairs(prevPoints) do
-		if (math.sqrt((point.x - x) * (point.x - x) + (point.y - y) * (point.y - y)) < minDist) then
-			return true
-		end
-	end
-	return false
-end
-
-function Loco:getOtherContactFixture(contact)
-	local fixture1, fixture2 = contact:getFixtures()
-	local name1 = fixture1:getUserData().name
-	if name1 == "bigcircle" and fixture1:getUserData().parent:getId() == self:getId() then
-		return fixture2
-	else
-		return fixture1
-	end
-end
-
 --helpers
 
 function ngon(x, y, r, n)
@@ -463,49 +427,6 @@ function ngon(x, y, r, n)
 	local sidelength = 2*r*math.sin(angle / 2)
 	
 	return points, sidelength, angleList
-end
-
-function checkChainShapeCollision(fixture, x, y, originX, originY)
-	local shape = fixture:getShape()
-	local body = fixture:getBody()
-	local collisions = 0
-	for i=1, shape:getChildCount() do
-		local edge = shape:getChildEdge(i)
-		local x1, y1, x2, y2 = body:getWorldPoints(edge:getPoints())
-		if checkLineCollision(x1, y1, x2, y2, originX, originY, x, y) then
-			collisions = collisions + 1
-		end
-	end
-	if collisions % 2 == 0 then
-		return false
-	else
-		return true
-	end
-end
-
-function onLine(ax, ay, bx, by, cx, cy)
-	return (bx <= math.max(ax, cx) and bx >= math.min(ax, cx) and by <= math.max(ay, cy) and bx >= math.min(ay, cy))
-end
-
-function checkLineCollision(p1x, p1y, q1x, q1y, p2x, p2y, q2x, q2y)
-	local orient1 = utils.orientation(p1x, p1y, q1x, q1y, p2x, p2y)
-	local orient2 = utils.orientation(p1x, p1y, q1x, q1y, q2x, q2y)
-	local orient3 = utils.orientation(p2x, p2y, q2x, q2y, p1x, p1y)
-	local orient4 = utils.orientation(p2x, p2y, q2x, q2y, q1x, q1y)
-
-	if (orient1 ~= orient2) and (orient3 ~= orient4) then
-		return true
-	elseif (orient1 == "colinear") and onLine(p1x, p1y, p2x, p2y, q1x, q1y) then
-		return true
-	elseif (orient2 == "colinear") and onLine(p1x, p1y, q2x, q2y, q1x, q1y) then
-		return true
-	elseif (orient3 == "colinear") and onLine(p2x, p2y, p1x, p1y, q2x, q2y) then
-		return true
-	elseif (orient4 == "colinear") and onLine(p2x, p2y, q1x, q1y, q2x, q2y) then
-		return true
-	else
-		return false
-	end
 end
 
 --[[

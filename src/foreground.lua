@@ -170,7 +170,7 @@ function Foreground:addStaticBody(path)
 	local body = love.physics.newBody(self.world, 0, 0, "static")
 	local shape = love.physics.newChainShape(true, pathPoints)
 	local fixture = love.physics.newFixture(body, shape)
-	fixture:setFriction(2)
+	fixture:setFriction(3)
 
 	local shapePoints = utils.getWorldPoints(body, shape)
 	local triangles = love.math.triangulate(shapePoints)
@@ -305,11 +305,6 @@ function Foreground:draw()
 		love.graphics.draw(picture.image, picture.x, picture.y, hbody.body:getAngle(), 1, 1, picture.offsetX, picture.offsetY)
 	end
 	love.graphics.setColor(1, 1, 0)
-	for i=0,self.triangleGridWidth do
-		for j=0,self.triangleGridHeight do
-				love.graphics.rectangle("line", i * self.gridCellSize, j * self.gridCellSize, self.gridCellSize, self.gridCellSize)
-		end
-	end
 end
 
 function splitTable(t, n)

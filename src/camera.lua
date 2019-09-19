@@ -1,8 +1,8 @@
 Camera = {}
 Camera.x = 0
 Camera.y = 0
-Camera.scaleX = 0.75
-Camera.scaleY = 0.75
+Camera.scaleX = 0.75 * love.graphics.getWidth() / 1000
+Camera.scaleY = 0.75 * love.graphics.getWidth() / 1000
 Camera.rotation = 0
 
 function Camera:set(locoX, locoY)
