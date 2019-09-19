@@ -11,7 +11,7 @@ function Menu:init()
 	self.__index = self
 	setmetatable(menu, self)
 
-	local logo = love.graphics.newImage(Drawing:init("src/assets/logo.svg", 96 / 25.4):toImageData())
+	local logo = love.graphics.newImage(Drawing:init("assets/logo.svg", 96 / 25.4):toImageData())
 
 	menu.root = { 
 		children = {

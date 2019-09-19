@@ -9,16 +9,16 @@ function LocoController:init(world)
 	finishedController.world_ = world
 	finishedController.freeId_ = 1
 	finishedController.idleTime = 300
-	local ahogeDrawing = Drawing:init("src/assets/ahoge1.svg")
+	local ahogeDrawing = Drawing:init("assets/ahoge1.svg")
 	local ahogeImage = love.graphics.newImage(ahogeDrawing:toImageData())
 	finishedController.ahogeSmall = { image = ahogeImage, width = ahogeDrawing:getWidth(), height = ahogeDrawing:getHeight() }
-	ahogeDrawing = Drawing:init("src/assets/ahoge2.svg")
+	ahogeDrawing = Drawing:init("assets/ahoge2.svg")
 	ahogeImage = love.graphics.newImage(ahogeDrawing:toImageData())
 	finishedController.ahogeBig = { image = ahogeImage, width = ahogeDrawing:getWidth(), height = ahogeDrawing:getHeight() }
-	local mouthDrawing = Drawing:init("src/assets/mouthclosed.svg")
+	local mouthDrawing = Drawing:init("assets/mouthclosed.svg")
 	local mouthImage = love.graphics.newImage(mouthDrawing:toImageData())
 	finishedController.mouthclosed = { image = mouthImage, width = mouthDrawing:getWidth(), height = mouthDrawing:getHeight() }
-	mouthDrawing = Drawing:init("src/assets/mouthopen.svg")
+	mouthDrawing = Drawing:init("assets/mouthopen.svg")
 	mouthImage = love.graphics.newImage(mouthDrawing:toImageData())
 	finishedController.mouthopen = { image = mouthImage, width = mouthDrawing:getWidth(), height = mouthDrawing:getHeight() }
 	

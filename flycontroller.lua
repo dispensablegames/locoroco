@@ -9,7 +9,7 @@ function FlyController:init(world)
 	finishedController.world_ = world
 	finishedController.itemsTotal_ = nil
 	finishedController.itemsCollected_ = 0
-	finishedController.frames_ = { importFrame("src/assets/fly1.svg"), importFrame("src/assets/fly2.svg") }
+	finishedController.frames_ = { importFrame("assets/fly1.svg"), importFrame("assets/fly2.svg") }
 	self.__index = self
 	setmetatable(finishedController, self)
 

@@ -10,7 +10,7 @@ function FruitController:init(world)
 	finishedController.world_ = world
 	finishedController.itemsTotal_ = 0
 	finishedController.locosToIncrement_ = {}
-	finishedController.frames_ = { importFrame("src/assets/fruit.svg"), importFrame("src/assets/fruiteaten.svg")}
+	finishedController.frames_ = { importFrame("assets/fruit.svg"), importFrame("assets/fruiteaten.svg")}
 	self.__index = self
 	setmetatable(finishedController, self)
 
