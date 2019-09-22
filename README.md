@@ -18,22 +18,20 @@ You can design your own LocoRoco levels in any vector graphics editor with XML s
 
 A LocoRoco level file is an `.svg` with additional restrictions:
 - A layer with `id:meta` for placing meta objects
-- A path with `spawn:true` in the meta layer; this dictates where the blobs spawn when the level is loaded
+- A `path` with `spawn:true` in the meta layer; this dictates where the blob spawns when the level is loaded
 
-After ensuring you have these requirements, just draw your level!
+After ensuring you have these requirements, just draw your level! Colours are conserved, but not the alpha channel.
 
 A level file must also be accompanied with an assets file which is also an `.svg`, has the same name as the level file, and can be empty. Place the level file in the `levels` directory and the assets file in the `assets` directory.
 
 ### Details
 
-By default, paths drawn in the level file become regular static hardbodies, like walls and platforms. 
+By default, `path`s drawn in the level file become regular static hardbodies, like walls and platforms. 
 
-Any path drawn in a layer (including sublayers) with `id:background` becomes part of the background.
+Any `path` drawn in a layer (including sublayers) with `id:background` becomes part of the background.
 
-Any path drawn in a layer with `id:objects` is not rendered on the screen (this is useful for putting your paths that are used for `use`s only).
+Any `path` drawn in a layer with `id:objects` is not rendered on the screen (this is useful for putting your `path`s that are used for `use`s only).
 
-Any `use` is part of the background. 
+Any `use` is part of the background. For performance, use `use` for repeated background objects (bushes, grass, etc.) rather than many copies of `paths`. This is because any `use` of the same `path` does not need to be rendered after the parent path is rendered, but every `path` must be rendered individually.
 
-For performance, use `use` for repeated background objects (bushes, grass, etc.) rather than many copies of `paths`. This is because any `use` of the same path does not need to be rendered after the parent path is rendered, but every `path` must be rendered individually.
-
-Any paths in the assets file become floating background objects (recommended for: flowers, leaves, etc.). 
+Any `path`s in the assets file become floating background objects (recommended for: flowers, leaves, etc.). 
