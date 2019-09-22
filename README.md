@@ -1,39 +1,39 @@
-# Locoroco
+# LocoRoco
 
-The world's favourite blob game written in Lua with LOVE.
+The world's favourite blob game written in Lua with LOVE. 
 
-## Instructions for playing while in development (Linux-Only)
+## Current Progress
 
-First acquire [LOVE](https://love2d.org/), the game engine used to write this game. Ideally, download from your repository's package manager, not from the website, e.g., if you use Ubuntu, install `love` using `apt`. 
+Take a look at these gifs of the game in action:
 
-Then install `luarocks`, the package manager for the Lua language. Again, download from your repository's package manager.
+![Video of Gameplay](https://raw.githubusercontent.com/dispensablegames/locoroco/master/previewfiles/v1.gif)
 
-Then use `luarocks` to install `xml2lua`, the library used to parse XML files used in this project:
+![Video of Gameplay](https://raw.githubusercontent.com/dispensablegames/locoroco/master/previewfiles/v2.gif)
 
-```
-luarocks install xml2lua --local
-```
+## Levels
 
-Finally, acquire the game files.
+You can design your own LocoRoco levels in any vector graphics editor with XML support (e.g. Inkscape).
 
-```
-git clone https://github.com/dispensablegames/locoroco.git
-```
+### Quickstart
 
-This will create a new folder named `locoroco` inside the current folder with all the source code.
+A LocoRoco level file is an `.svg` with additional restrictions:
+- A layer with `id:meta` for placing meta objects
+- A path with `spawn:true` in the meta layer; this dictates where the blobs spawn when the level is loaded
 
-Now you are ready to run the game. 
+After ensuring you have these requirements, just draw your level!
 
-First run this line to add the package `xml2lua` to your PATH.
+A level file must also be accompanied with an assets file which is also an `.svg`, has the same name as the level file, and can be empty. Place the level file in the `levels` directory and the assets file in the `assets` directory.
 
-```
-eval $(luarocks path --bin)
-```
+### Details
 
-The navigate to the `locoroco` folder created in the previous step. Then run
+By default, paths drawn in the level file become regular static hardbodies, like walls and platforms. 
 
-```
-love src
-```
+Any path drawn in a layer (including sublayers) with `id:background` becomes part of the background.
 
-And enjoy!
+Any path drawn in a layer with `id:objects` is not rendered on the screen (this is useful for putting your paths that are used for `use`s only).
+
+Any `use` is part of the background. 
+
+For performance, use `use` for repeated background objects (bushes, grass, etc.) rather than many copies of `paths`. This is because any `use` of the same path does not need to be rendered after the parent path is rendered, but every `path` must be rendered individually.
+
+Any paths in the assets file become floating background objects (recommended for: flowers, leaves, etc.). 
