@@ -1,6 +1,10 @@
 # LocoRoco
 
-The world's favourite blob game written in Lua with LOVE. 
+The world's favourite blob game written in Lua with LOVE. Heavily based off of Sony's *LocoRoco* in terms of visuals and mechanics. 
+
+## Controls
+
+Use the left and right arrow keys to tilt the world. Hold down both directions for a second, then let go, to jump. Tap up to split into smaller locos, and hold down to merge them back together. 
 
 ## Current Progress
 
